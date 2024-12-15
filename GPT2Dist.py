@@ -29,7 +29,7 @@ from mingpt.bpe import BPETokenizer
 from mingpt.model import GPT
 from mingpt.utils import set_seed 
 
-MENG_PORT="3003"
+MENG_PORT="3002"
 
 class LanguageModelDataset(Dataset):
     def __init__(self, split):
@@ -211,6 +211,8 @@ if __name__ == "__main__":
     print(test_dataset.get_block_size())
 
     WORLD_SIZE = torch.cuda.device_count()
+    print(f"We have {WORLD_SIZE} GPUs")
+
     train_args = {
         'batch_size': 2,
         'num_epochs': 10,
