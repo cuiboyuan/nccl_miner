@@ -6,29 +6,40 @@
 
 #include "utils/utils.h"
 
+FILE* fptr = nullptr;
+
+void nvbit_tool_init(CUcontext ctx) {
+    printf("nvbit tool init\n");
+}
 
 void nvbit_at_init() {
     int verbose = 0;
     GET_VAR_INT(verbose, "TOOL_VERBOSE", 0, "Enable verbosity inside the tool");
     fprintf(stderr, "nvbit_at_init() called\n");
     fflush(stderr);
+
+    fptr = fopen("/home/ubuntu/meng-project/trace.txt", "w+");
+    fputs("Start\n", fptr);
+    fflush(fptr);
 }
 
 void nvbit_at_ctx_init(CUcontext ctx) {
     printf("nvbit at context init\n");
+        fputs("Ctx Init\n", fptr);
+    fflush(fptr);
+}
+
+
+void nvbit_at_ctx_term(CUcontext ctx) {
+    printf("nvbit at context term\n");
+        fputs("Ctx Term\n", fptr);
+    fflush(fptr);
 }
 
 void nvbit_at_term() {
     printf("nvbit at term\n");
-}
-
-void nvbit_at_ctx_term(CUcontext ctx) {
-    printf("nvbit at context term\n");
-}
-
-
-void nvbit_tool_init(CUcontext ctx) {
-    printf("nvbit tool init\n");
+    fputs("End\n", fptr);
+    fclose(fptr);
 }
 
 
@@ -54,5 +65,9 @@ void nvbit_at_cuda_event(CUcontext ctx, int is_exit, nvbit_api_cuda_t cbid,
                 func = p->f;
             }
             printf("Event %s\n", nvbit_get_func_name(ctx, func));
+            // if (fptr != nullptr) {
+            // }
         }
+        fputs("Event\n", fptr);
+        fflush(fptr);
 }
