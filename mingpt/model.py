@@ -89,7 +89,14 @@ class Block(nn.Module):
 
     def forward(self, x):
         x = x + self.attn(self.ln_1(x))
-        x = x + self.mlpf(self.ln_2(x))
+        res = self.ln_2(x)
+        # replace self.mlpf
+        res = self.mlp.c_fc(res)
+        res = self.mlp.act(res)
+        res = self.mlp.c_proj(res)
+        res = self.mlp.dropout(res)
+        print(f"x: {x.device}, res: {res.device}")
+        x = x + res
         return x
 
 class GPT(nn.Module):

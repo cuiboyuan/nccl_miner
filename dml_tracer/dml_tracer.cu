@@ -46,28 +46,90 @@ void nvbit_at_term() {
 void nvbit_at_cuda_event(CUcontext ctx, int is_exit, nvbit_api_cuda_t cbid,
                          const char* event_name, void* params,
                          CUresult* pStatus) {
-     /* Identify all the possible CUDA launch events */
-    if (cbid == API_CUDA_cuLaunch || cbid == API_CUDA_cuLaunchKernel_ptsz ||
-        cbid == API_CUDA_cuLaunchGrid || cbid == API_CUDA_cuLaunchGridAsync ||
-        cbid == API_CUDA_cuLaunchKernel ||
-        cbid == API_CUDA_cuLaunchKernelEx ||
-        cbid == API_CUDA_cuLaunchKernelEx_ptsz) 
-        {
-            /* cast params to launch parameter based on cbid since if we are here
-            * we know these are the right parameters types */
-            CUfunction func;
-            if (cbid == API_CUDA_cuLaunchKernelEx_ptsz ||
-                cbid == API_CUDA_cuLaunchKernelEx) {
-                cuLaunchKernelEx_params* p = (cuLaunchKernelEx_params*)params;
-                func = p->f;
+    /* cast params to launch parameter based on cbid since if we are here
+    * we know these are the right parameters types */
+    CUfunction func;
+    if (cbid == API_CUDA_cuLaunchKernel_ptsz ||
+        cbid == API_CUDA_cuLaunchKernel) {
+        cuLaunchKernel_params* p = (cuLaunchKernel_params*)params;
+        func = p->f;
+        printf("Event %s\n", nvbit_get_func_name(ctx, func));
+    }
+    
+    /* Identify all the possible CUDA Memcpy events */
+    switch (cbid) {
+        case API_CUDA_cuMemcpyHtoD:
+        case API_CUDA_cu64MemcpyHtoD:
+        case API_CUDA_cuMemcpyHtoDAsync:
+        case API_CUDA_cu64MemcpyHtoDAsync:
+        case API_CUDA_cuMemcpyHtoD_v2:
+        case API_CUDA_cuMemcpyHtoDAsync_v2:
+        case API_CUDA_cuMemcpyHtoD_v2_ptds:
+        case API_CUDA_cuMemcpyHtoDAsync_v2_ptsz:
+            // HtoD
+            // break;
+        case API_CUDA_cuMemcpyDtoH:
+        case API_CUDA_cu64MemcpyDtoH:
+        case API_CUDA_cu64MemcpyDtoHAsync:
+        case API_CUDA_cuMemcpyDtoHAsync:
+        case API_CUDA_cuMemcpyDtoHAsync_v2:
+        case API_CUDA_cuMemcpyDtoH_v2:
+        case API_CUDA_cuMemcpyDtoH_v2_ptds:
+        case API_CUDA_cuMemcpyDtoHAsync_v2_ptsz:
+            // DtoH
+            // break;
+        case API_CUDA_cuMemcpyDtoD:
+        case API_CUDA_cu64MemcpyDtoD:
+        case API_CUDA_cuMemcpyDtoDAsync:
+        case API_CUDA_cu64MemcpyDtoDAsync:
+        case API_CUDA_cuMemcpyDtoD_v2:
+        case API_CUDA_cuMemcpyDtoD_v2_ptds:
+        case API_CUDA_cuMemcpyDtoDAsync_v2:
+        case API_CUDA_cuMemcpyDtoDAsync_v2_ptsz:
+            // DtoD
+            // break;
+        case API_CUDA_cuMemcpyAtoH:
+        case API_CUDA_cuMemcpyAtoHAsync:
+        case API_CUDA_cuMemcpyAtoH_v2:
+        case API_CUDA_cuMemcpyAtoHAsync_v2:
+        case API_CUDA_cuMemcpyAtoH_v2_ptds:
+        case API_CUDA_cuMemcpyAtoHAsync_v2_ptsz:
+            // AtoH
+            // break;
+        case API_CUDA_cuMemcpyHtoA:
+        case API_CUDA_cuMemcpyHtoAAsync:
+        case API_CUDA_cuMemcpyHtoA_v2:
+        case API_CUDA_cuMemcpyHtoAAsync_v2:
+        case API_CUDA_cuMemcpyHtoA_v2_ptds:
+        case API_CUDA_cuMemcpyHtoAAsync_v2_ptsz:
+            // HtoA
+            // break;
+        case API_CUDA_cuMemcpyAtoA:
+        case API_CUDA_cuMemcpyAtoA_v2:
+        case API_CUDA_cuMemcpyAtoA_v2_ptds:
+            // AtoA
+            // break;
+        case API_CUDA_cuMemcpy_v2:
+        case API_CUDA_cuMemcpy:
+        case API_CUDA_cuMemcpyAsync:
+        case API_CUDA_cuMemcpyPeer:
+        case API_CUDA_cuMemcpyPeerAsync:
+        case API_CUDA_cuMemcpy_ptds:
+        case API_CUDA_cuMemcpyPeer_ptds:
+        case API_CUDA_cuMemcpyAsync_ptsz:
+        case API_CUDA_cuMemcpyPeerAsync_ptsz:
+            // Memcpy
+            char trace_name[64];
+            if (is_exit) {
+                sprintf(trace_name, "<< %s", event_name);
             } else {
-                cuLaunchKernel_params* p = (cuLaunchKernel_params*)params;
-                func = p->f;
+                sprintf(trace_name, ">> %s", event_name);
             }
-            printf("Event %s\n", nvbit_get_func_name(ctx, func));
-            // if (fptr != nullptr) {
-            // }
-        }
-        fputs("Event\n", fptr);
-        fflush(fptr);
+            printf("%s\n", trace_name);
+            fprintf(fptr, "%s\n", trace_name);
+            fflush(fptr);
+            break;
+        default:
+            break;
+    }
 }

@@ -19,7 +19,7 @@ else
 MAXRREGCOUNT_FLAG=
 endif
 
-NVBIT_PATH=nvbit_release_1.5/core
+NVBIT_PATH=nvbit_release/core
 INCLUDES=-I$(NVBIT_PATH)
 
 LIBS=-L$(NVBIT_PATH) -lnvbit
