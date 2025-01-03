@@ -1,0 +1,29 @@
+<system version="1">
+  <cpu host_hash="0x3ff1b24a6d6d1f98" numaid="-1" arch="x86_64" vendor="GenuineIntel" familyid="6" modelid="143">
+    <pci busid="0000:03:00.0" class="0x020000" vendor="0x15b3" device="0x101e" subsystem_vendor="0x15b3" subsystem_device="0x0016" link_speed="16.0 GT/s PCIe" link_width="16">
+      <nic>
+        <net name="eno1" dev="0" speed="100000" port="0" latency="0.000000" guid="0x0" maxconn="65536" gdr="0"/>
+      </nic>
+    </pci>
+    <pci busid="0000:05:00.0" class="0x030200" vendor="0x10de" device="0x2330" subsystem_vendor="0x10de" subsystem_device="0x16c1" link_speed="16.0 GT/s PCIe" link_width="16">
+      <gpu dev="0" sm="90" rank="0" gdr="1">
+        <nvlink target="fffffff:ff:ff.0" count="18" tclass="0x068000"/>
+      </gpu>
+    </pci>
+    <pci busid="0000:06:00.0" class="0x030200" vendor="0x10de" device="0x2330" subsystem_vendor="0x10de" subsystem_device="0x16c1" link_speed="16.0 GT/s PCIe" link_width="16">
+      <gpu dev="1" sm="90" rank="1" gdr="1">
+        <nvlink target="fffffff:ff:ff.0" count="18" tclass="0x068000"/>
+      </gpu>
+    </pci>
+    <pci busid="0000:07:00.0" class="0x030200" vendor="0x10de" device="0x2330" subsystem_vendor="0x10de" subsystem_device="0x16c1" link_speed="16.0 GT/s PCIe" link_width="16">
+      <gpu dev="2" sm="90" rank="2" gdr="1">
+        <nvlink target="fffffff:ff:ff.0" count="18" tclass="0x068000"/>
+      </gpu>
+    </pci>
+    <pci busid="0000:08:00.0" class="0x030200" vendor="0x10de" device="0x2330" subsystem_vendor="0x10de" subsystem_device="0x16c1" link_speed="16.0 GT/s PCIe" link_width="16">
+      <gpu dev="3" sm="90" rank="3" gdr="1">
+        <nvlink target="fffffff:ff:ff.0" count="18" tclass="0x068000"/>
+      </gpu>
+    </pci>
+  </cpu>
+</system>
