@@ -1,0 +1,232 @@
+192-222-54-170:6561:6561 [1] NCCL INFO cudaDriverVersion 12040
+192-222-54-170:6561:6561 [1] NCCL INFO Bootstrap : Using eno1:172.28.127.179<0>
+192-222-54-170:6561:6561 [1] NCCL INFO NCCL version 2.23.4+cuda12.4
+192-222-54-170:6561:6561 [1] NCCL INFO init.cc:1714 Cuda Host Alloc Size 4 pointer 0x7195a5e00000
+192-222-54-170:6561:6811 [1] NCCL INFO NET/Plugin: Could not find: libnccl-net.so. Using internal network plugin.
+192-222-54-170:6561:6811 [1] NCCL INFO NCCL_IB_DISABLE set by environment to 1.
+192-222-54-170:6561:6811 [1] NCCL INFO NET/Socket : Using [0]eno1:172.28.127.179<0>
+192-222-54-170:6561:6811 [1] NCCL INFO PROFILER/Plugin: Could not find: libnccl-profiler.so.
+192-222-54-170:6561:6811 [1] NCCL INFO Using network Socket
+192-222-54-170:6561:6811 [1] NCCL INFO ncclCommInitRankConfig comm 0x5742ca3acb00 rank 1 nranks 4 cudaDev 1 nvmlDev 1 busId 6000 commId 0x92c582a9bf1e434a - Init START
+192-222-54-170:6561:6811 [1] NCCL INFO Bootstrap timings total 0.061621 (create 0.000025, send 0.000089, recv 0.000256, ring 0.061162, delay 0.000000)
+192-222-54-170:6561:6811 [1] NCCL INFO MNNVL busId 0x6000 fabric UUID 0.0 cliqueId 0x0 state 3 healthMask 0x0
+192-222-54-170:6561:6811 [1] NCCL INFO Topology detection : could not read /sys/devices/system/node/node-1/cpumap, ignoring
+192-222-54-170:6561:6811 [1] NCCL INFO Could not find real path of /sys/class/pci_bus/fffffff/../../fffffff:ff:f
+192-222-54-170:6561:6811 [1] NCCL INFO Topology detection : could not read /sys/devices/system/node/node-1/cpumap, ignoring
+192-222-54-170:6561:6811 [1] NCCL INFO NET/Socket : GPU Direct RDMA Disabled for HCA 0 'eno1'
+192-222-54-170:6561:6811 [1] NCCL INFO NCCL_P2P_DISABLE set by environment to 1
+192-222-54-170:6561:6811 [1] NCCL INFO NCCL_SHM_DISABLE set by environment to 1.
+192-222-54-170:6561:6811 [1] NCCL INFO === System : maxBw 12.5 totalBw 370.8 ===
+192-222-54-170:6561:6811 [1] NCCL INFO CPU/0-ffffffffffffff (1/1/2)
+192-222-54-170:6561:6811 [1] NCCL INFO + PCI[24.0] - NIC/0-3000
+192-222-54-170:6561:6811 [1] NCCL INFO               + NET[12.5] - NET/0-0 (0/0/12.500000)
+192-222-54-170:6561:6811 [1] NCCL INFO + PCI[24.0] - GPU/0-6000 (1)
+192-222-54-170:6561:6811 [1] NCCL INFO               + NVL[370.8] - NVS/0-0
+192-222-54-170:6561:6811 [1] NCCL INFO ==========================================
+192-222-54-170:6561:6811 [1] NCCL INFO GPU/0-6000 :GPU/0-6000 (0/5000.0/LOC) NVS/0-0 (1/370.8/NVL) CPU/0-ffffffffffffff (1/24.0/PHB) NET/0-0 (3/12.5/PHB) 
+192-222-54-170:6561:6811 [1] NCCL INFO NET/0-0 :GPU/0-6000 (3/12.5/PHB) CPU/0-ffffffffffffff (2/12.5/PHB) NET/0-0 (0/5000.0/LOC) 
+192-222-54-170:6561:6811 [1] NCCL INFO Pattern 4, crossNic 0, nChannels 1, bw 12.000000/12.000000, type LOC/PHB, sameChannels 1
+192-222-54-170:6561:6811 [1] NCCL INFO  0 : NET/0-0 GPU/1 NET/0-0
+192-222-54-170:6561:6811 [1] NCCL INFO Pattern 3, crossNic 0, nChannels 1, bw 24.000000/12.000000, type LOC/PHB, sameChannels 1
+192-222-54-170:6561:6811 [1] NCCL INFO  0 : NET/0-0 GPU/1 NET/0-0
+192-222-54-170:6561:6811 [1] NCCL INFO comm 0x5742ca3acb00 rank 1 nRanks 4 nNodes 4 localRanks 1 localRank 0 MNNVL 0
+192-222-54-170:6561:6811 [1] NCCL INFO Tree 0 : 2 -> 1 -> -1/-1/-1
+192-222-54-170:6561:6811 [1] NCCL INFO Tree 1 : 3 -> 1 -> 2/0/-1
+192-222-54-170:6561:6811 [1] NCCL INFO Ring 00 : 0 -> 1 -> 2
+192-222-54-170:6561:6811 [1] NCCL INFO Ring 01 : 0 -> 1 -> 2
+192-222-54-170:6561:6811 [1] NCCL INFO Trees [0] -1/-1/-1->1->2 [1] 2/0/-1->1->3
+192-222-54-170:6561:6811 [1] NCCL INFO P2P Chunksize set to 131072
+192-222-54-170:6561:6811 [1] NCCL INFO UDS: Creating service thread comm 0x5742ca3acb00 rank 1
+192-222-54-170:6561:6811 [1] NCCL INFO misc/utils.cc:233 memory stack hunk malloc(65536)
+192-222-54-170:6561:6821 [1] NCCL INFO [Proxy Service UDS] Device 1 CPU core 78
+192-222-54-170:6561:6817 [1] NCCL INFO [Proxy Service] Device 1 CPU core 77
+192-222-54-170:6561:6811 [1] NCCL INFO channel.cc:42 Cuda Alloc Size 2432 pointer 0x71956d600000
+192-222-54-170:6561:6811 [1] NCCL INFO channel.cc:45 Cuda Alloc Size 48 pointer 0x71956d800000
+192-222-54-170:6561:6811 [1] NCCL INFO channel.cc:56 Cuda Alloc Size 16 pointer 0x71956da00000
+192-222-54-170:6561:6811 [1] NCCL INFO channel.cc:42 Cuda Alloc Size 2432 pointer 0x71956dc00000
+192-222-54-170:6561:6811 [1] NCCL INFO channel.cc:45 Cuda Alloc Size 48 pointer 0x71956de00000
+192-222-54-170:6561:6811 [1] NCCL INFO channel.cc:56 Cuda Alloc Size 16 pointer 0x719570600000
+192-222-54-170:6561:6811 [1] NCCL INFO threadThresholds 8/8/64 | 32/8/64 | 512 | 512
+192-222-54-170:6561:6811 [1] NCCL INFO 2 coll channels, 2 collnet channels, 0 nvls channels, 2 p2p channels, 2 p2p channels per peer
+192-222-54-170:6561:6811 [1] NCCL INFO init.cc:440 Cuda Alloc Size 11856 pointer 0x719570800000
+192-222-54-170:6561:6811 [1] NCCL INFO init.cc:442 Cuda Alloc Size 16 pointer 0x719570a00000
+192-222-54-170:6561:6811 [1] NCCL INFO init.cc:486 Cuda Host Alloc Size 1048576 pointer 0x7195a5e00200
+192-222-54-170:6561:6811 [1] NCCL INFO init.cc:491 Cuda Host Alloc Size 128 pointer 0x7195a5f00200
+192-222-54-170:6561:6811 [1] NCCL INFO TUNER/Plugin: Could not find: libnccl-tuner.so libnccl-net.so. Using internal tuner plugin.
+192-222-54-170:6561:6811 NCCL CALL ncclCommInitRank(0x5742ca3acb00, 4, 0x92c582a9bf1e434a, 1, 1)
+192-222-54-170:6561:6811 [1] NCCL INFO ncclCommInitRankConfig comm 0x5742ca3acb00 rank 1 nranks 4 cudaDev 1 nvmlDev 1 busId 6000 commId 0x92c582a9bf1e434a - Init COMPLETE
+192-222-54-170:6561:6811 [1] NCCL INFO Init timings - ncclCommInitRankConfig: rank 1 nranks 4 total 0.60 (kernels 0.24, alloc 0.03, bootstrap 0.06, allgathers 0.00, topo 0.26, graphs 0.00, connections 0.00, rest 0.00)
+192-222-54-170:6561:6561 [1] NCCL INFO AllGather: opCount 0 sendbuff 0x7195d5fcea00 recvbuff 0x7195d5fcf400 count 1 datatype 4 op 0 root 0 comm 0x5742ca3acb00 [nranks=4] stream 0x5742c9f25810
+192-222-54-170:6561:6561 NCCL CALL ncclAllGather(7195d5fcea00,7195d5fcf400,1,4,0,0,0x5742ca3acb00,0x5742c9f25810)
+192-222-54-170:6561:6561 [1] NCCL INFO misc/utils.cc:233 memory stack hunk malloc(65536)
+192-222-54-170:6561:6817 [1] NCCL INFO Mem Realloc old size 0, new size 8 pointer 0x7195400030a0
+192-222-54-170:6561:6817 [1] NCCL INFO Allocated 10486116 bytes of shared memory in /dev/shm/nccl-godnZQ
+192-222-54-170:6561:6817 [1] NCCL INFO New proxy recv connection 0 from local rank 0, transport 2
+192-222-54-170:6561:6817 [1] NCCL INFO proxyProgressAsync opId=0x71957a493230 op.type=1 op.reqBuff=0x719540003060 op.respSize=16 done
+192-222-54-170:6561:6825 [1] NCCL INFO ncclPollProxyResponse Received new opId=0x71957a493230
+192-222-54-170:6561:6825 [1] NCCL INFO resp.opId=0x71957a493230 matches expected opId=0x71957a493230
+192-222-54-170:6561:6817 [1] NCCL INFO Received and initiated operation=Init res=0
+192-222-54-170:6561:6825 [1] NCCL INFO Connected to proxy localRank 0 -> connection 0x7195400030c0
+192-222-54-170:6561:6829 [1] NCCL INFO [Proxy Progress] Device 1 CPU core 100
+192-222-54-170:6561:6817 [1] NCCL INFO proxyProgressAsync opId=0x71957a493230 op.type=3 op.reqBuff=0x7195400070d0 op.respSize=128 done
+192-222-54-170:6561:6817 [1] NCCL INFO Received and initiated operation=Setup res=0
+192-222-54-170:6561:6825 [1] NCCL INFO ncclPollProxyResponse Received new opId=0x71957a493230
+192-222-54-170:6561:6825 [1] NCCL INFO resp.opId=0x71957a493230 matches expected opId=0x71957a493230
+192-222-54-170:6561:6825 [1] NCCL INFO Channel 00/0 : 0[0] -> 1[1] [receive] via NET/Socket/0
+192-222-54-170:6561:6817 [1] NCCL INFO New proxy recv connection 1 from local rank 0, transport 2
+192-222-54-170:6561:6817 [1] NCCL INFO proxyProgressAsync opId=0x71957a493230 op.type=1 op.reqBuff=0x719540007950 op.respSize=16 done
+192-222-54-170:6561:6825 [1] NCCL INFO ncclPollProxyResponse Received new opId=0x71957a493230
+192-222-54-170:6561:6817 [1] NCCL INFO Received and initiated operation=Init res=0
+192-222-54-170:6561:6825 [1] NCCL INFO resp.opId=0x71957a493230 matches expected opId=0x71957a493230
+192-222-54-170:6561:6825 [1] NCCL INFO Connected to proxy localRank 0 -> connection 0x719540003138
+192-222-54-170:6561:6817 [1] NCCL INFO proxyProgressAsync opId=0x71957a493230 op.type=3 op.reqBuff=0x7195400079d0 op.respSize=128 done
+192-222-54-170:6561:6825 [1] NCCL INFO ncclPollProxyResponse Received new opId=0x71957a493230
+192-222-54-170:6561:6817 [1] NCCL INFO Received and initiated operation=Setup res=0
+192-222-54-170:6561:6825 [1] NCCL INFO resp.opId=0x71957a493230 matches expected opId=0x71957a493230
+192-222-54-170:6561:6825 [1] NCCL INFO Channel 01/0 : 0[0] -> 1[1] [receive] via NET/Socket/0
+192-222-54-170:6561:6817 [1] NCCL INFO New proxy send connection 2 from local rank 0, transport 2
+192-222-54-170:6561:6817 [1] NCCL INFO proxyProgressAsync opId=0x71957a493230 op.type=1 op.reqBuff=0x719540008200 op.respSize=16 done
+192-222-54-170:6561:6825 [1] NCCL INFO ncclPollProxyResponse Received new opId=0x71957a493230
+192-222-54-170:6561:6817 [1] NCCL INFO Received and initiated operation=Init res=0
+192-222-54-170:6561:6825 [1] NCCL INFO resp.opId=0x71957a493230 matches expected opId=0x71957a493230
+192-222-54-170:6561:6825 [1] NCCL INFO Connected to proxy localRank 0 -> connection 0x7195400031b0
+192-222-54-170:6561:6817 [1] NCCL INFO proxyProgressAsync opId=0x71957a493230 op.type=3 op.reqBuff=0x719540008280 op.respSize=0 done
+192-222-54-170:6561:6817 [1] NCCL INFO Received and initiated operation=Setup res=0
+192-222-54-170:6561:6825 [1] NCCL INFO ncclPollProxyResponse Received new opId=0x71957a493230
+192-222-54-170:6561:6825 [1] NCCL INFO resp.opId=0x71957a493230 matches expected opId=0x71957a493230
+192-222-54-170:6561:6825 [1] NCCL INFO Channel 00/0 : 1[1] -> 2[2] [send] via NET/Socket/0
+192-222-54-170:6561:6817 [1] NCCL INFO New proxy send connection 3 from local rank 0, transport 2
+192-222-54-170:6561:6817 [1] NCCL INFO proxyProgressAsync opId=0x71957a493230 op.type=1 op.reqBuff=0x719540008980 op.respSize=16 done
+192-222-54-170:6561:6825 [1] NCCL INFO ncclPollProxyResponse Received new opId=0x71957a493230
+192-222-54-170:6561:6817 [1] NCCL INFO Received and initiated operation=Init res=0
+192-222-54-170:6561:6825 [1] NCCL INFO resp.opId=0x71957a493230 matches expected opId=0x71957a493230
+192-222-54-170:6561:6825 [1] NCCL INFO Connected to proxy localRank 0 -> connection 0x719540003228
+192-222-54-170:6561:6817 [1] NCCL INFO proxyProgressAsync opId=0x71957a493230 op.type=3 op.reqBuff=0x719540008a00 op.respSize=0 done
+192-222-54-170:6561:6817 [1] NCCL INFO Received and initiated operation=Setup res=0
+192-222-54-170:6561:6825 [1] NCCL INFO ncclPollProxyResponse Received new opId=0x71957a493230
+192-222-54-170:6561:6825 [1] NCCL INFO resp.opId=0x71957a493230 matches expected opId=0x71957a493230
+192-222-54-170:6561:6825 [1] NCCL INFO Channel 01/0 : 1[1] -> 2[2] [send] via NET/Socket/0
+192-222-54-170:6561:6825 [1] NCCL INFO sendConnect ncclProxyCallAsync opId=0x71957a4fa4a0
+192-222-54-170:6561:6825 [1] NCCL INFO recvConnect ncclProxyCallAsync opId=0x71957a4f9f50 &recv->proxyConn=0x71957a4f9f58 connectInfo=0x71957a5bc7e0
+192-222-54-170:6561:6825 [1] NCCL INFO sendConnect ncclProxyCallAsync opId=0x71957a45bb40
+192-222-54-170:6561:6825 [1] NCCL INFO recvConnect ncclProxyCallAsync opId=0x71957a45b5f0 &recv->proxyConn=0x71957a45b5f8 connectInfo=0x71957a5bc8e0
+192-222-54-170:6561:6817 [1] NCCL INFO transport/net.cc:748 Cuda Host Alloc Size 9641984 pointer 0x7195bec00000
+192-222-54-170:6561:6817 [1] NCCL INFO proxyProgressAsync opId=0x71957a4fa4a0 op.type=4 op.reqBuff=0x7195400090c0 op.respSize=1480 done
+192-222-54-170:6561:6825 [1] NCCL INFO ncclPollProxyResponse Received new opId=0x71957a4fa4a0
+192-222-54-170:6561:6825 [1] NCCL INFO Queuing opId=0x71957a4fa4a0 respBuff=0x71957a5bc7e0 respSize=1480
+192-222-54-170:6561:6825 [1] NCCL INFO ncclPollProxyResponse Dequeued cached opId=0x71957a4fa4a0
+192-222-54-170:6561:6825 [1] NCCL INFO sendConnect ncclPollProxyResponse opId=0x71957a4fa4a0
+192-222-54-170:6561:6817 [1] NCCL INFO Received and initiated operation=Connect res=0
+192-222-54-170:6561:6817 [1] NCCL INFO transport/net.cc:901 Cuda Host Alloc Size 9641984 pointer 0x7195bf600000
+192-222-54-170:6561:6817 [1] NCCL INFO proxyProgressAsync opId=0x71957a4f9f50 op.type=4 op.reqBuff=0x719540009190 op.respSize=1480 done
+192-222-54-170:6561:6825 [1] NCCL INFO ncclPollProxyResponse Received new opId=0x71957a4f9f50
+192-222-54-170:6561:6825 [1] NCCL INFO Queuing opId=0x71957a4f9f50 respBuff=0x71957a42e740 respSize=1480
+192-222-54-170:6561:6817 [1] NCCL INFO Received and initiated operation=Connect res=0
+192-222-54-170:6561:6825 [1] NCCL INFO ncclPollProxyResponse Dequeued cached opId=0x71957a4f9f50
+192-222-54-170:6561:6825 [1] NCCL INFO recvConnect ncclPollProxyResponse opId=0x71957a4f9f50
+192-222-54-170:6561:6817 [1] NCCL INFO transport/net.cc:748 Cuda Host Alloc Size 9641984 pointer 0x7195c0000000
+192-222-54-170:6561:6817 [1] NCCL INFO proxyProgressAsync opId=0x71957a45bb40 op.type=4 op.reqBuff=0x719540011600 op.respSize=1480 done
+192-222-54-170:6561:6825 [1] NCCL INFO ncclPollProxyResponse Received new opId=0x71957a45bb40
+192-222-54-170:6561:6825 [1] NCCL INFO Queuing opId=0x71957a45bb40 respBuff=0x71957a42e740 respSize=1480
+192-222-54-170:6561:6817 [1] NCCL INFO Received and initiated operation=Connect res=0
+192-222-54-170:6561:6825 [1] NCCL INFO ncclPollProxyResponse Dequeued cached opId=0x71957a45bb40
+192-222-54-170:6561:6825 [1] NCCL INFO sendConnect ncclPollProxyResponse opId=0x71957a45bb40
+192-222-54-170:6561:6817 [1] NCCL INFO transport/net.cc:901 Cuda Host Alloc Size 9641984 pointer 0x7195c0a00000
+192-222-54-170:6561:6817 [1] NCCL INFO proxyProgressAsync opId=0x71957a45b5f0 op.type=4 op.reqBuff=0x7195400197b0 op.respSize=1480 done
+192-222-54-170:6561:6825 [1] NCCL INFO ncclPollProxyResponse Received new opId=0x71957a45b5f0
+192-222-54-170:6561:6825 [1] NCCL INFO resp.opId=0x71957a45b5f0 matches expected opId=0x71957a45b5f0
+192-222-54-170:6561:6817 [1] NCCL INFO Received and initiated operation=Connect res=0
+192-222-54-170:6561:6825 [1] NCCL INFO recvConnect ncclPollProxyResponse opId=0x71957a45b5f0
+192-222-54-170:6561:6825 [1] NCCL INFO Connected all rings
+192-222-54-170:6561:6561 [1] NCCL INFO Broadcast: opCount 1 sendbuff 0x7195d5fcf400 recvbuff 0x7195d5fcf400 count 112 datatype 4 op 0 root 0 comm 0x5742ca3acb00 [nranks=4] stream 0x5742c9f25810
+192-222-54-170:6561:6561 NCCL CALL ncclBroadcast(7195d5fcf400,7195d5fcf400,112,4,0,0,0x5742ca3acb00,0x5742c9f25810)
+192-222-54-170:6561:6561 [1] NCCL INFO Broadcast: opCount 2 sendbuff 0x71954ea00000 recvbuff 0x71954ea00000 count 5296035 datatype 7 op 0 root 0 comm 0x5742ca3acb00 [nranks=4] stream 0x5742c9f25810
+192-222-54-170:6561:6561 NCCL CALL ncclBroadcast(71954ea00000,71954ea00000,5296035,7,0,0,0x5742ca3acb00,0x5742c9f25810)
+192-222-54-170:6561:6561 [1] NCCL INFO Broadcast: opCount 3 sendbuff 0x7195dda67c00 recvbuff 0x7195dda67c00 count 369603 datatype 7 op 0 root 0 comm 0x5742ca3acb00 [nranks=4] stream 0x5742c9f25810
+192-222-54-170:6561:6561 NCCL CALL ncclBroadcast(7195dda67c00,7195dda67c00,369603,7,0,0,0x5742ca3acb00,0x5742c9f25810)
+192-222-54-170:6561:6841 [1] NCCL INFO AllReduce: opCount 4 sendbuff 0x719550000000 recvbuff 0x719550000000 count 4926432 datatype 7 op 0 root 0 comm 0x5742ca3acb00 [nranks=4] stream 0x5742c9f25810
+192-222-54-170:6561:6841 NCCL CALL ncclAllReduce(719550000000,719550000000,4926432,7,0,0,0x5742ca3acb00,0x5742c9f25810)
+192-222-54-170:6561:6561 [1] NCCL INFO Broadcast: opCount 5 sendbuff 0x7195577ff400 recvbuff 0x7195577ff400 count 42 datatype 2 op 0 root 0 comm 0x5742ca3acb00 [nranks=4] stream 0x5742c9f25810
+192-222-54-170:6561:6561 NCCL CALL ncclBroadcast(7195577ff400,7195577ff400,42,2,0,0,0x5742ca3acb00,0x5742c9f25810)
+192-222-54-170:6561:6561 [1] NCCL INFO Broadcast: opCount 6 sendbuff 0x7195577ff600 recvbuff 0x7195577ff600 count 2 datatype 2 op 0 root 0 comm 0x5742ca3acb00 [nranks=4] stream 0x5742c9f25810
+192-222-54-170:6561:6561 NCCL CALL ncclBroadcast(7195577ff600,7195577ff600,2,2,0,0,0x5742ca3acb00,0x5742c9f25810)
+192-222-54-170:6561:6561 [1] NCCL INFO Broadcast: opCount 7 sendbuff 0x7195dda67c00 recvbuff 0x7195dda67c00 count 369603 datatype 7 op 0 root 0 comm 0x5742ca3acb00 [nranks=4] stream 0x5742c9f25810
+192-222-54-170:6561:6561 NCCL CALL ncclBroadcast(7195dda67c00,7195dda67c00,369603,7,0,0,0x5742ca3acb00,0x5742c9f25810)
+192-222-54-170:6561:6841 [1] NCCL INFO AllReduce: opCount 8 sendbuff 0x71954ea00000 recvbuff 0x71954ea00000 count 2412336 datatype 7 op 0 root 0 comm 0x5742ca3acb00 [nranks=4] stream 0x5742c9f25810
+192-222-54-170:6561:6841 NCCL CALL ncclAllReduce(71954ea00000,71954ea00000,2412336,7,0,0,0x5742ca3acb00,0x5742c9f25810)
+192-222-54-170:6561:6841 [1] NCCL INFO AllReduce: opCount 9 sendbuff 0x719550000000 recvbuff 0x719550000000 count 2514096 datatype 7 op 0 root 0 comm 0x5742ca3acb00 [nranks=4] stream 0x5742c9f25810
+192-222-54-170:6561:6841 NCCL CALL ncclAllReduce(719550000000,719550000000,2514096,7,0,0,0x5742ca3acb00,0x5742c9f25810)
+192-222-54-170:6561:6561 [1] NCCL INFO Broadcast: opCount a sendbuff 0x7195dda67c00 recvbuff 0x7195dda67c00 count 369603 datatype 7 op 0 root 0 comm 0x5742ca3acb00 [nranks=4] stream 0x5742c9f25810
+192-222-54-170:6561:6561 NCCL CALL ncclBroadcast(7195dda67c00,7195dda67c00,369603,7,0,0,0x5742ca3acb00,0x5742c9f25810)
+192-222-54-170:6561:6841 [1] NCCL INFO AllReduce: opCount b sendbuff 0x71954ea00000 recvbuff 0x71954ea00000 count 2412336 datatype 7 op 0 root 0 comm 0x5742ca3acb00 [nranks=4] stream 0x5742c9f25810
+192-222-54-170:6561:6841 NCCL CALL ncclAllReduce(71954ea00000,71954ea00000,2412336,7,0,0,0x5742ca3acb00,0x5742c9f25810)
+192-222-54-170:6561:6841 [1] NCCL INFO AllReduce: opCount c sendbuff 0x719550000000 recvbuff 0x719550000000 count 2514096 datatype 7 op 0 root 0 comm 0x5742ca3acb00 [nranks=4] stream 0x5742c9f25810
+192-222-54-170:6561:6841 NCCL CALL ncclAllReduce(719550000000,719550000000,2514096,7,0,0,0x5742ca3acb00,0x5742c9f25810)
+192-222-54-170:6561:6561 [1] NCCL INFO Broadcast: opCount d sendbuff 0x7195dda67c00 recvbuff 0x7195dda67c00 count 369603 datatype 7 op 0 root 0 comm 0x5742ca3acb00 [nranks=4] stream 0x5742c9f25810
+192-222-54-170:6561:6561 NCCL CALL ncclBroadcast(7195dda67c00,7195dda67c00,369603,7,0,0,0x5742ca3acb00,0x5742c9f25810)
+192-222-54-170:6561:6841 [1] NCCL INFO AllReduce: opCount e sendbuff 0x71954ea00000 recvbuff 0x71954ea00000 count 2412336 datatype 7 op 0 root 0 comm 0x5742ca3acb00 [nranks=4] stream 0x5742c9f25810
+192-222-54-170:6561:6841 NCCL CALL ncclAllReduce(71954ea00000,71954ea00000,2412336,7,0,0,0x5742ca3acb00,0x5742c9f25810)
+192-222-54-170:6561:6841 [1] NCCL INFO AllReduce: opCount f sendbuff 0x719550000000 recvbuff 0x719550000000 count 2514096 datatype 7 op 0 root 0 comm 0x5742ca3acb00 [nranks=4] stream 0x5742c9f25810
+192-222-54-170:6561:6841 NCCL CALL ncclAllReduce(719550000000,719550000000,2514096,7,0,0,0x5742ca3acb00,0x5742c9f25810)
+192-222-54-170:6561:6561 [1] NCCL INFO Broadcast: opCount 10 sendbuff 0x7195dda67c00 recvbuff 0x7195dda67c00 count 369603 datatype 7 op 0 root 0 comm 0x5742ca3acb00 [nranks=4] stream 0x5742c9f25810
+192-222-54-170:6561:6561 NCCL CALL ncclBroadcast(7195dda67c00,7195dda67c00,369603,7,0,0,0x5742ca3acb00,0x5742c9f25810)
+192-222-54-170:6561:6841 [1] NCCL INFO AllReduce: opCount 11 sendbuff 0x71954ea00000 recvbuff 0x71954ea00000 count 2412336 datatype 7 op 0 root 0 comm 0x5742ca3acb00 [nranks=4] stream 0x5742c9f25810
+192-222-54-170:6561:6841 NCCL CALL ncclAllReduce(71954ea00000,71954ea00000,2412336,7,0,0,0x5742ca3acb00,0x5742c9f25810)
+192-222-54-170:6561:6841 [1] NCCL INFO AllReduce: opCount 12 sendbuff 0x719550000000 recvbuff 0x719550000000 count 2514096 datatype 7 op 0 root 0 comm 0x5742ca3acb00 [nranks=4] stream 0x5742c9f25810
+192-222-54-170:6561:6841 NCCL CALL ncclAllReduce(719550000000,719550000000,2514096,7,0,0,0x5742ca3acb00,0x5742c9f25810)
+192-222-54-170:6561:6561 [1] NCCL INFO Broadcast: opCount 13 sendbuff 0x7195dda67c00 recvbuff 0x7195dda67c00 count 369603 datatype 7 op 0 root 0 comm 0x5742ca3acb00 [nranks=4] stream 0x5742c9f25810
+192-222-54-170:6561:6561 NCCL CALL ncclBroadcast(7195dda67c00,7195dda67c00,369603,7,0,0,0x5742ca3acb00,0x5742c9f25810)
+192-222-54-170:6561:6841 [1] NCCL INFO AllReduce: opCount 14 sendbuff 0x71954ea00000 recvbuff 0x71954ea00000 count 2412336 datatype 7 op 0 root 0 comm 0x5742ca3acb00 [nranks=4] stream 0x5742c9f25810
+192-222-54-170:6561:6841 NCCL CALL ncclAllReduce(71954ea00000,71954ea00000,2412336,7,0,0,0x5742ca3acb00,0x5742c9f25810)
+192-222-54-170:6561:6841 [1] NCCL INFO AllReduce: opCount 15 sendbuff 0x719550000000 recvbuff 0x719550000000 count 2514096 datatype 7 op 0 root 0 comm 0x5742ca3acb00 [nranks=4] stream 0x5742c9f25810
+192-222-54-170:6561:6841 NCCL CALL ncclAllReduce(719550000000,719550000000,2514096,7,0,0,0x5742ca3acb00,0x5742c9f25810)
+192-222-54-170:6561:6561 [1] NCCL INFO Broadcast: opCount 16 sendbuff 0x7195dda67c00 recvbuff 0x7195dda67c00 count 369603 datatype 7 op 0 root 0 comm 0x5742ca3acb00 [nranks=4] stream 0x5742c9f25810
+192-222-54-170:6561:6561 NCCL CALL ncclBroadcast(7195dda67c00,7195dda67c00,369603,7,0,0,0x5742ca3acb00,0x5742c9f25810)
+192-222-54-170:6561:6841 [1] NCCL INFO AllReduce: opCount 17 sendbuff 0x71954ea00000 recvbuff 0x71954ea00000 count 2412336 datatype 7 op 0 root 0 comm 0x5742ca3acb00 [nranks=4] stream 0x5742c9f25810
+192-222-54-170:6561:6841 NCCL CALL ncclAllReduce(71954ea00000,71954ea00000,2412336,7,0,0,0x5742ca3acb00,0x5742c9f25810)
+192-222-54-170:6561:6841 [1] NCCL INFO AllReduce: opCount 18 sendbuff 0x719550000000 recvbuff 0x719550000000 count 2514096 datatype 7 op 0 root 0 comm 0x5742ca3acb00 [nranks=4] stream 0x5742c9f25810
+192-222-54-170:6561:6841 NCCL CALL ncclAllReduce(719550000000,719550000000,2514096,7,0,0,0x5742ca3acb00,0x5742c9f25810)
+192-222-54-170:6561:6561 [1] NCCL INFO Broadcast: opCount 19 sendbuff 0x7195dda67c00 recvbuff 0x7195dda67c00 count 369603 datatype 7 op 0 root 0 comm 0x5742ca3acb00 [nranks=4] stream 0x5742c9f25810
+192-222-54-170:6561:6561 NCCL CALL ncclBroadcast(7195dda67c00,7195dda67c00,369603,7,0,0,0x5742ca3acb00,0x5742c9f25810)
+192-222-54-170:6561:6841 [1] NCCL INFO AllReduce: opCount 1a sendbuff 0x71954ea00000 recvbuff 0x71954ea00000 count 2412336 datatype 7 op 0 root 0 comm 0x5742ca3acb00 [nranks=4] stream 0x5742c9f25810
+192-222-54-170:6561:6841 NCCL CALL ncclAllReduce(71954ea00000,71954ea00000,2412336,7,0,0,0x5742ca3acb00,0x5742c9f25810)
+192-222-54-170:6561:6841 [1] NCCL INFO AllReduce: opCount 1b sendbuff 0x719550000000 recvbuff 0x719550000000 count 2514096 datatype 7 op 0 root 0 comm 0x5742ca3acb00 [nranks=4] stream 0x5742c9f25810
+192-222-54-170:6561:6841 NCCL CALL ncclAllReduce(719550000000,719550000000,2514096,7,0,0,0x5742ca3acb00,0x5742c9f25810)
+192-222-54-170:6561:6561 [1] NCCL INFO Broadcast: opCount 1c sendbuff 0x7195dda67c00 recvbuff 0x7195dda67c00 count 369603 datatype 7 op 0 root 0 comm 0x5742ca3acb00 [nranks=4] stream 0x5742c9f25810
+192-222-54-170:6561:6561 NCCL CALL ncclBroadcast(7195dda67c00,7195dda67c00,369603,7,0,0,0x5742ca3acb00,0x5742c9f25810)
+192-222-54-170:6561:6841 [1] NCCL INFO AllReduce: opCount 1d sendbuff 0x71954ea00000 recvbuff 0x71954ea00000 count 2412336 datatype 7 op 0 root 0 comm 0x5742ca3acb00 [nranks=4] stream 0x5742c9f25810
+192-222-54-170:6561:6841 NCCL CALL ncclAllReduce(71954ea00000,71954ea00000,2412336,7,0,0,0x5742ca3acb00,0x5742c9f25810)
+192-222-54-170:6561:6841 [1] NCCL INFO AllReduce: opCount 1e sendbuff 0x719550000000 recvbuff 0x719550000000 count 2514096 datatype 7 op 0 root 0 comm 0x5742ca3acb00 [nranks=4] stream 0x5742c9f25810
+192-222-54-170:6561:6841 NCCL CALL ncclAllReduce(719550000000,719550000000,2514096,7,0,0,0x5742ca3acb00,0x5742c9f25810)
+192-222-54-170:6561:6561 [1] NCCL INFO Broadcast: opCount 1f sendbuff 0x7195dda67c00 recvbuff 0x7195dda67c00 count 369603 datatype 7 op 0 root 0 comm 0x5742ca3acb00 [nranks=4] stream 0x5742c9f25810
+192-222-54-170:6561:6561 NCCL CALL ncclBroadcast(7195dda67c00,7195dda67c00,369603,7,0,0,0x5742ca3acb00,0x5742c9f25810)
+192-222-54-170:6561:6841 [1] NCCL INFO AllReduce: opCount 20 sendbuff 0x71954ea00000 recvbuff 0x71954ea00000 count 2412336 datatype 7 op 0 root 0 comm 0x5742ca3acb00 [nranks=4] stream 0x5742c9f25810
+192-222-54-170:6561:6841 NCCL CALL ncclAllReduce(71954ea00000,71954ea00000,2412336,7,0,0,0x5742ca3acb00,0x5742c9f25810)
+192-222-54-170:6561:6841 [1] NCCL INFO AllReduce: opCount 21 sendbuff 0x719550000000 recvbuff 0x719550000000 count 2514096 datatype 7 op 0 root 0 comm 0x5742ca3acb00 [nranks=4] stream 0x5742c9f25810
+192-222-54-170:6561:6841 NCCL CALL ncclAllReduce(719550000000,719550000000,2514096,7,0,0,0x5742ca3acb00,0x5742c9f25810)
+192-222-54-170:6561:6561 [1] NCCL INFO Broadcast: opCount 22 sendbuff 0x7195dda67c00 recvbuff 0x7195dda67c00 count 369603 datatype 7 op 0 root 0 comm 0x5742ca3acb00 [nranks=4] stream 0x5742c9f25810
+192-222-54-170:6561:6561 NCCL CALL ncclBroadcast(7195dda67c00,7195dda67c00,369603,7,0,0,0x5742ca3acb00,0x5742c9f25810)
+192-222-54-170:6561:6841 [1] NCCL INFO AllReduce: opCount 23 sendbuff 0x71954ea00000 recvbuff 0x71954ea00000 count 2412336 datatype 7 op 0 root 0 comm 0x5742ca3acb00 [nranks=4] stream 0x5742c9f25810
+192-222-54-170:6561:6841 NCCL CALL ncclAllReduce(71954ea00000,71954ea00000,2412336,7,0,0,0x5742ca3acb00,0x5742c9f25810)
+192-222-54-170:6561:6841 [1] NCCL INFO AllReduce: opCount 24 sendbuff 0x719550000000 recvbuff 0x719550000000 count 2514096 datatype 7 op 0 root 0 comm 0x5742ca3acb00 [nranks=4] stream 0x5742c9f25810
+192-222-54-170:6561:6841 NCCL CALL ncclAllReduce(719550000000,719550000000,2514096,7,0,0,0x5742ca3acb00,0x5742c9f25810)
+192-222-54-170:6561:6561 [1] NCCL INFO Broadcast: opCount 25 sendbuff 0x7195dda67c00 recvbuff 0x7195dda67c00 count 369603 datatype 7 op 0 root 0 comm 0x5742ca3acb00 [nranks=4] stream 0x5742c9f25810
+192-222-54-170:6561:6561 NCCL CALL ncclBroadcast(7195dda67c00,7195dda67c00,369603,7,0,0,0x5742ca3acb00,0x5742c9f25810)
+192-222-54-170:6561:6841 [1] NCCL INFO AllReduce: opCount 26 sendbuff 0x71954ea00000 recvbuff 0x71954ea00000 count 2412336 datatype 7 op 0 root 0 comm 0x5742ca3acb00 [nranks=4] stream 0x5742c9f25810
+192-222-54-170:6561:6841 NCCL CALL ncclAllReduce(71954ea00000,71954ea00000,2412336,7,0,0,0x5742ca3acb00,0x5742c9f25810)
+192-222-54-170:6561:6841 [1] NCCL INFO AllReduce: opCount 27 sendbuff 0x719550000000 recvbuff 0x719550000000 count 2514096 datatype 7 op 0 root 0 comm 0x5742ca3acb00 [nranks=4] stream 0x5742c9f25810
+192-222-54-170:6561:6841 NCCL CALL ncclAllReduce(719550000000,719550000000,2514096,7,0,0,0x5742ca3acb00,0x5742c9f25810)
+192-222-54-170:6561:6561 [1] NCCL INFO Broadcast: opCount 28 sendbuff 0x7195dda67c00 recvbuff 0x7195dda67c00 count 369603 datatype 7 op 0 root 0 comm 0x5742ca3acb00 [nranks=4] stream 0x5742c9f25810
+192-222-54-170:6561:6561 NCCL CALL ncclBroadcast(7195dda67c00,7195dda67c00,369603,7,0,0,0x5742ca3acb00,0x5742c9f25810)
+192-222-54-170:6561:6841 [1] NCCL INFO AllReduce: opCount 29 sendbuff 0x71954ea00000 recvbuff 0x71954ea00000 count 2412336 datatype 7 op 0 root 0 comm 0x5742ca3acb00 [nranks=4] stream 0x5742c9f25810
+192-222-54-170:6561:6841 NCCL CALL ncclAllReduce(71954ea00000,71954ea00000,2412336,7,0,0,0x5742ca3acb00,0x5742c9f25810)
+192-222-54-170:6561:6841 [1] NCCL INFO AllReduce: opCount 2a sendbuff 0x719550000000 recvbuff 0x719550000000 count 2514096 datatype 7 op 0 root 0 comm 0x5742ca3acb00 [nranks=4] stream 0x5742c9f25810
+192-222-54-170:6561:6841 NCCL CALL ncclAllReduce(719550000000,719550000000,2514096,7,0,0,0x5742ca3acb00,0x5742c9f25810)
+192-222-54-170:6561:6850 [1] NCCL INFO socketProgressOpt: abort called
+192-222-54-170:6561:6850 [1] NCCL INFO misc/socket.cc:47 -> 3
+192-222-54-170:6561:6850 [1] NCCL INFO misc/socket.cc:58 -> 3
+192-222-54-170:6561:6817 [1] NCCL INFO socketProgressOpt: abort called
+192-222-54-170:6561:6817 [1] NCCL INFO misc/socket.cc:832 -> 3
+192-222-54-170:6561:6850 [1] NCCL INFO misc/socket.cc:781 -> 3
+192-222-54-170:6561:6821 [1] NCCL INFO [Proxy Service UDS] exit: stop 1 abortFlag 1
+192-222-54-170:6561:6850 [1] NCCL INFO comm 0x5742ca3acb00 rank 1 nranks 4 cudaDev 1 busId 6000 - Abort COMPLETE
