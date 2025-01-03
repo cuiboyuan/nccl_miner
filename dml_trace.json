@@ -1,0 +1,2404 @@
+{
+    "traceEvents": [
+        {
+            "cat": "trace",
+            "name": "AllGather",
+            "ph": "B",
+            "pid": 1,
+            "tid": 1,
+            "ts": 0
+        },
+        {
+            "cat": "trace",
+            "name": "1 ncclInt64",
+            "ph": "B",
+            "pid": 2,
+            "tid": 0,
+            "ts": 0
+        },
+        {
+            "cat": "trace",
+            "name": "1 ncclInt64",
+            "ph": "E",
+            "pid": 2,
+            "tid": 0,
+            "ts": 10
+        },
+        {
+            "cat": "trace",
+            "name": "1 ncclInt64",
+            "ph": "B",
+            "pid": 2,
+            "tid": 1,
+            "ts": 10
+        },
+        {
+            "cat": "trace",
+            "name": "1 ncclInt64",
+            "ph": "E",
+            "pid": 2,
+            "tid": 1,
+            "ts": 20
+        },
+        {
+            "cat": "trace",
+            "name": "AllGather",
+            "ph": "E",
+            "pid": 1,
+            "tid": 1,
+            "ts": 20
+        },
+        {
+            "cat": "trace",
+            "name": "Broadcast",
+            "ph": "B",
+            "pid": 1,
+            "tid": 1,
+            "ts": 20
+        },
+        {
+            "cat": "trace",
+            "name": "112 ncclInt64",
+            "ph": "B",
+            "pid": 2,
+            "tid": 0,
+            "ts": 20
+        },
+        {
+            "cat": "trace",
+            "name": "112 ncclInt64",
+            "ph": "E",
+            "pid": 2,
+            "tid": 0,
+            "ts": 30
+        },
+        {
+            "cat": "trace",
+            "name": "112 ncclInt64",
+            "ph": "B",
+            "pid": 2,
+            "tid": 1,
+            "ts": 30
+        },
+        {
+            "cat": "trace",
+            "name": "112 ncclInt64",
+            "ph": "E",
+            "pid": 2,
+            "tid": 1,
+            "ts": 40
+        },
+        {
+            "cat": "trace",
+            "name": "Broadcast",
+            "ph": "E",
+            "pid": 1,
+            "tid": 1,
+            "ts": 40
+        },
+        {
+            "cat": "trace",
+            "name": "Broadcast",
+            "ph": "B",
+            "pid": 1,
+            "tid": 1,
+            "ts": 40
+        },
+        {
+            "cat": "trace",
+            "name": "5296035 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 0,
+            "ts": 40
+        },
+        {
+            "cat": "trace",
+            "name": "5296035 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 0,
+            "ts": 50
+        },
+        {
+            "cat": "trace",
+            "name": "5296035 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 1,
+            "ts": 50
+        },
+        {
+            "cat": "trace",
+            "name": "5296035 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 1,
+            "ts": 60
+        },
+        {
+            "cat": "trace",
+            "name": "Broadcast",
+            "ph": "E",
+            "pid": 1,
+            "tid": 1,
+            "ts": 60
+        },
+        {
+            "cat": "trace",
+            "name": "Broadcast",
+            "ph": "B",
+            "pid": 1,
+            "tid": 1,
+            "ts": 60
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 0,
+            "ts": 60
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 0,
+            "ts": 70
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 1,
+            "ts": 70
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 1,
+            "ts": 80
+        },
+        {
+            "cat": "trace",
+            "name": "Broadcast",
+            "ph": "E",
+            "pid": 1,
+            "tid": 1,
+            "ts": 80
+        },
+        {
+            "cat": "trace",
+            "name": "AllReduce",
+            "ph": "B",
+            "pid": 1,
+            "tid": 1,
+            "ts": 80
+        },
+        {
+            "cat": "trace",
+            "name": "4926432 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 0,
+            "ts": 80
+        },
+        {
+            "cat": "trace",
+            "name": "4926432 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 0,
+            "ts": 90
+        },
+        {
+            "cat": "trace",
+            "name": "4926432 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 1,
+            "ts": 90
+        },
+        {
+            "cat": "trace",
+            "name": "4926432 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 1,
+            "ts": 100
+        },
+        {
+            "cat": "trace",
+            "name": "AllReduce",
+            "ph": "E",
+            "pid": 1,
+            "tid": 1,
+            "ts": 100
+        },
+        {
+            "cat": "trace",
+            "name": "Broadcast",
+            "ph": "B",
+            "pid": 1,
+            "tid": 1,
+            "ts": 100
+        },
+        {
+            "cat": "trace",
+            "name": "42 ncclInt32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 0,
+            "ts": 100
+        },
+        {
+            "cat": "trace",
+            "name": "42 ncclInt32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 0,
+            "ts": 110
+        },
+        {
+            "cat": "trace",
+            "name": "42 ncclInt32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 1,
+            "ts": 110
+        },
+        {
+            "cat": "trace",
+            "name": "42 ncclInt32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 1,
+            "ts": 120
+        },
+        {
+            "cat": "trace",
+            "name": "Broadcast",
+            "ph": "E",
+            "pid": 1,
+            "tid": 1,
+            "ts": 120
+        },
+        {
+            "cat": "trace",
+            "name": "Broadcast",
+            "ph": "B",
+            "pid": 1,
+            "tid": 1,
+            "ts": 120
+        },
+        {
+            "cat": "trace",
+            "name": "2 ncclInt32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 0,
+            "ts": 120
+        },
+        {
+            "cat": "trace",
+            "name": "2 ncclInt32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 0,
+            "ts": 130
+        },
+        {
+            "cat": "trace",
+            "name": "2 ncclInt32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 1,
+            "ts": 130
+        },
+        {
+            "cat": "trace",
+            "name": "2 ncclInt32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 1,
+            "ts": 140
+        },
+        {
+            "cat": "trace",
+            "name": "Broadcast",
+            "ph": "E",
+            "pid": 1,
+            "tid": 1,
+            "ts": 140
+        },
+        {
+            "cat": "trace",
+            "name": "Broadcast",
+            "ph": "B",
+            "pid": 1,
+            "tid": 1,
+            "ts": 140
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 0,
+            "ts": 140
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 0,
+            "ts": 150
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 1,
+            "ts": 150
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 1,
+            "ts": 160
+        },
+        {
+            "cat": "trace",
+            "name": "Broadcast",
+            "ph": "E",
+            "pid": 1,
+            "tid": 1,
+            "ts": 160
+        },
+        {
+            "cat": "trace",
+            "name": "AllReduce",
+            "ph": "B",
+            "pid": 1,
+            "tid": 1,
+            "ts": 160
+        },
+        {
+            "cat": "trace",
+            "name": "2412336 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 0,
+            "ts": 160
+        },
+        {
+            "cat": "trace",
+            "name": "2412336 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 0,
+            "ts": 170
+        },
+        {
+            "cat": "trace",
+            "name": "2412336 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 1,
+            "ts": 170
+        },
+        {
+            "cat": "trace",
+            "name": "2412336 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 1,
+            "ts": 180
+        },
+        {
+            "cat": "trace",
+            "name": "AllReduce",
+            "ph": "E",
+            "pid": 1,
+            "tid": 1,
+            "ts": 180
+        },
+        {
+            "cat": "trace",
+            "name": "AllReduce",
+            "ph": "B",
+            "pid": 1,
+            "tid": 1,
+            "ts": 180
+        },
+        {
+            "cat": "trace",
+            "name": "2514096 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 0,
+            "ts": 180
+        },
+        {
+            "cat": "trace",
+            "name": "2514096 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 0,
+            "ts": 190
+        },
+        {
+            "cat": "trace",
+            "name": "2514096 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 1,
+            "ts": 190
+        },
+        {
+            "cat": "trace",
+            "name": "2514096 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 1,
+            "ts": 200
+        },
+        {
+            "cat": "trace",
+            "name": "AllReduce",
+            "ph": "E",
+            "pid": 1,
+            "tid": 1,
+            "ts": 200
+        },
+        {
+            "cat": "trace",
+            "name": "Broadcast",
+            "ph": "B",
+            "pid": 1,
+            "tid": 1,
+            "ts": 200
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 0,
+            "ts": 200
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 0,
+            "ts": 210
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 1,
+            "ts": 210
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 1,
+            "ts": 220
+        },
+        {
+            "cat": "trace",
+            "name": "Broadcast",
+            "ph": "E",
+            "pid": 1,
+            "tid": 1,
+            "ts": 220
+        },
+        {
+            "cat": "trace",
+            "name": "AllReduce",
+            "ph": "B",
+            "pid": 1,
+            "tid": 1,
+            "ts": 220
+        },
+        {
+            "cat": "trace",
+            "name": "2412336 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 0,
+            "ts": 220
+        },
+        {
+            "cat": "trace",
+            "name": "2412336 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 0,
+            "ts": 230
+        },
+        {
+            "cat": "trace",
+            "name": "2412336 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 1,
+            "ts": 230
+        },
+        {
+            "cat": "trace",
+            "name": "2412336 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 1,
+            "ts": 240
+        },
+        {
+            "cat": "trace",
+            "name": "AllReduce",
+            "ph": "E",
+            "pid": 1,
+            "tid": 1,
+            "ts": 240
+        },
+        {
+            "cat": "trace",
+            "name": "AllReduce",
+            "ph": "B",
+            "pid": 1,
+            "tid": 1,
+            "ts": 240
+        },
+        {
+            "cat": "trace",
+            "name": "2514096 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 0,
+            "ts": 240
+        },
+        {
+            "cat": "trace",
+            "name": "2514096 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 0,
+            "ts": 250
+        },
+        {
+            "cat": "trace",
+            "name": "2514096 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 1,
+            "ts": 250
+        },
+        {
+            "cat": "trace",
+            "name": "2514096 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 1,
+            "ts": 260
+        },
+        {
+            "cat": "trace",
+            "name": "AllReduce",
+            "ph": "E",
+            "pid": 1,
+            "tid": 1,
+            "ts": 260
+        },
+        {
+            "cat": "trace",
+            "name": "Broadcast",
+            "ph": "B",
+            "pid": 1,
+            "tid": 1,
+            "ts": 260
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 0,
+            "ts": 260
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 0,
+            "ts": 270
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 1,
+            "ts": 270
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 1,
+            "ts": 280
+        },
+        {
+            "cat": "trace",
+            "name": "Broadcast",
+            "ph": "E",
+            "pid": 1,
+            "tid": 1,
+            "ts": 280
+        },
+        {
+            "cat": "trace",
+            "name": "AllReduce",
+            "ph": "B",
+            "pid": 1,
+            "tid": 1,
+            "ts": 280
+        },
+        {
+            "cat": "trace",
+            "name": "2412336 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 0,
+            "ts": 280
+        },
+        {
+            "cat": "trace",
+            "name": "2412336 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 0,
+            "ts": 290
+        },
+        {
+            "cat": "trace",
+            "name": "2412336 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 1,
+            "ts": 290
+        },
+        {
+            "cat": "trace",
+            "name": "2412336 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 1,
+            "ts": 300
+        },
+        {
+            "cat": "trace",
+            "name": "AllReduce",
+            "ph": "E",
+            "pid": 1,
+            "tid": 1,
+            "ts": 300
+        },
+        {
+            "cat": "trace",
+            "name": "AllReduce",
+            "ph": "B",
+            "pid": 1,
+            "tid": 1,
+            "ts": 300
+        },
+        {
+            "cat": "trace",
+            "name": "2514096 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 0,
+            "ts": 300
+        },
+        {
+            "cat": "trace",
+            "name": "2514096 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 0,
+            "ts": 310
+        },
+        {
+            "cat": "trace",
+            "name": "2514096 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 1,
+            "ts": 310
+        },
+        {
+            "cat": "trace",
+            "name": "2514096 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 1,
+            "ts": 320
+        },
+        {
+            "cat": "trace",
+            "name": "AllReduce",
+            "ph": "E",
+            "pid": 1,
+            "tid": 1,
+            "ts": 320
+        },
+        {
+            "cat": "trace",
+            "name": "Broadcast",
+            "ph": "B",
+            "pid": 1,
+            "tid": 1,
+            "ts": 320
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 0,
+            "ts": 320
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 0,
+            "ts": 330
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 1,
+            "ts": 330
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 1,
+            "ts": 340
+        },
+        {
+            "cat": "trace",
+            "name": "Broadcast",
+            "ph": "E",
+            "pid": 1,
+            "tid": 1,
+            "ts": 340
+        },
+        {
+            "cat": "trace",
+            "name": "AllReduce",
+            "ph": "B",
+            "pid": 1,
+            "tid": 1,
+            "ts": 340
+        },
+        {
+            "cat": "trace",
+            "name": "2412336 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 0,
+            "ts": 340
+        },
+        {
+            "cat": "trace",
+            "name": "2412336 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 0,
+            "ts": 350
+        },
+        {
+            "cat": "trace",
+            "name": "2412336 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 1,
+            "ts": 350
+        },
+        {
+            "cat": "trace",
+            "name": "2412336 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 1,
+            "ts": 360
+        },
+        {
+            "cat": "trace",
+            "name": "AllReduce",
+            "ph": "E",
+            "pid": 1,
+            "tid": 1,
+            "ts": 360
+        },
+        {
+            "cat": "trace",
+            "name": "AllReduce",
+            "ph": "B",
+            "pid": 1,
+            "tid": 1,
+            "ts": 360
+        },
+        {
+            "cat": "trace",
+            "name": "2514096 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 0,
+            "ts": 360
+        },
+        {
+            "cat": "trace",
+            "name": "2514096 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 0,
+            "ts": 370
+        },
+        {
+            "cat": "trace",
+            "name": "2514096 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 1,
+            "ts": 370
+        },
+        {
+            "cat": "trace",
+            "name": "2514096 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 1,
+            "ts": 380
+        },
+        {
+            "cat": "trace",
+            "name": "AllReduce",
+            "ph": "E",
+            "pid": 1,
+            "tid": 1,
+            "ts": 380
+        },
+        {
+            "cat": "trace",
+            "name": "Broadcast",
+            "ph": "B",
+            "pid": 1,
+            "tid": 1,
+            "ts": 380
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 0,
+            "ts": 380
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 0,
+            "ts": 390
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 1,
+            "ts": 390
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 1,
+            "ts": 400
+        },
+        {
+            "cat": "trace",
+            "name": "Broadcast",
+            "ph": "E",
+            "pid": 1,
+            "tid": 1,
+            "ts": 400
+        },
+        {
+            "cat": "trace",
+            "name": "AllReduce",
+            "ph": "B",
+            "pid": 1,
+            "tid": 1,
+            "ts": 400
+        },
+        {
+            "cat": "trace",
+            "name": "2412336 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 0,
+            "ts": 400
+        },
+        {
+            "cat": "trace",
+            "name": "2412336 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 0,
+            "ts": 410
+        },
+        {
+            "cat": "trace",
+            "name": "2412336 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 1,
+            "ts": 410
+        },
+        {
+            "cat": "trace",
+            "name": "2412336 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 1,
+            "ts": 420
+        },
+        {
+            "cat": "trace",
+            "name": "AllReduce",
+            "ph": "E",
+            "pid": 1,
+            "tid": 1,
+            "ts": 420
+        },
+        {
+            "cat": "trace",
+            "name": "AllReduce",
+            "ph": "B",
+            "pid": 1,
+            "tid": 1,
+            "ts": 420
+        },
+        {
+            "cat": "trace",
+            "name": "2514096 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 0,
+            "ts": 420
+        },
+        {
+            "cat": "trace",
+            "name": "2514096 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 0,
+            "ts": 430
+        },
+        {
+            "cat": "trace",
+            "name": "2514096 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 1,
+            "ts": 430
+        },
+        {
+            "cat": "trace",
+            "name": "2514096 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 1,
+            "ts": 440
+        },
+        {
+            "cat": "trace",
+            "name": "AllReduce",
+            "ph": "E",
+            "pid": 1,
+            "tid": 1,
+            "ts": 440
+        },
+        {
+            "cat": "trace",
+            "name": "Broadcast",
+            "ph": "B",
+            "pid": 1,
+            "tid": 1,
+            "ts": 440
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 0,
+            "ts": 440
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 0,
+            "ts": 450
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 1,
+            "ts": 450
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 1,
+            "ts": 460
+        },
+        {
+            "cat": "trace",
+            "name": "Broadcast",
+            "ph": "E",
+            "pid": 1,
+            "tid": 1,
+            "ts": 460
+        },
+        {
+            "cat": "trace",
+            "name": "AllReduce",
+            "ph": "B",
+            "pid": 1,
+            "tid": 1,
+            "ts": 460
+        },
+        {
+            "cat": "trace",
+            "name": "2412336 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 0,
+            "ts": 460
+        },
+        {
+            "cat": "trace",
+            "name": "2412336 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 0,
+            "ts": 470
+        },
+        {
+            "cat": "trace",
+            "name": "2412336 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 1,
+            "ts": 470
+        },
+        {
+            "cat": "trace",
+            "name": "2412336 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 1,
+            "ts": 480
+        },
+        {
+            "cat": "trace",
+            "name": "AllReduce",
+            "ph": "E",
+            "pid": 1,
+            "tid": 1,
+            "ts": 480
+        },
+        {
+            "cat": "trace",
+            "name": "AllReduce",
+            "ph": "B",
+            "pid": 1,
+            "tid": 1,
+            "ts": 480
+        },
+        {
+            "cat": "trace",
+            "name": "2514096 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 0,
+            "ts": 480
+        },
+        {
+            "cat": "trace",
+            "name": "2514096 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 0,
+            "ts": 490
+        },
+        {
+            "cat": "trace",
+            "name": "2514096 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 1,
+            "ts": 490
+        },
+        {
+            "cat": "trace",
+            "name": "2514096 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 1,
+            "ts": 500
+        },
+        {
+            "cat": "trace",
+            "name": "AllReduce",
+            "ph": "E",
+            "pid": 1,
+            "tid": 1,
+            "ts": 500
+        },
+        {
+            "cat": "trace",
+            "name": "Broadcast",
+            "ph": "B",
+            "pid": 1,
+            "tid": 1,
+            "ts": 500
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 0,
+            "ts": 500
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 0,
+            "ts": 510
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 1,
+            "ts": 510
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 1,
+            "ts": 520
+        },
+        {
+            "cat": "trace",
+            "name": "Broadcast",
+            "ph": "E",
+            "pid": 1,
+            "tid": 1,
+            "ts": 520
+        },
+        {
+            "cat": "trace",
+            "name": "AllReduce",
+            "ph": "B",
+            "pid": 1,
+            "tid": 1,
+            "ts": 520
+        },
+        {
+            "cat": "trace",
+            "name": "2412336 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 0,
+            "ts": 520
+        },
+        {
+            "cat": "trace",
+            "name": "2412336 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 0,
+            "ts": 530
+        },
+        {
+            "cat": "trace",
+            "name": "2412336 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 1,
+            "ts": 530
+        },
+        {
+            "cat": "trace",
+            "name": "2412336 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 1,
+            "ts": 540
+        },
+        {
+            "cat": "trace",
+            "name": "AllReduce",
+            "ph": "E",
+            "pid": 1,
+            "tid": 1,
+            "ts": 540
+        },
+        {
+            "cat": "trace",
+            "name": "AllReduce",
+            "ph": "B",
+            "pid": 1,
+            "tid": 1,
+            "ts": 540
+        },
+        {
+            "cat": "trace",
+            "name": "2514096 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 0,
+            "ts": 540
+        },
+        {
+            "cat": "trace",
+            "name": "2514096 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 0,
+            "ts": 550
+        },
+        {
+            "cat": "trace",
+            "name": "2514096 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 1,
+            "ts": 550
+        },
+        {
+            "cat": "trace",
+            "name": "2514096 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 1,
+            "ts": 560
+        },
+        {
+            "cat": "trace",
+            "name": "AllReduce",
+            "ph": "E",
+            "pid": 1,
+            "tid": 1,
+            "ts": 560
+        },
+        {
+            "cat": "trace",
+            "name": "Broadcast",
+            "ph": "B",
+            "pid": 1,
+            "tid": 1,
+            "ts": 560
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 0,
+            "ts": 560
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 0,
+            "ts": 570
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 1,
+            "ts": 570
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 1,
+            "ts": 580
+        },
+        {
+            "cat": "trace",
+            "name": "Broadcast",
+            "ph": "E",
+            "pid": 1,
+            "tid": 1,
+            "ts": 580
+        },
+        {
+            "cat": "trace",
+            "name": "AllReduce",
+            "ph": "B",
+            "pid": 1,
+            "tid": 1,
+            "ts": 580
+        },
+        {
+            "cat": "trace",
+            "name": "2412336 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 0,
+            "ts": 580
+        },
+        {
+            "cat": "trace",
+            "name": "2412336 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 0,
+            "ts": 590
+        },
+        {
+            "cat": "trace",
+            "name": "2412336 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 1,
+            "ts": 590
+        },
+        {
+            "cat": "trace",
+            "name": "2412336 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 1,
+            "ts": 600
+        },
+        {
+            "cat": "trace",
+            "name": "AllReduce",
+            "ph": "E",
+            "pid": 1,
+            "tid": 1,
+            "ts": 600
+        },
+        {
+            "cat": "trace",
+            "name": "AllReduce",
+            "ph": "B",
+            "pid": 1,
+            "tid": 1,
+            "ts": 600
+        },
+        {
+            "cat": "trace",
+            "name": "2514096 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 0,
+            "ts": 600
+        },
+        {
+            "cat": "trace",
+            "name": "2514096 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 0,
+            "ts": 610
+        },
+        {
+            "cat": "trace",
+            "name": "2514096 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 1,
+            "ts": 610
+        },
+        {
+            "cat": "trace",
+            "name": "2514096 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 1,
+            "ts": 620
+        },
+        {
+            "cat": "trace",
+            "name": "AllReduce",
+            "ph": "E",
+            "pid": 1,
+            "tid": 1,
+            "ts": 620
+        },
+        {
+            "cat": "trace",
+            "name": "Broadcast",
+            "ph": "B",
+            "pid": 1,
+            "tid": 1,
+            "ts": 620
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 0,
+            "ts": 620
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 0,
+            "ts": 630
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 1,
+            "ts": 630
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 1,
+            "ts": 640
+        },
+        {
+            "cat": "trace",
+            "name": "Broadcast",
+            "ph": "E",
+            "pid": 1,
+            "tid": 1,
+            "ts": 640
+        },
+        {
+            "cat": "trace",
+            "name": "AllReduce",
+            "ph": "B",
+            "pid": 1,
+            "tid": 1,
+            "ts": 640
+        },
+        {
+            "cat": "trace",
+            "name": "2412336 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 0,
+            "ts": 640
+        },
+        {
+            "cat": "trace",
+            "name": "2412336 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 0,
+            "ts": 650
+        },
+        {
+            "cat": "trace",
+            "name": "2412336 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 1,
+            "ts": 650
+        },
+        {
+            "cat": "trace",
+            "name": "2412336 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 1,
+            "ts": 660
+        },
+        {
+            "cat": "trace",
+            "name": "AllReduce",
+            "ph": "E",
+            "pid": 1,
+            "tid": 1,
+            "ts": 660
+        },
+        {
+            "cat": "trace",
+            "name": "AllReduce",
+            "ph": "B",
+            "pid": 1,
+            "tid": 1,
+            "ts": 660
+        },
+        {
+            "cat": "trace",
+            "name": "2514096 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 0,
+            "ts": 660
+        },
+        {
+            "cat": "trace",
+            "name": "2514096 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 0,
+            "ts": 670
+        },
+        {
+            "cat": "trace",
+            "name": "2514096 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 1,
+            "ts": 670
+        },
+        {
+            "cat": "trace",
+            "name": "2514096 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 1,
+            "ts": 680
+        },
+        {
+            "cat": "trace",
+            "name": "AllReduce",
+            "ph": "E",
+            "pid": 1,
+            "tid": 1,
+            "ts": 680
+        },
+        {
+            "cat": "trace",
+            "name": "Broadcast",
+            "ph": "B",
+            "pid": 1,
+            "tid": 1,
+            "ts": 680
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 0,
+            "ts": 680
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 0,
+            "ts": 690
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 1,
+            "ts": 690
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 1,
+            "ts": 700
+        },
+        {
+            "cat": "trace",
+            "name": "Broadcast",
+            "ph": "E",
+            "pid": 1,
+            "tid": 1,
+            "ts": 700
+        },
+        {
+            "cat": "trace",
+            "name": "AllReduce",
+            "ph": "B",
+            "pid": 1,
+            "tid": 1,
+            "ts": 700
+        },
+        {
+            "cat": "trace",
+            "name": "2412336 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 0,
+            "ts": 700
+        },
+        {
+            "cat": "trace",
+            "name": "2412336 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 0,
+            "ts": 710
+        },
+        {
+            "cat": "trace",
+            "name": "2412336 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 1,
+            "ts": 710
+        },
+        {
+            "cat": "trace",
+            "name": "2412336 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 1,
+            "ts": 720
+        },
+        {
+            "cat": "trace",
+            "name": "AllReduce",
+            "ph": "E",
+            "pid": 1,
+            "tid": 1,
+            "ts": 720
+        },
+        {
+            "cat": "trace",
+            "name": "AllReduce",
+            "ph": "B",
+            "pid": 1,
+            "tid": 1,
+            "ts": 720
+        },
+        {
+            "cat": "trace",
+            "name": "2514096 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 0,
+            "ts": 720
+        },
+        {
+            "cat": "trace",
+            "name": "2514096 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 0,
+            "ts": 730
+        },
+        {
+            "cat": "trace",
+            "name": "2514096 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 1,
+            "ts": 730
+        },
+        {
+            "cat": "trace",
+            "name": "2514096 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 1,
+            "ts": 740
+        },
+        {
+            "cat": "trace",
+            "name": "AllReduce",
+            "ph": "E",
+            "pid": 1,
+            "tid": 1,
+            "ts": 740
+        },
+        {
+            "cat": "trace",
+            "name": "Broadcast",
+            "ph": "B",
+            "pid": 1,
+            "tid": 1,
+            "ts": 740
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 0,
+            "ts": 740
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 0,
+            "ts": 750
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 1,
+            "ts": 750
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 1,
+            "ts": 760
+        },
+        {
+            "cat": "trace",
+            "name": "Broadcast",
+            "ph": "E",
+            "pid": 1,
+            "tid": 1,
+            "ts": 760
+        },
+        {
+            "cat": "trace",
+            "name": "AllReduce",
+            "ph": "B",
+            "pid": 1,
+            "tid": 1,
+            "ts": 760
+        },
+        {
+            "cat": "trace",
+            "name": "2412336 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 0,
+            "ts": 760
+        },
+        {
+            "cat": "trace",
+            "name": "2412336 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 0,
+            "ts": 770
+        },
+        {
+            "cat": "trace",
+            "name": "2412336 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 1,
+            "ts": 770
+        },
+        {
+            "cat": "trace",
+            "name": "2412336 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 1,
+            "ts": 780
+        },
+        {
+            "cat": "trace",
+            "name": "AllReduce",
+            "ph": "E",
+            "pid": 1,
+            "tid": 1,
+            "ts": 780
+        },
+        {
+            "cat": "trace",
+            "name": "AllReduce",
+            "ph": "B",
+            "pid": 1,
+            "tid": 1,
+            "ts": 780
+        },
+        {
+            "cat": "trace",
+            "name": "2514096 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 0,
+            "ts": 780
+        },
+        {
+            "cat": "trace",
+            "name": "2514096 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 0,
+            "ts": 790
+        },
+        {
+            "cat": "trace",
+            "name": "2514096 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 1,
+            "ts": 790
+        },
+        {
+            "cat": "trace",
+            "name": "2514096 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 1,
+            "ts": 800
+        },
+        {
+            "cat": "trace",
+            "name": "AllReduce",
+            "ph": "E",
+            "pid": 1,
+            "tid": 1,
+            "ts": 800
+        },
+        {
+            "cat": "trace",
+            "name": "Broadcast",
+            "ph": "B",
+            "pid": 1,
+            "tid": 1,
+            "ts": 800
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 0,
+            "ts": 800
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 0,
+            "ts": 810
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 1,
+            "ts": 810
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 1,
+            "ts": 820
+        },
+        {
+            "cat": "trace",
+            "name": "Broadcast",
+            "ph": "E",
+            "pid": 1,
+            "tid": 1,
+            "ts": 820
+        },
+        {
+            "cat": "trace",
+            "name": "AllReduce",
+            "ph": "B",
+            "pid": 1,
+            "tid": 1,
+            "ts": 820
+        },
+        {
+            "cat": "trace",
+            "name": "2412336 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 0,
+            "ts": 820
+        },
+        {
+            "cat": "trace",
+            "name": "2412336 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 0,
+            "ts": 830
+        },
+        {
+            "cat": "trace",
+            "name": "2412336 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 1,
+            "ts": 830
+        },
+        {
+            "cat": "trace",
+            "name": "2412336 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 1,
+            "ts": 840
+        },
+        {
+            "cat": "trace",
+            "name": "AllReduce",
+            "ph": "E",
+            "pid": 1,
+            "tid": 1,
+            "ts": 840
+        },
+        {
+            "cat": "trace",
+            "name": "AllReduce",
+            "ph": "B",
+            "pid": 1,
+            "tid": 1,
+            "ts": 840
+        },
+        {
+            "cat": "trace",
+            "name": "2514096 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 0,
+            "ts": 840
+        },
+        {
+            "cat": "trace",
+            "name": "2514096 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 0,
+            "ts": 850
+        },
+        {
+            "cat": "trace",
+            "name": "2514096 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 1,
+            "ts": 850
+        },
+        {
+            "cat": "trace",
+            "name": "2514096 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 1,
+            "ts": 860
+        },
+        {
+            "cat": "trace",
+            "name": "AllReduce",
+            "ph": "E",
+            "pid": 1,
+            "tid": 1,
+            "ts": 860
+        },
+        {
+            "cat": "trace",
+            "name": "Broadcast",
+            "ph": "B",
+            "pid": 1,
+            "tid": 1,
+            "ts": 860
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 0,
+            "ts": 860
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 0,
+            "ts": 870
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 1,
+            "ts": 870
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 1,
+            "ts": 880
+        },
+        {
+            "cat": "trace",
+            "name": "Broadcast",
+            "ph": "E",
+            "pid": 1,
+            "tid": 1,
+            "ts": 880
+        },
+        {
+            "cat": "trace",
+            "name": "AllReduce",
+            "ph": "B",
+            "pid": 1,
+            "tid": 1,
+            "ts": 880
+        },
+        {
+            "cat": "trace",
+            "name": "2412336 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 0,
+            "ts": 880
+        },
+        {
+            "cat": "trace",
+            "name": "2412336 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 0,
+            "ts": 890
+        },
+        {
+            "cat": "trace",
+            "name": "2412336 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 1,
+            "ts": 890
+        },
+        {
+            "cat": "trace",
+            "name": "2412336 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 1,
+            "ts": 900
+        },
+        {
+            "cat": "trace",
+            "name": "AllReduce",
+            "ph": "E",
+            "pid": 1,
+            "tid": 1,
+            "ts": 900
+        },
+        {
+            "cat": "trace",
+            "name": "AllReduce",
+            "ph": "B",
+            "pid": 1,
+            "tid": 1,
+            "ts": 900
+        },
+        {
+            "cat": "trace",
+            "name": "2514096 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 0,
+            "ts": 900
+        },
+        {
+            "cat": "trace",
+            "name": "2514096 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 0,
+            "ts": 910
+        },
+        {
+            "cat": "trace",
+            "name": "2514096 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 1,
+            "ts": 910
+        },
+        {
+            "cat": "trace",
+            "name": "2514096 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 1,
+            "ts": 920
+        },
+        {
+            "cat": "trace",
+            "name": "AllReduce",
+            "ph": "E",
+            "pid": 1,
+            "tid": 1,
+            "ts": 920
+        },
+        {
+            "cat": "trace",
+            "name": "Broadcast",
+            "ph": "B",
+            "pid": 1,
+            "tid": 1,
+            "ts": 920
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 0,
+            "ts": 920
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 0,
+            "ts": 930
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 1,
+            "ts": 930
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 1,
+            "ts": 940
+        },
+        {
+            "cat": "trace",
+            "name": "Broadcast",
+            "ph": "E",
+            "pid": 1,
+            "tid": 1,
+            "ts": 940
+        },
+        {
+            "cat": "trace",
+            "name": "AllReduce",
+            "ph": "B",
+            "pid": 1,
+            "tid": 1,
+            "ts": 940
+        },
+        {
+            "cat": "trace",
+            "name": "2412336 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 0,
+            "ts": 940
+        },
+        {
+            "cat": "trace",
+            "name": "2412336 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 0,
+            "ts": 950
+        },
+        {
+            "cat": "trace",
+            "name": "2412336 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 1,
+            "ts": 950
+        },
+        {
+            "cat": "trace",
+            "name": "2412336 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 1,
+            "ts": 960
+        },
+        {
+            "cat": "trace",
+            "name": "AllReduce",
+            "ph": "E",
+            "pid": 1,
+            "tid": 1,
+            "ts": 960
+        },
+        {
+            "cat": "trace",
+            "name": "AllReduce",
+            "ph": "B",
+            "pid": 1,
+            "tid": 1,
+            "ts": 960
+        },
+        {
+            "cat": "trace",
+            "name": "2514096 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 0,
+            "ts": 960
+        },
+        {
+            "cat": "trace",
+            "name": "2514096 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 0,
+            "ts": 970
+        },
+        {
+            "cat": "trace",
+            "name": "2514096 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 1,
+            "ts": 970
+        },
+        {
+            "cat": "trace",
+            "name": "2514096 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 1,
+            "ts": 980
+        },
+        {
+            "cat": "trace",
+            "name": "AllReduce",
+            "ph": "E",
+            "pid": 1,
+            "tid": 1,
+            "ts": 980
+        },
+        {
+            "cat": "trace",
+            "name": "Broadcast",
+            "ph": "B",
+            "pid": 1,
+            "tid": 1,
+            "ts": 980
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 0,
+            "ts": 980
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 0,
+            "ts": 990
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "B",
+            "pid": 2,
+            "tid": 1,
+            "ts": 990
+        },
+        {
+            "cat": "trace",
+            "name": "369603 ncclFloat32",
+            "ph": "E",
+            "pid": 2,
+            "tid": 1,
+            "ts": 1000
+        },
+        {
+            "cat": "trace",
+            "name": "Broadcast",
+            "ph": "E",
+            "pid": 1,
+            "tid": 1,
+            "ts": 1000
+        }
+    ]
+}

@@ -29,7 +29,7 @@ from mingpt.bpe import BPETokenizer
 from mingpt.model import GPT
 from mingpt.utils import set_seed 
 
-MENG_PORT="3007"
+MENG_PORT="30001"
 
 class LanguageModelDataset(Dataset):
     def __init__(self, split):
@@ -96,29 +96,29 @@ def train(model, rank, world_sz, loader, optimizer, ep):
 
     for x, y in loader:
         batch_sz = len(x)
-        print(f"Rank {rank} train batch of size {batch_sz}")
+        print(f"Rank {rank} train batch of size {batch_sz}", flush=True)
         
 
         x, y = x.to(rank), y.to(rank)
-        print(f"Rank {rank} data to GPU")
+        print(f"Rank {rank} data to GPU", flush=True)
         
         optimizer.zero_grad()
-        print(f"Rank {rank} zero grad")
+        print(f"Rank {rank} zero grad", flush=True)
         
         logits, loss = model(x, y)
-        print(f"Rank {rank} forward pass done")
+        print(f"Rank {rank} forward pass done", flush=True)
         
         loss.backward()
-        print(f"Rank {rank} backward pass done")
+        print(f"Rank {rank} backward pass done", flush=True)
         
         optimizer.step()
-        print(f"Rank {rank} Optimizer done")
+        print(f"Rank {rank} Optimizer done", flush=True)
         
 
         distributed_loss[0] += loss.item()
         distributed_loss[1] += batch_sz
         
-        print(f"Rank {rank} \t Current Loss: {distributed_loss[0]/distributed_loss[1]}")
+        print(f"Rank {rank} \t Current Loss: {distributed_loss[0]/distributed_loss[1]}", flush=True)
         
     
     # dist.all_reduce(distributed_loss, op=dist.ReduceOp.SUM)
@@ -146,7 +146,7 @@ def cleanup():
     dist.destroy_process_group()
 
 def fsdp_main(rank, world_size, train_args):
-    print(f"Rank {rank} starts")
+    print(f"Rank {rank} starts", flush=True)
     
     batch_size, num_epochs, save_model = train_args['batch_size'], train_args['num_epochs'], train_args['save_model']
     
@@ -178,12 +178,12 @@ def fsdp_main(rank, world_size, train_args):
     model = DDP(model, device_ids=[rank])
     # model = FSDP(model)
     optimizer = optim.Adam(model.parameters())
-    print(f"Rank {rank} Start training")
+    print(f"Rank {rank} Start training", flush=True)
     
     for epoch in range(1, num_epochs + 1):
         train_sampler.set_epoch(epoch)
         train(model=model, rank=rank, world_sz=world_size, loader=train_loader, optimizer=optimizer, ep=epoch)
-        print(f"Rank {rank} epoch {epoch} done")
+        print(f"Rank {rank} epoch {epoch} done", flush=True)
         
         # validate(model=model, rank=rank, world_sz=world_size, loader=val_loader)
 
@@ -193,7 +193,7 @@ def fsdp_main(rank, world_size, train_args):
             torch.save(model.state_dict, "/workspace/mingpt.pt")
 
     cleanup()
-    print(f"Rank {rank} ends")
+    print(f"Rank {rank} ends", flush=True)
     
 
 
@@ -211,7 +211,7 @@ if __name__ == "__main__":
     print(test_dataset.get_block_size())
 
     WORLD_SIZE = 1
-    # WORLD_SIZE = torch.cuda.device_count()
+    WORLD_SIZE = torch.cuda.device_count()
     print(f"We have {WORLD_SIZE} GPUs")
 
     train_args = {
