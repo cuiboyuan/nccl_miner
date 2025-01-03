@@ -87,6 +87,12 @@ class CollectiveOperation:
         return f"{self.func}: {self.data_size} bytes ({self.data_num} {self.data_type})"
 
 
+class DataFlow:
+    def __init__(self, src, dst, size):
+        self.src = src
+        self.dst = dst
+        self.size = size
+
 class NcclRing:
     def __init__(self, all_topo_info):
         incomplete_rings = {}
@@ -131,6 +137,35 @@ class NcclRing:
             ret += f"{id}: {ring_str}\n"
         return ret
 
+    def collective_communication(self, coll_op):
+        data_flows = []
+        dependencies = []
+        if coll_op.func == "Broadcast":
+            # assume single rail/channel
+            for _, ring in self.rings:
+                root_idx = ring.index(coll_op.root)
+                cur_idx = root_idx
+                if cur_idx >= self.size-1:
+                    next_idx = 0
+                else:
+                    next_idx = cur_idx+1
+
+                while next_idx != root_idx:
+                    cur_node = ring[cur_idx]
+                    next_node = ring[next_idx]
+                    data_flows.append((cur_node, next_node, coll_op.data_size))
+
+                    cur_idx = next_idx
+                    if cur_idx >= self.size-1:
+                        next_idx = 0
+                    else:
+                        next_idx = cur_idx+1
+
+            
+        elif coll_op.func == "AllReduce":
+            pass
+
+
 
 
 def parse_log(log_line):
@@ -171,7 +206,7 @@ def parse_log(log_line):
     return None, None
 
 
-def main(log_files=[]):
+def main(log_files):
     ring_topos = []
     tree_topos = []
     coll_comms = []
@@ -262,5 +297,5 @@ if __name__ == "__main__":
     # topo_log = "104-171-202-216:21232:21301 [1] NCCL INFO Ring 00 : 0 -> 1 -> 0"
     # ret = parse_topo_ring_log(topo_log)
     # print(ret)
-    main(["nccl_logs.104-171-202-216.21230","nccl_logs.104-171-202-216.21232"])
+    main(["two_gpu_nccl_logs/nccl_logs.104-171-202-216.21230","two_gpu_nccl_logs/nccl_logs.104-171-202-216.21232"])
 
