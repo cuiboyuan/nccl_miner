@@ -12,7 +12,7 @@ pip install -r requirements.txt
 
 ### NCCL Log Path
 ```
-NCCL_DEBUG=TRACE NCCL_DEBUG_SUBSYS=ALL NCCL_TOPO_DUMP_FILE="nccl_topo.xml" python GPT2Dist.py | tee nccl_log.txt
+NCCL_P2P_DISABLE=1 NCCL_DEBUG=TRACE NCCL_DEBUG_SUBSYS=ALL NCCL_DEBUG_FILE=nccl_logs.%h.%p python GPT2Dist.py
 ```
 NCCL Environment Variables: https://docs.nvidia.com/deeplearning/nccl/user-guide/docs/env.html
 
