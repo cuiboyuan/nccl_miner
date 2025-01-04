@@ -2,7 +2,7 @@
     "traceEvents": [
         {
             "cat": "trace",
-            "name": "AllGather",
+            "name": "AllGather: 1 ncclInt64",
             "ph": "B",
             "pid": 1,
             "tid": 1,
@@ -10,87 +10,157 @@
         },
         {
             "cat": "trace",
-            "name": "1 ncclInt64",
-            "ph": "B",
-            "pid": 2,
-            "tid": 0,
-            "ts": 0
-        },
-        {
-            "cat": "trace",
-            "name": "1 ncclInt64",
+            "name": "AllGather: 1 ncclInt64",
             "ph": "E",
-            "pid": 2,
-            "tid": 0,
-            "ts": 10
-        },
-        {
-            "cat": "trace",
-            "name": "1 ncclInt64",
-            "ph": "B",
-            "pid": 2,
+            "pid": 1,
             "tid": 1,
             "ts": 10
         },
         {
             "cat": "trace",
-            "name": "1 ncclInt64",
-            "ph": "E",
-            "pid": 2,
-            "tid": 1,
-            "ts": 20
-        },
-        {
-            "cat": "trace",
-            "name": "AllGather",
-            "ph": "E",
-            "pid": 1,
-            "tid": 1,
-            "ts": 20
-        },
-        {
-            "cat": "trace",
-            "name": "Broadcast",
+            "name": "Broadcast: 112 ncclInt64",
             "ph": "B",
             "pid": 1,
             "tid": 1,
-            "ts": 20
+            "ts": 10
         },
         {
             "cat": "trace",
-            "name": "112 ncclInt64",
+            "name": "Send 896",
             "ph": "B",
             "pid": 2,
-            "tid": 0,
+            "tid": 100,
+            "ts": 10
+        },
+        {
+            "cat": "trace",
+            "name": "Recv 896",
+            "ph": "B",
+            "pid": 2,
+            "tid": 101,
+            "ts": 10
+        },
+        {
+            "cat": "trace",
+            "name": "Send 896",
+            "ph": "E",
+            "pid": 2,
+            "tid": 100,
             "ts": 20
         },
         {
             "cat": "trace",
-            "name": "112 ncclInt64",
+            "name": "Recv 896",
             "ph": "E",
             "pid": 2,
-            "tid": 0,
+            "tid": 101,
+            "ts": 20
+        },
+        {
+            "cat": "trace",
+            "name": "flow",
+            "id": 200,
+            "ph": "s",
+            "ts": 17,
+            "pid": 2,
+            "tid": 100
+        },
+        {
+            "cat": "trace",
+            "name": "flow",
+            "id": 200,
+            "ph": "f",
+            "bp": "e",
+            "ts": 23,
+            "pid": 2,
+            "tid": 101
+        },
+        {
+            "cat": "trace",
+            "name": "Send 896",
+            "ph": "B",
+            "pid": 2,
+            "tid": 101,
+            "ts": 20
+        },
+        {
+            "cat": "trace",
+            "name": "Recv 896",
+            "ph": "B",
+            "pid": 2,
+            "tid": 102,
+            "ts": 20
+        },
+        {
+            "cat": "trace",
+            "name": "Send 896",
+            "ph": "E",
+            "pid": 2,
+            "tid": 101,
             "ts": 30
         },
         {
             "cat": "trace",
-            "name": "112 ncclInt64",
-            "ph": "B",
+            "name": "Recv 896",
+            "ph": "E",
             "pid": 2,
-            "tid": 1,
+            "tid": 102,
             "ts": 30
         },
         {
             "cat": "trace",
-            "name": "112 ncclInt64",
+            "name": "flow",
+            "id": 201,
+            "ph": "s",
+            "ts": 27,
+            "pid": 2,
+            "tid": 101
+        },
+        {
+            "cat": "trace",
+            "name": "flow",
+            "id": 201,
+            "ph": "f",
+            "bp": "e",
+            "ts": 33,
+            "pid": 2,
+            "tid": 102
+        },
+        {
+            "cat": "trace",
+            "name": "Send 896",
+            "ph": "B",
+            "pid": 2,
+            "tid": 102,
+            "ts": 30
+        },
+        {
+            "cat": "trace",
+            "name": "Recv 896",
+            "ph": "B",
+            "pid": 2,
+            "tid": 103,
+            "ts": 30
+        },
+        {
+            "cat": "trace",
+            "name": "Send 896",
             "ph": "E",
             "pid": 2,
-            "tid": 1,
+            "tid": 102,
             "ts": 40
         },
         {
             "cat": "trace",
-            "name": "Broadcast",
+            "name": "Recv 896",
+            "ph": "E",
+            "pid": 2,
+            "tid": 103,
+            "ts": 40
+        },
+        {
+            "cat": "trace",
+            "name": "Broadcast: 112 ncclInt64",
             "ph": "E",
             "pid": 1,
             "tid": 1,
@@ -98,7 +168,7 @@
         },
         {
             "cat": "trace",
-            "name": "Broadcast",
+            "name": "Broadcast: 5296035 ncclFloat32",
             "ph": "B",
             "pid": 1,
             "tid": 1,
@@ -106,135 +176,291 @@
         },
         {
             "cat": "trace",
-            "name": "5296035 ncclFloat32",
+            "name": "Send 21184140",
             "ph": "B",
             "pid": 2,
-            "tid": 0,
+            "tid": 100,
             "ts": 40
         },
         {
             "cat": "trace",
-            "name": "5296035 ncclFloat32",
+            "name": "Recv 21184140",
+            "ph": "B",
+            "pid": 2,
+            "tid": 101,
+            "ts": 40
+        },
+        {
+            "cat": "trace",
+            "name": "Send 21184140",
             "ph": "E",
             "pid": 2,
-            "tid": 0,
+            "tid": 100,
             "ts": 50
         },
         {
             "cat": "trace",
-            "name": "5296035 ncclFloat32",
-            "ph": "B",
+            "name": "Recv 21184140",
+            "ph": "E",
             "pid": 2,
-            "tid": 1,
+            "tid": 101,
             "ts": 50
         },
         {
             "cat": "trace",
-            "name": "5296035 ncclFloat32",
-            "ph": "E",
+            "name": "flow",
+            "id": 200,
+            "ph": "s",
+            "ts": 47,
             "pid": 2,
-            "tid": 1,
-            "ts": 60
+            "tid": 100
         },
         {
             "cat": "trace",
-            "name": "Broadcast",
-            "ph": "E",
-            "pid": 1,
-            "tid": 1,
-            "ts": 60
+            "name": "flow",
+            "id": 200,
+            "ph": "f",
+            "bp": "e",
+            "ts": 53,
+            "pid": 2,
+            "tid": 101
         },
         {
             "cat": "trace",
-            "name": "Broadcast",
-            "ph": "B",
-            "pid": 1,
-            "tid": 1,
-            "ts": 60
-        },
-        {
-            "cat": "trace",
-            "name": "369603 ncclFloat32",
+            "name": "Send 21184140",
             "ph": "B",
             "pid": 2,
-            "tid": 0,
+            "tid": 101,
+            "ts": 50
+        },
+        {
+            "cat": "trace",
+            "name": "Recv 21184140",
+            "ph": "B",
+            "pid": 2,
+            "tid": 102,
+            "ts": 50
+        },
+        {
+            "cat": "trace",
+            "name": "Send 21184140",
+            "ph": "E",
+            "pid": 2,
+            "tid": 101,
             "ts": 60
         },
         {
             "cat": "trace",
-            "name": "369603 ncclFloat32",
+            "name": "Recv 21184140",
             "ph": "E",
             "pid": 2,
-            "tid": 0,
+            "tid": 102,
+            "ts": 60
+        },
+        {
+            "cat": "trace",
+            "name": "flow",
+            "id": 201,
+            "ph": "s",
+            "ts": 57,
+            "pid": 2,
+            "tid": 101
+        },
+        {
+            "cat": "trace",
+            "name": "flow",
+            "id": 201,
+            "ph": "f",
+            "bp": "e",
+            "ts": 63,
+            "pid": 2,
+            "tid": 102
+        },
+        {
+            "cat": "trace",
+            "name": "Send 21184140",
+            "ph": "B",
+            "pid": 2,
+            "tid": 102,
+            "ts": 60
+        },
+        {
+            "cat": "trace",
+            "name": "Recv 21184140",
+            "ph": "B",
+            "pid": 2,
+            "tid": 103,
+            "ts": 60
+        },
+        {
+            "cat": "trace",
+            "name": "Send 21184140",
+            "ph": "E",
+            "pid": 2,
+            "tid": 102,
             "ts": 70
         },
         {
             "cat": "trace",
-            "name": "369603 ncclFloat32",
-            "ph": "B",
+            "name": "Recv 21184140",
+            "ph": "E",
             "pid": 2,
+            "tid": 103,
+            "ts": 70
+        },
+        {
+            "cat": "trace",
+            "name": "Broadcast: 5296035 ncclFloat32",
+            "ph": "E",
+            "pid": 1,
             "tid": 1,
             "ts": 70
         },
         {
             "cat": "trace",
-            "name": "369603 ncclFloat32",
-            "ph": "E",
-            "pid": 2,
-            "tid": 1,
-            "ts": 80
-        },
-        {
-            "cat": "trace",
-            "name": "Broadcast",
-            "ph": "E",
-            "pid": 1,
-            "tid": 1,
-            "ts": 80
-        },
-        {
-            "cat": "trace",
-            "name": "AllReduce",
+            "name": "Broadcast: 369603 ncclFloat32",
             "ph": "B",
             "pid": 1,
             "tid": 1,
-            "ts": 80
+            "ts": 70
         },
         {
             "cat": "trace",
-            "name": "4926432 ncclFloat32",
+            "name": "Send 1478412",
             "ph": "B",
             "pid": 2,
-            "tid": 0,
+            "tid": 100,
+            "ts": 70
+        },
+        {
+            "cat": "trace",
+            "name": "Recv 1478412",
+            "ph": "B",
+            "pid": 2,
+            "tid": 101,
+            "ts": 70
+        },
+        {
+            "cat": "trace",
+            "name": "Send 1478412",
+            "ph": "E",
+            "pid": 2,
+            "tid": 100,
             "ts": 80
         },
         {
             "cat": "trace",
-            "name": "4926432 ncclFloat32",
+            "name": "Recv 1478412",
             "ph": "E",
             "pid": 2,
-            "tid": 0,
+            "tid": 101,
+            "ts": 80
+        },
+        {
+            "cat": "trace",
+            "name": "flow",
+            "id": 200,
+            "ph": "s",
+            "ts": 77,
+            "pid": 2,
+            "tid": 100
+        },
+        {
+            "cat": "trace",
+            "name": "flow",
+            "id": 200,
+            "ph": "f",
+            "bp": "e",
+            "ts": 83,
+            "pid": 2,
+            "tid": 101
+        },
+        {
+            "cat": "trace",
+            "name": "Send 1478412",
+            "ph": "B",
+            "pid": 2,
+            "tid": 101,
+            "ts": 80
+        },
+        {
+            "cat": "trace",
+            "name": "Recv 1478412",
+            "ph": "B",
+            "pid": 2,
+            "tid": 102,
+            "ts": 80
+        },
+        {
+            "cat": "trace",
+            "name": "Send 1478412",
+            "ph": "E",
+            "pid": 2,
+            "tid": 101,
             "ts": 90
         },
         {
             "cat": "trace",
-            "name": "4926432 ncclFloat32",
-            "ph": "B",
+            "name": "Recv 1478412",
+            "ph": "E",
             "pid": 2,
-            "tid": 1,
+            "tid": 102,
             "ts": 90
         },
         {
             "cat": "trace",
-            "name": "4926432 ncclFloat32",
+            "name": "flow",
+            "id": 201,
+            "ph": "s",
+            "ts": 87,
+            "pid": 2,
+            "tid": 101
+        },
+        {
+            "cat": "trace",
+            "name": "flow",
+            "id": 201,
+            "ph": "f",
+            "bp": "e",
+            "ts": 93,
+            "pid": 2,
+            "tid": 102
+        },
+        {
+            "cat": "trace",
+            "name": "Send 1478412",
+            "ph": "B",
+            "pid": 2,
+            "tid": 102,
+            "ts": 90
+        },
+        {
+            "cat": "trace",
+            "name": "Recv 1478412",
+            "ph": "B",
+            "pid": 2,
+            "tid": 103,
+            "ts": 90
+        },
+        {
+            "cat": "trace",
+            "name": "Send 1478412",
             "ph": "E",
             "pid": 2,
-            "tid": 1,
+            "tid": 102,
             "ts": 100
         },
         {
             "cat": "trace",
-            "name": "AllReduce",
+            "name": "Recv 1478412",
+            "ph": "E",
+            "pid": 2,
+            "tid": 103,
+            "ts": 100
+        },
+        {
+            "cat": "trace",
+            "name": "Broadcast: 369603 ncclFloat32",
             "ph": "E",
             "pid": 1,
             "tid": 1,
@@ -242,7 +468,7 @@
         },
         {
             "cat": "trace",
-            "name": "Broadcast",
+            "name": "AllReduce: 4926432 ncclFloat32",
             "ph": "B",
             "pid": 1,
             "tid": 1,
@@ -250,87 +476,157 @@
         },
         {
             "cat": "trace",
-            "name": "42 ncclInt32",
-            "ph": "B",
-            "pid": 2,
-            "tid": 0,
-            "ts": 100
-        },
-        {
-            "cat": "trace",
-            "name": "42 ncclInt32",
+            "name": "AllReduce: 4926432 ncclFloat32",
             "ph": "E",
-            "pid": 2,
-            "tid": 0,
+            "pid": 1,
+            "tid": 1,
             "ts": 110
         },
         {
             "cat": "trace",
-            "name": "42 ncclInt32",
+            "name": "Broadcast: 42 ncclInt32",
             "ph": "B",
-            "pid": 2,
+            "pid": 1,
             "tid": 1,
             "ts": 110
         },
         {
             "cat": "trace",
-            "name": "42 ncclInt32",
-            "ph": "E",
-            "pid": 2,
-            "tid": 1,
-            "ts": 120
-        },
-        {
-            "cat": "trace",
-            "name": "Broadcast",
-            "ph": "E",
-            "pid": 1,
-            "tid": 1,
-            "ts": 120
-        },
-        {
-            "cat": "trace",
-            "name": "Broadcast",
-            "ph": "B",
-            "pid": 1,
-            "tid": 1,
-            "ts": 120
-        },
-        {
-            "cat": "trace",
-            "name": "2 ncclInt32",
+            "name": "Send 168",
             "ph": "B",
             "pid": 2,
-            "tid": 0,
+            "tid": 100,
+            "ts": 110
+        },
+        {
+            "cat": "trace",
+            "name": "Recv 168",
+            "ph": "B",
+            "pid": 2,
+            "tid": 101,
+            "ts": 110
+        },
+        {
+            "cat": "trace",
+            "name": "Send 168",
+            "ph": "E",
+            "pid": 2,
+            "tid": 100,
             "ts": 120
         },
         {
             "cat": "trace",
-            "name": "2 ncclInt32",
+            "name": "Recv 168",
             "ph": "E",
             "pid": 2,
-            "tid": 0,
+            "tid": 101,
+            "ts": 120
+        },
+        {
+            "cat": "trace",
+            "name": "flow",
+            "id": 200,
+            "ph": "s",
+            "ts": 117,
+            "pid": 2,
+            "tid": 100
+        },
+        {
+            "cat": "trace",
+            "name": "flow",
+            "id": 200,
+            "ph": "f",
+            "bp": "e",
+            "ts": 123,
+            "pid": 2,
+            "tid": 101
+        },
+        {
+            "cat": "trace",
+            "name": "Send 168",
+            "ph": "B",
+            "pid": 2,
+            "tid": 101,
+            "ts": 120
+        },
+        {
+            "cat": "trace",
+            "name": "Recv 168",
+            "ph": "B",
+            "pid": 2,
+            "tid": 102,
+            "ts": 120
+        },
+        {
+            "cat": "trace",
+            "name": "Send 168",
+            "ph": "E",
+            "pid": 2,
+            "tid": 101,
             "ts": 130
         },
         {
             "cat": "trace",
-            "name": "2 ncclInt32",
-            "ph": "B",
+            "name": "Recv 168",
+            "ph": "E",
             "pid": 2,
-            "tid": 1,
+            "tid": 102,
             "ts": 130
         },
         {
             "cat": "trace",
-            "name": "2 ncclInt32",
+            "name": "flow",
+            "id": 201,
+            "ph": "s",
+            "ts": 127,
+            "pid": 2,
+            "tid": 101
+        },
+        {
+            "cat": "trace",
+            "name": "flow",
+            "id": 201,
+            "ph": "f",
+            "bp": "e",
+            "ts": 133,
+            "pid": 2,
+            "tid": 102
+        },
+        {
+            "cat": "trace",
+            "name": "Send 168",
+            "ph": "B",
+            "pid": 2,
+            "tid": 102,
+            "ts": 130
+        },
+        {
+            "cat": "trace",
+            "name": "Recv 168",
+            "ph": "B",
+            "pid": 2,
+            "tid": 103,
+            "ts": 130
+        },
+        {
+            "cat": "trace",
+            "name": "Send 168",
             "ph": "E",
             "pid": 2,
-            "tid": 1,
+            "tid": 102,
             "ts": 140
         },
         {
             "cat": "trace",
-            "name": "Broadcast",
+            "name": "Recv 168",
+            "ph": "E",
+            "pid": 2,
+            "tid": 103,
+            "ts": 140
+        },
+        {
+            "cat": "trace",
+            "name": "Broadcast: 42 ncclInt32",
             "ph": "E",
             "pid": 1,
             "tid": 1,
@@ -338,7 +634,7 @@
         },
         {
             "cat": "trace",
-            "name": "Broadcast",
+            "name": "Broadcast: 2 ncclInt32",
             "ph": "B",
             "pid": 1,
             "tid": 1,
@@ -346,135 +642,291 @@
         },
         {
             "cat": "trace",
-            "name": "369603 ncclFloat32",
+            "name": "Send 8",
             "ph": "B",
             "pid": 2,
-            "tid": 0,
+            "tid": 100,
             "ts": 140
         },
         {
             "cat": "trace",
-            "name": "369603 ncclFloat32",
+            "name": "Recv 8",
+            "ph": "B",
+            "pid": 2,
+            "tid": 101,
+            "ts": 140
+        },
+        {
+            "cat": "trace",
+            "name": "Send 8",
             "ph": "E",
             "pid": 2,
-            "tid": 0,
+            "tid": 100,
             "ts": 150
         },
         {
             "cat": "trace",
-            "name": "369603 ncclFloat32",
-            "ph": "B",
+            "name": "Recv 8",
+            "ph": "E",
             "pid": 2,
-            "tid": 1,
+            "tid": 101,
             "ts": 150
         },
         {
             "cat": "trace",
-            "name": "369603 ncclFloat32",
-            "ph": "E",
+            "name": "flow",
+            "id": 200,
+            "ph": "s",
+            "ts": 147,
             "pid": 2,
-            "tid": 1,
-            "ts": 160
+            "tid": 100
         },
         {
             "cat": "trace",
-            "name": "Broadcast",
-            "ph": "E",
-            "pid": 1,
-            "tid": 1,
-            "ts": 160
+            "name": "flow",
+            "id": 200,
+            "ph": "f",
+            "bp": "e",
+            "ts": 153,
+            "pid": 2,
+            "tid": 101
         },
         {
             "cat": "trace",
-            "name": "AllReduce",
-            "ph": "B",
-            "pid": 1,
-            "tid": 1,
-            "ts": 160
-        },
-        {
-            "cat": "trace",
-            "name": "2412336 ncclFloat32",
+            "name": "Send 8",
             "ph": "B",
             "pid": 2,
-            "tid": 0,
+            "tid": 101,
+            "ts": 150
+        },
+        {
+            "cat": "trace",
+            "name": "Recv 8",
+            "ph": "B",
+            "pid": 2,
+            "tid": 102,
+            "ts": 150
+        },
+        {
+            "cat": "trace",
+            "name": "Send 8",
+            "ph": "E",
+            "pid": 2,
+            "tid": 101,
             "ts": 160
         },
         {
             "cat": "trace",
-            "name": "2412336 ncclFloat32",
+            "name": "Recv 8",
             "ph": "E",
             "pid": 2,
-            "tid": 0,
+            "tid": 102,
+            "ts": 160
+        },
+        {
+            "cat": "trace",
+            "name": "flow",
+            "id": 201,
+            "ph": "s",
+            "ts": 157,
+            "pid": 2,
+            "tid": 101
+        },
+        {
+            "cat": "trace",
+            "name": "flow",
+            "id": 201,
+            "ph": "f",
+            "bp": "e",
+            "ts": 163,
+            "pid": 2,
+            "tid": 102
+        },
+        {
+            "cat": "trace",
+            "name": "Send 8",
+            "ph": "B",
+            "pid": 2,
+            "tid": 102,
+            "ts": 160
+        },
+        {
+            "cat": "trace",
+            "name": "Recv 8",
+            "ph": "B",
+            "pid": 2,
+            "tid": 103,
+            "ts": 160
+        },
+        {
+            "cat": "trace",
+            "name": "Send 8",
+            "ph": "E",
+            "pid": 2,
+            "tid": 102,
             "ts": 170
         },
         {
             "cat": "trace",
-            "name": "2412336 ncclFloat32",
-            "ph": "B",
+            "name": "Recv 8",
+            "ph": "E",
             "pid": 2,
+            "tid": 103,
+            "ts": 170
+        },
+        {
+            "cat": "trace",
+            "name": "Broadcast: 2 ncclInt32",
+            "ph": "E",
+            "pid": 1,
             "tid": 1,
             "ts": 170
         },
         {
             "cat": "trace",
-            "name": "2412336 ncclFloat32",
-            "ph": "E",
-            "pid": 2,
-            "tid": 1,
-            "ts": 180
-        },
-        {
-            "cat": "trace",
-            "name": "AllReduce",
-            "ph": "E",
-            "pid": 1,
-            "tid": 1,
-            "ts": 180
-        },
-        {
-            "cat": "trace",
-            "name": "AllReduce",
+            "name": "Broadcast: 369603 ncclFloat32",
             "ph": "B",
             "pid": 1,
             "tid": 1,
-            "ts": 180
+            "ts": 170
         },
         {
             "cat": "trace",
-            "name": "2514096 ncclFloat32",
+            "name": "Send 1478412",
             "ph": "B",
             "pid": 2,
-            "tid": 0,
+            "tid": 100,
+            "ts": 170
+        },
+        {
+            "cat": "trace",
+            "name": "Recv 1478412",
+            "ph": "B",
+            "pid": 2,
+            "tid": 101,
+            "ts": 170
+        },
+        {
+            "cat": "trace",
+            "name": "Send 1478412",
+            "ph": "E",
+            "pid": 2,
+            "tid": 100,
             "ts": 180
         },
         {
             "cat": "trace",
-            "name": "2514096 ncclFloat32",
+            "name": "Recv 1478412",
             "ph": "E",
             "pid": 2,
-            "tid": 0,
+            "tid": 101,
+            "ts": 180
+        },
+        {
+            "cat": "trace",
+            "name": "flow",
+            "id": 200,
+            "ph": "s",
+            "ts": 177,
+            "pid": 2,
+            "tid": 100
+        },
+        {
+            "cat": "trace",
+            "name": "flow",
+            "id": 200,
+            "ph": "f",
+            "bp": "e",
+            "ts": 183,
+            "pid": 2,
+            "tid": 101
+        },
+        {
+            "cat": "trace",
+            "name": "Send 1478412",
+            "ph": "B",
+            "pid": 2,
+            "tid": 101,
+            "ts": 180
+        },
+        {
+            "cat": "trace",
+            "name": "Recv 1478412",
+            "ph": "B",
+            "pid": 2,
+            "tid": 102,
+            "ts": 180
+        },
+        {
+            "cat": "trace",
+            "name": "Send 1478412",
+            "ph": "E",
+            "pid": 2,
+            "tid": 101,
             "ts": 190
         },
         {
             "cat": "trace",
-            "name": "2514096 ncclFloat32",
-            "ph": "B",
+            "name": "Recv 1478412",
+            "ph": "E",
             "pid": 2,
-            "tid": 1,
+            "tid": 102,
             "ts": 190
         },
         {
             "cat": "trace",
-            "name": "2514096 ncclFloat32",
+            "name": "flow",
+            "id": 201,
+            "ph": "s",
+            "ts": 187,
+            "pid": 2,
+            "tid": 101
+        },
+        {
+            "cat": "trace",
+            "name": "flow",
+            "id": 201,
+            "ph": "f",
+            "bp": "e",
+            "ts": 193,
+            "pid": 2,
+            "tid": 102
+        },
+        {
+            "cat": "trace",
+            "name": "Send 1478412",
+            "ph": "B",
+            "pid": 2,
+            "tid": 102,
+            "ts": 190
+        },
+        {
+            "cat": "trace",
+            "name": "Recv 1478412",
+            "ph": "B",
+            "pid": 2,
+            "tid": 103,
+            "ts": 190
+        },
+        {
+            "cat": "trace",
+            "name": "Send 1478412",
             "ph": "E",
             "pid": 2,
-            "tid": 1,
+            "tid": 102,
             "ts": 200
         },
         {
             "cat": "trace",
-            "name": "AllReduce",
+            "name": "Recv 1478412",
+            "ph": "E",
+            "pid": 2,
+            "tid": 103,
+            "ts": 200
+        },
+        {
+            "cat": "trace",
+            "name": "Broadcast: 369603 ncclFloat32",
             "ph": "E",
             "pid": 1,
             "tid": 1,
@@ -482,7 +934,7 @@
         },
         {
             "cat": "trace",
-            "name": "Broadcast",
+            "name": "AllReduce: 2412336 ncclFloat32",
             "ph": "B",
             "pid": 1,
             "tid": 1,
@@ -490,39 +942,23 @@
         },
         {
             "cat": "trace",
-            "name": "369603 ncclFloat32",
-            "ph": "B",
-            "pid": 2,
-            "tid": 0,
-            "ts": 200
-        },
-        {
-            "cat": "trace",
-            "name": "369603 ncclFloat32",
+            "name": "AllReduce: 2412336 ncclFloat32",
             "ph": "E",
-            "pid": 2,
-            "tid": 0,
+            "pid": 1,
+            "tid": 1,
             "ts": 210
         },
         {
             "cat": "trace",
-            "name": "369603 ncclFloat32",
+            "name": "AllReduce: 2514096 ncclFloat32",
             "ph": "B",
-            "pid": 2,
+            "pid": 1,
             "tid": 1,
             "ts": 210
         },
         {
             "cat": "trace",
-            "name": "369603 ncclFloat32",
-            "ph": "E",
-            "pid": 2,
-            "tid": 1,
-            "ts": 220
-        },
-        {
-            "cat": "trace",
-            "name": "Broadcast",
+            "name": "AllReduce: 2514096 ncclFloat32",
             "ph": "E",
             "pid": 1,
             "tid": 1,
@@ -530,7 +966,7 @@
         },
         {
             "cat": "trace",
-            "name": "AllReduce",
+            "name": "Broadcast: 369603 ncclFloat32",
             "ph": "B",
             "pid": 1,
             "tid": 1,
@@ -538,87 +974,157 @@
         },
         {
             "cat": "trace",
-            "name": "2412336 ncclFloat32",
+            "name": "Send 1478412",
             "ph": "B",
             "pid": 2,
-            "tid": 0,
+            "tid": 100,
             "ts": 220
         },
         {
             "cat": "trace",
-            "name": "2412336 ncclFloat32",
+            "name": "Recv 1478412",
+            "ph": "B",
+            "pid": 2,
+            "tid": 101,
+            "ts": 220
+        },
+        {
+            "cat": "trace",
+            "name": "Send 1478412",
             "ph": "E",
             "pid": 2,
-            "tid": 0,
+            "tid": 100,
             "ts": 230
         },
         {
             "cat": "trace",
-            "name": "2412336 ncclFloat32",
-            "ph": "B",
+            "name": "Recv 1478412",
+            "ph": "E",
             "pid": 2,
-            "tid": 1,
+            "tid": 101,
             "ts": 230
         },
         {
             "cat": "trace",
-            "name": "2412336 ncclFloat32",
-            "ph": "E",
+            "name": "flow",
+            "id": 200,
+            "ph": "s",
+            "ts": 227,
             "pid": 2,
-            "tid": 1,
-            "ts": 240
+            "tid": 100
         },
         {
             "cat": "trace",
-            "name": "AllReduce",
-            "ph": "E",
-            "pid": 1,
-            "tid": 1,
-            "ts": 240
+            "name": "flow",
+            "id": 200,
+            "ph": "f",
+            "bp": "e",
+            "ts": 233,
+            "pid": 2,
+            "tid": 101
         },
         {
             "cat": "trace",
-            "name": "AllReduce",
-            "ph": "B",
-            "pid": 1,
-            "tid": 1,
-            "ts": 240
-        },
-        {
-            "cat": "trace",
-            "name": "2514096 ncclFloat32",
+            "name": "Send 1478412",
             "ph": "B",
             "pid": 2,
-            "tid": 0,
+            "tid": 101,
+            "ts": 230
+        },
+        {
+            "cat": "trace",
+            "name": "Recv 1478412",
+            "ph": "B",
+            "pid": 2,
+            "tid": 102,
+            "ts": 230
+        },
+        {
+            "cat": "trace",
+            "name": "Send 1478412",
+            "ph": "E",
+            "pid": 2,
+            "tid": 101,
             "ts": 240
         },
         {
             "cat": "trace",
-            "name": "2514096 ncclFloat32",
+            "name": "Recv 1478412",
             "ph": "E",
             "pid": 2,
-            "tid": 0,
+            "tid": 102,
+            "ts": 240
+        },
+        {
+            "cat": "trace",
+            "name": "flow",
+            "id": 201,
+            "ph": "s",
+            "ts": 237,
+            "pid": 2,
+            "tid": 101
+        },
+        {
+            "cat": "trace",
+            "name": "flow",
+            "id": 201,
+            "ph": "f",
+            "bp": "e",
+            "ts": 243,
+            "pid": 2,
+            "tid": 102
+        },
+        {
+            "cat": "trace",
+            "name": "Send 1478412",
+            "ph": "B",
+            "pid": 2,
+            "tid": 102,
+            "ts": 240
+        },
+        {
+            "cat": "trace",
+            "name": "Recv 1478412",
+            "ph": "B",
+            "pid": 2,
+            "tid": 103,
+            "ts": 240
+        },
+        {
+            "cat": "trace",
+            "name": "Send 1478412",
+            "ph": "E",
+            "pid": 2,
+            "tid": 102,
             "ts": 250
         },
         {
             "cat": "trace",
-            "name": "2514096 ncclFloat32",
-            "ph": "B",
+            "name": "Recv 1478412",
+            "ph": "E",
             "pid": 2,
+            "tid": 103,
+            "ts": 250
+        },
+        {
+            "cat": "trace",
+            "name": "Broadcast: 369603 ncclFloat32",
+            "ph": "E",
+            "pid": 1,
             "tid": 1,
             "ts": 250
         },
         {
             "cat": "trace",
-            "name": "2514096 ncclFloat32",
-            "ph": "E",
-            "pid": 2,
+            "name": "AllReduce: 2412336 ncclFloat32",
+            "ph": "B",
+            "pid": 1,
             "tid": 1,
-            "ts": 260
+            "ts": 250
         },
         {
             "cat": "trace",
-            "name": "AllReduce",
+            "name": "AllReduce: 2412336 ncclFloat32",
             "ph": "E",
             "pid": 1,
             "tid": 1,
@@ -626,7 +1132,7 @@
         },
         {
             "cat": "trace",
-            "name": "Broadcast",
+            "name": "AllReduce: 2514096 ncclFloat32",
             "ph": "B",
             "pid": 1,
             "tid": 1,
@@ -634,87 +1140,157 @@
         },
         {
             "cat": "trace",
-            "name": "369603 ncclFloat32",
-            "ph": "B",
-            "pid": 2,
-            "tid": 0,
-            "ts": 260
-        },
-        {
-            "cat": "trace",
-            "name": "369603 ncclFloat32",
+            "name": "AllReduce: 2514096 ncclFloat32",
             "ph": "E",
-            "pid": 2,
-            "tid": 0,
-            "ts": 270
-        },
-        {
-            "cat": "trace",
-            "name": "369603 ncclFloat32",
-            "ph": "B",
-            "pid": 2,
+            "pid": 1,
             "tid": 1,
             "ts": 270
         },
         {
             "cat": "trace",
-            "name": "369603 ncclFloat32",
-            "ph": "E",
-            "pid": 2,
-            "tid": 1,
-            "ts": 280
-        },
-        {
-            "cat": "trace",
-            "name": "Broadcast",
-            "ph": "E",
-            "pid": 1,
-            "tid": 1,
-            "ts": 280
-        },
-        {
-            "cat": "trace",
-            "name": "AllReduce",
+            "name": "Broadcast: 369603 ncclFloat32",
             "ph": "B",
             "pid": 1,
             "tid": 1,
-            "ts": 280
+            "ts": 270
         },
         {
             "cat": "trace",
-            "name": "2412336 ncclFloat32",
+            "name": "Send 1478412",
             "ph": "B",
             "pid": 2,
-            "tid": 0,
+            "tid": 100,
+            "ts": 270
+        },
+        {
+            "cat": "trace",
+            "name": "Recv 1478412",
+            "ph": "B",
+            "pid": 2,
+            "tid": 101,
+            "ts": 270
+        },
+        {
+            "cat": "trace",
+            "name": "Send 1478412",
+            "ph": "E",
+            "pid": 2,
+            "tid": 100,
             "ts": 280
         },
         {
             "cat": "trace",
-            "name": "2412336 ncclFloat32",
+            "name": "Recv 1478412",
             "ph": "E",
             "pid": 2,
-            "tid": 0,
+            "tid": 101,
+            "ts": 280
+        },
+        {
+            "cat": "trace",
+            "name": "flow",
+            "id": 200,
+            "ph": "s",
+            "ts": 277,
+            "pid": 2,
+            "tid": 100
+        },
+        {
+            "cat": "trace",
+            "name": "flow",
+            "id": 200,
+            "ph": "f",
+            "bp": "e",
+            "ts": 283,
+            "pid": 2,
+            "tid": 101
+        },
+        {
+            "cat": "trace",
+            "name": "Send 1478412",
+            "ph": "B",
+            "pid": 2,
+            "tid": 101,
+            "ts": 280
+        },
+        {
+            "cat": "trace",
+            "name": "Recv 1478412",
+            "ph": "B",
+            "pid": 2,
+            "tid": 102,
+            "ts": 280
+        },
+        {
+            "cat": "trace",
+            "name": "Send 1478412",
+            "ph": "E",
+            "pid": 2,
+            "tid": 101,
             "ts": 290
         },
         {
             "cat": "trace",
-            "name": "2412336 ncclFloat32",
-            "ph": "B",
+            "name": "Recv 1478412",
+            "ph": "E",
             "pid": 2,
-            "tid": 1,
+            "tid": 102,
             "ts": 290
         },
         {
             "cat": "trace",
-            "name": "2412336 ncclFloat32",
+            "name": "flow",
+            "id": 201,
+            "ph": "s",
+            "ts": 287,
+            "pid": 2,
+            "tid": 101
+        },
+        {
+            "cat": "trace",
+            "name": "flow",
+            "id": 201,
+            "ph": "f",
+            "bp": "e",
+            "ts": 293,
+            "pid": 2,
+            "tid": 102
+        },
+        {
+            "cat": "trace",
+            "name": "Send 1478412",
+            "ph": "B",
+            "pid": 2,
+            "tid": 102,
+            "ts": 290
+        },
+        {
+            "cat": "trace",
+            "name": "Recv 1478412",
+            "ph": "B",
+            "pid": 2,
+            "tid": 103,
+            "ts": 290
+        },
+        {
+            "cat": "trace",
+            "name": "Send 1478412",
             "ph": "E",
             "pid": 2,
-            "tid": 1,
+            "tid": 102,
             "ts": 300
         },
         {
             "cat": "trace",
-            "name": "AllReduce",
+            "name": "Recv 1478412",
+            "ph": "E",
+            "pid": 2,
+            "tid": 103,
+            "ts": 300
+        },
+        {
+            "cat": "trace",
+            "name": "Broadcast: 369603 ncclFloat32",
             "ph": "E",
             "pid": 1,
             "tid": 1,
@@ -722,7 +1298,7 @@
         },
         {
             "cat": "trace",
-            "name": "AllReduce",
+            "name": "AllReduce: 2412336 ncclFloat32",
             "ph": "B",
             "pid": 1,
             "tid": 1,
@@ -730,39 +1306,23 @@
         },
         {
             "cat": "trace",
-            "name": "2514096 ncclFloat32",
-            "ph": "B",
-            "pid": 2,
-            "tid": 0,
-            "ts": 300
-        },
-        {
-            "cat": "trace",
-            "name": "2514096 ncclFloat32",
+            "name": "AllReduce: 2412336 ncclFloat32",
             "ph": "E",
-            "pid": 2,
-            "tid": 0,
+            "pid": 1,
+            "tid": 1,
             "ts": 310
         },
         {
             "cat": "trace",
-            "name": "2514096 ncclFloat32",
+            "name": "AllReduce: 2514096 ncclFloat32",
             "ph": "B",
-            "pid": 2,
+            "pid": 1,
             "tid": 1,
             "ts": 310
         },
         {
             "cat": "trace",
-            "name": "2514096 ncclFloat32",
-            "ph": "E",
-            "pid": 2,
-            "tid": 1,
-            "ts": 320
-        },
-        {
-            "cat": "trace",
-            "name": "AllReduce",
+            "name": "AllReduce: 2514096 ncclFloat32",
             "ph": "E",
             "pid": 1,
             "tid": 1,
@@ -770,7 +1330,7 @@
         },
         {
             "cat": "trace",
-            "name": "Broadcast",
+            "name": "Broadcast: 369603 ncclFloat32",
             "ph": "B",
             "pid": 1,
             "tid": 1,
@@ -778,87 +1338,157 @@
         },
         {
             "cat": "trace",
-            "name": "369603 ncclFloat32",
+            "name": "Send 1478412",
             "ph": "B",
             "pid": 2,
-            "tid": 0,
+            "tid": 100,
             "ts": 320
         },
         {
             "cat": "trace",
-            "name": "369603 ncclFloat32",
+            "name": "Recv 1478412",
+            "ph": "B",
+            "pid": 2,
+            "tid": 101,
+            "ts": 320
+        },
+        {
+            "cat": "trace",
+            "name": "Send 1478412",
             "ph": "E",
             "pid": 2,
-            "tid": 0,
+            "tid": 100,
             "ts": 330
         },
         {
             "cat": "trace",
-            "name": "369603 ncclFloat32",
-            "ph": "B",
+            "name": "Recv 1478412",
+            "ph": "E",
             "pid": 2,
-            "tid": 1,
+            "tid": 101,
             "ts": 330
         },
         {
             "cat": "trace",
-            "name": "369603 ncclFloat32",
-            "ph": "E",
+            "name": "flow",
+            "id": 200,
+            "ph": "s",
+            "ts": 327,
             "pid": 2,
-            "tid": 1,
-            "ts": 340
+            "tid": 100
         },
         {
             "cat": "trace",
-            "name": "Broadcast",
-            "ph": "E",
-            "pid": 1,
-            "tid": 1,
-            "ts": 340
+            "name": "flow",
+            "id": 200,
+            "ph": "f",
+            "bp": "e",
+            "ts": 333,
+            "pid": 2,
+            "tid": 101
         },
         {
             "cat": "trace",
-            "name": "AllReduce",
-            "ph": "B",
-            "pid": 1,
-            "tid": 1,
-            "ts": 340
-        },
-        {
-            "cat": "trace",
-            "name": "2412336 ncclFloat32",
+            "name": "Send 1478412",
             "ph": "B",
             "pid": 2,
-            "tid": 0,
+            "tid": 101,
+            "ts": 330
+        },
+        {
+            "cat": "trace",
+            "name": "Recv 1478412",
+            "ph": "B",
+            "pid": 2,
+            "tid": 102,
+            "ts": 330
+        },
+        {
+            "cat": "trace",
+            "name": "Send 1478412",
+            "ph": "E",
+            "pid": 2,
+            "tid": 101,
             "ts": 340
         },
         {
             "cat": "trace",
-            "name": "2412336 ncclFloat32",
+            "name": "Recv 1478412",
             "ph": "E",
             "pid": 2,
-            "tid": 0,
+            "tid": 102,
+            "ts": 340
+        },
+        {
+            "cat": "trace",
+            "name": "flow",
+            "id": 201,
+            "ph": "s",
+            "ts": 337,
+            "pid": 2,
+            "tid": 101
+        },
+        {
+            "cat": "trace",
+            "name": "flow",
+            "id": 201,
+            "ph": "f",
+            "bp": "e",
+            "ts": 343,
+            "pid": 2,
+            "tid": 102
+        },
+        {
+            "cat": "trace",
+            "name": "Send 1478412",
+            "ph": "B",
+            "pid": 2,
+            "tid": 102,
+            "ts": 340
+        },
+        {
+            "cat": "trace",
+            "name": "Recv 1478412",
+            "ph": "B",
+            "pid": 2,
+            "tid": 103,
+            "ts": 340
+        },
+        {
+            "cat": "trace",
+            "name": "Send 1478412",
+            "ph": "E",
+            "pid": 2,
+            "tid": 102,
             "ts": 350
         },
         {
             "cat": "trace",
-            "name": "2412336 ncclFloat32",
-            "ph": "B",
+            "name": "Recv 1478412",
+            "ph": "E",
             "pid": 2,
+            "tid": 103,
+            "ts": 350
+        },
+        {
+            "cat": "trace",
+            "name": "Broadcast: 369603 ncclFloat32",
+            "ph": "E",
+            "pid": 1,
             "tid": 1,
             "ts": 350
         },
         {
             "cat": "trace",
-            "name": "2412336 ncclFloat32",
-            "ph": "E",
-            "pid": 2,
+            "name": "AllReduce: 2412336 ncclFloat32",
+            "ph": "B",
+            "pid": 1,
             "tid": 1,
-            "ts": 360
+            "ts": 350
         },
         {
             "cat": "trace",
-            "name": "AllReduce",
+            "name": "AllReduce: 2412336 ncclFloat32",
             "ph": "E",
             "pid": 1,
             "tid": 1,
@@ -866,7 +1496,7 @@
         },
         {
             "cat": "trace",
-            "name": "AllReduce",
+            "name": "AllReduce: 2514096 ncclFloat32",
             "ph": "B",
             "pid": 1,
             "tid": 1,
@@ -874,87 +1504,157 @@
         },
         {
             "cat": "trace",
-            "name": "2514096 ncclFloat32",
-            "ph": "B",
-            "pid": 2,
-            "tid": 0,
-            "ts": 360
-        },
-        {
-            "cat": "trace",
-            "name": "2514096 ncclFloat32",
+            "name": "AllReduce: 2514096 ncclFloat32",
             "ph": "E",
-            "pid": 2,
-            "tid": 0,
-            "ts": 370
-        },
-        {
-            "cat": "trace",
-            "name": "2514096 ncclFloat32",
-            "ph": "B",
-            "pid": 2,
+            "pid": 1,
             "tid": 1,
             "ts": 370
         },
         {
             "cat": "trace",
-            "name": "2514096 ncclFloat32",
-            "ph": "E",
-            "pid": 2,
-            "tid": 1,
-            "ts": 380
-        },
-        {
-            "cat": "trace",
-            "name": "AllReduce",
-            "ph": "E",
-            "pid": 1,
-            "tid": 1,
-            "ts": 380
-        },
-        {
-            "cat": "trace",
-            "name": "Broadcast",
+            "name": "Broadcast: 369603 ncclFloat32",
             "ph": "B",
             "pid": 1,
             "tid": 1,
-            "ts": 380
+            "ts": 370
         },
         {
             "cat": "trace",
-            "name": "369603 ncclFloat32",
+            "name": "Send 1478412",
             "ph": "B",
             "pid": 2,
-            "tid": 0,
+            "tid": 100,
+            "ts": 370
+        },
+        {
+            "cat": "trace",
+            "name": "Recv 1478412",
+            "ph": "B",
+            "pid": 2,
+            "tid": 101,
+            "ts": 370
+        },
+        {
+            "cat": "trace",
+            "name": "Send 1478412",
+            "ph": "E",
+            "pid": 2,
+            "tid": 100,
             "ts": 380
         },
         {
             "cat": "trace",
-            "name": "369603 ncclFloat32",
+            "name": "Recv 1478412",
             "ph": "E",
             "pid": 2,
-            "tid": 0,
+            "tid": 101,
+            "ts": 380
+        },
+        {
+            "cat": "trace",
+            "name": "flow",
+            "id": 200,
+            "ph": "s",
+            "ts": 377,
+            "pid": 2,
+            "tid": 100
+        },
+        {
+            "cat": "trace",
+            "name": "flow",
+            "id": 200,
+            "ph": "f",
+            "bp": "e",
+            "ts": 383,
+            "pid": 2,
+            "tid": 101
+        },
+        {
+            "cat": "trace",
+            "name": "Send 1478412",
+            "ph": "B",
+            "pid": 2,
+            "tid": 101,
+            "ts": 380
+        },
+        {
+            "cat": "trace",
+            "name": "Recv 1478412",
+            "ph": "B",
+            "pid": 2,
+            "tid": 102,
+            "ts": 380
+        },
+        {
+            "cat": "trace",
+            "name": "Send 1478412",
+            "ph": "E",
+            "pid": 2,
+            "tid": 101,
             "ts": 390
         },
         {
             "cat": "trace",
-            "name": "369603 ncclFloat32",
-            "ph": "B",
+            "name": "Recv 1478412",
+            "ph": "E",
             "pid": 2,
-            "tid": 1,
+            "tid": 102,
             "ts": 390
         },
         {
             "cat": "trace",
-            "name": "369603 ncclFloat32",
+            "name": "flow",
+            "id": 201,
+            "ph": "s",
+            "ts": 387,
+            "pid": 2,
+            "tid": 101
+        },
+        {
+            "cat": "trace",
+            "name": "flow",
+            "id": 201,
+            "ph": "f",
+            "bp": "e",
+            "ts": 393,
+            "pid": 2,
+            "tid": 102
+        },
+        {
+            "cat": "trace",
+            "name": "Send 1478412",
+            "ph": "B",
+            "pid": 2,
+            "tid": 102,
+            "ts": 390
+        },
+        {
+            "cat": "trace",
+            "name": "Recv 1478412",
+            "ph": "B",
+            "pid": 2,
+            "tid": 103,
+            "ts": 390
+        },
+        {
+            "cat": "trace",
+            "name": "Send 1478412",
             "ph": "E",
             "pid": 2,
-            "tid": 1,
+            "tid": 102,
             "ts": 400
         },
         {
             "cat": "trace",
-            "name": "Broadcast",
+            "name": "Recv 1478412",
+            "ph": "E",
+            "pid": 2,
+            "tid": 103,
+            "ts": 400
+        },
+        {
+            "cat": "trace",
+            "name": "Broadcast: 369603 ncclFloat32",
             "ph": "E",
             "pid": 1,
             "tid": 1,
@@ -962,7 +1662,7 @@
         },
         {
             "cat": "trace",
-            "name": "AllReduce",
+            "name": "AllReduce: 2412336 ncclFloat32",
             "ph": "B",
             "pid": 1,
             "tid": 1,
@@ -970,39 +1670,23 @@
         },
         {
             "cat": "trace",
-            "name": "2412336 ncclFloat32",
-            "ph": "B",
-            "pid": 2,
-            "tid": 0,
-            "ts": 400
-        },
-        {
-            "cat": "trace",
-            "name": "2412336 ncclFloat32",
+            "name": "AllReduce: 2412336 ncclFloat32",
             "ph": "E",
-            "pid": 2,
-            "tid": 0,
+            "pid": 1,
+            "tid": 1,
             "ts": 410
         },
         {
             "cat": "trace",
-            "name": "2412336 ncclFloat32",
+            "name": "AllReduce: 2514096 ncclFloat32",
             "ph": "B",
-            "pid": 2,
+            "pid": 1,
             "tid": 1,
             "ts": 410
         },
         {
             "cat": "trace",
-            "name": "2412336 ncclFloat32",
-            "ph": "E",
-            "pid": 2,
-            "tid": 1,
-            "ts": 420
-        },
-        {
-            "cat": "trace",
-            "name": "AllReduce",
+            "name": "AllReduce: 2514096 ncclFloat32",
             "ph": "E",
             "pid": 1,
             "tid": 1,
@@ -1010,7 +1694,7 @@
         },
         {
             "cat": "trace",
-            "name": "AllReduce",
+            "name": "Broadcast: 369603 ncclFloat32",
             "ph": "B",
             "pid": 1,
             "tid": 1,
@@ -1018,87 +1702,157 @@
         },
         {
             "cat": "trace",
-            "name": "2514096 ncclFloat32",
+            "name": "Send 1478412",
             "ph": "B",
             "pid": 2,
-            "tid": 0,
+            "tid": 100,
             "ts": 420
         },
         {
             "cat": "trace",
-            "name": "2514096 ncclFloat32",
+            "name": "Recv 1478412",
+            "ph": "B",
+            "pid": 2,
+            "tid": 101,
+            "ts": 420
+        },
+        {
+            "cat": "trace",
+            "name": "Send 1478412",
             "ph": "E",
             "pid": 2,
-            "tid": 0,
+            "tid": 100,
             "ts": 430
         },
         {
             "cat": "trace",
-            "name": "2514096 ncclFloat32",
-            "ph": "B",
+            "name": "Recv 1478412",
+            "ph": "E",
             "pid": 2,
-            "tid": 1,
+            "tid": 101,
             "ts": 430
         },
         {
             "cat": "trace",
-            "name": "2514096 ncclFloat32",
-            "ph": "E",
+            "name": "flow",
+            "id": 200,
+            "ph": "s",
+            "ts": 427,
             "pid": 2,
-            "tid": 1,
-            "ts": 440
+            "tid": 100
         },
         {
             "cat": "trace",
-            "name": "AllReduce",
-            "ph": "E",
-            "pid": 1,
-            "tid": 1,
-            "ts": 440
+            "name": "flow",
+            "id": 200,
+            "ph": "f",
+            "bp": "e",
+            "ts": 433,
+            "pid": 2,
+            "tid": 101
         },
         {
             "cat": "trace",
-            "name": "Broadcast",
-            "ph": "B",
-            "pid": 1,
-            "tid": 1,
-            "ts": 440
-        },
-        {
-            "cat": "trace",
-            "name": "369603 ncclFloat32",
+            "name": "Send 1478412",
             "ph": "B",
             "pid": 2,
-            "tid": 0,
+            "tid": 101,
+            "ts": 430
+        },
+        {
+            "cat": "trace",
+            "name": "Recv 1478412",
+            "ph": "B",
+            "pid": 2,
+            "tid": 102,
+            "ts": 430
+        },
+        {
+            "cat": "trace",
+            "name": "Send 1478412",
+            "ph": "E",
+            "pid": 2,
+            "tid": 101,
             "ts": 440
         },
         {
             "cat": "trace",
-            "name": "369603 ncclFloat32",
+            "name": "Recv 1478412",
             "ph": "E",
             "pid": 2,
-            "tid": 0,
+            "tid": 102,
+            "ts": 440
+        },
+        {
+            "cat": "trace",
+            "name": "flow",
+            "id": 201,
+            "ph": "s",
+            "ts": 437,
+            "pid": 2,
+            "tid": 101
+        },
+        {
+            "cat": "trace",
+            "name": "flow",
+            "id": 201,
+            "ph": "f",
+            "bp": "e",
+            "ts": 443,
+            "pid": 2,
+            "tid": 102
+        },
+        {
+            "cat": "trace",
+            "name": "Send 1478412",
+            "ph": "B",
+            "pid": 2,
+            "tid": 102,
+            "ts": 440
+        },
+        {
+            "cat": "trace",
+            "name": "Recv 1478412",
+            "ph": "B",
+            "pid": 2,
+            "tid": 103,
+            "ts": 440
+        },
+        {
+            "cat": "trace",
+            "name": "Send 1478412",
+            "ph": "E",
+            "pid": 2,
+            "tid": 102,
             "ts": 450
         },
         {
             "cat": "trace",
-            "name": "369603 ncclFloat32",
-            "ph": "B",
+            "name": "Recv 1478412",
+            "ph": "E",
             "pid": 2,
+            "tid": 103,
+            "ts": 450
+        },
+        {
+            "cat": "trace",
+            "name": "Broadcast: 369603 ncclFloat32",
+            "ph": "E",
+            "pid": 1,
             "tid": 1,
             "ts": 450
         },
         {
             "cat": "trace",
-            "name": "369603 ncclFloat32",
-            "ph": "E",
-            "pid": 2,
+            "name": "AllReduce: 2412336 ncclFloat32",
+            "ph": "B",
+            "pid": 1,
             "tid": 1,
-            "ts": 460
+            "ts": 450
         },
         {
             "cat": "trace",
-            "name": "Broadcast",
+            "name": "AllReduce: 2412336 ncclFloat32",
             "ph": "E",
             "pid": 1,
             "tid": 1,
@@ -1106,7 +1860,7 @@
         },
         {
             "cat": "trace",
-            "name": "AllReduce",
+            "name": "AllReduce: 2514096 ncclFloat32",
             "ph": "B",
             "pid": 1,
             "tid": 1,
@@ -1114,87 +1868,157 @@
         },
         {
             "cat": "trace",
-            "name": "2412336 ncclFloat32",
-            "ph": "B",
-            "pid": 2,
-            "tid": 0,
-            "ts": 460
-        },
-        {
-            "cat": "trace",
-            "name": "2412336 ncclFloat32",
+            "name": "AllReduce: 2514096 ncclFloat32",
             "ph": "E",
-            "pid": 2,
-            "tid": 0,
-            "ts": 470
-        },
-        {
-            "cat": "trace",
-            "name": "2412336 ncclFloat32",
-            "ph": "B",
-            "pid": 2,
+            "pid": 1,
             "tid": 1,
             "ts": 470
         },
         {
             "cat": "trace",
-            "name": "2412336 ncclFloat32",
-            "ph": "E",
-            "pid": 2,
-            "tid": 1,
-            "ts": 480
-        },
-        {
-            "cat": "trace",
-            "name": "AllReduce",
-            "ph": "E",
-            "pid": 1,
-            "tid": 1,
-            "ts": 480
-        },
-        {
-            "cat": "trace",
-            "name": "AllReduce",
+            "name": "Broadcast: 369603 ncclFloat32",
             "ph": "B",
             "pid": 1,
             "tid": 1,
-            "ts": 480
+            "ts": 470
         },
         {
             "cat": "trace",
-            "name": "2514096 ncclFloat32",
+            "name": "Send 1478412",
             "ph": "B",
             "pid": 2,
-            "tid": 0,
+            "tid": 100,
+            "ts": 470
+        },
+        {
+            "cat": "trace",
+            "name": "Recv 1478412",
+            "ph": "B",
+            "pid": 2,
+            "tid": 101,
+            "ts": 470
+        },
+        {
+            "cat": "trace",
+            "name": "Send 1478412",
+            "ph": "E",
+            "pid": 2,
+            "tid": 100,
             "ts": 480
         },
         {
             "cat": "trace",
-            "name": "2514096 ncclFloat32",
+            "name": "Recv 1478412",
             "ph": "E",
             "pid": 2,
-            "tid": 0,
+            "tid": 101,
+            "ts": 480
+        },
+        {
+            "cat": "trace",
+            "name": "flow",
+            "id": 200,
+            "ph": "s",
+            "ts": 477,
+            "pid": 2,
+            "tid": 100
+        },
+        {
+            "cat": "trace",
+            "name": "flow",
+            "id": 200,
+            "ph": "f",
+            "bp": "e",
+            "ts": 483,
+            "pid": 2,
+            "tid": 101
+        },
+        {
+            "cat": "trace",
+            "name": "Send 1478412",
+            "ph": "B",
+            "pid": 2,
+            "tid": 101,
+            "ts": 480
+        },
+        {
+            "cat": "trace",
+            "name": "Recv 1478412",
+            "ph": "B",
+            "pid": 2,
+            "tid": 102,
+            "ts": 480
+        },
+        {
+            "cat": "trace",
+            "name": "Send 1478412",
+            "ph": "E",
+            "pid": 2,
+            "tid": 101,
             "ts": 490
         },
         {
             "cat": "trace",
-            "name": "2514096 ncclFloat32",
-            "ph": "B",
+            "name": "Recv 1478412",
+            "ph": "E",
             "pid": 2,
-            "tid": 1,
+            "tid": 102,
             "ts": 490
         },
         {
             "cat": "trace",
-            "name": "2514096 ncclFloat32",
+            "name": "flow",
+            "id": 201,
+            "ph": "s",
+            "ts": 487,
+            "pid": 2,
+            "tid": 101
+        },
+        {
+            "cat": "trace",
+            "name": "flow",
+            "id": 201,
+            "ph": "f",
+            "bp": "e",
+            "ts": 493,
+            "pid": 2,
+            "tid": 102
+        },
+        {
+            "cat": "trace",
+            "name": "Send 1478412",
+            "ph": "B",
+            "pid": 2,
+            "tid": 102,
+            "ts": 490
+        },
+        {
+            "cat": "trace",
+            "name": "Recv 1478412",
+            "ph": "B",
+            "pid": 2,
+            "tid": 103,
+            "ts": 490
+        },
+        {
+            "cat": "trace",
+            "name": "Send 1478412",
             "ph": "E",
             "pid": 2,
-            "tid": 1,
+            "tid": 102,
             "ts": 500
         },
         {
             "cat": "trace",
-            "name": "AllReduce",
+            "name": "Recv 1478412",
+            "ph": "E",
+            "pid": 2,
+            "tid": 103,
+            "ts": 500
+        },
+        {
+            "cat": "trace",
+            "name": "Broadcast: 369603 ncclFloat32",
             "ph": "E",
             "pid": 1,
             "tid": 1,
@@ -1202,7 +2026,7 @@
         },
         {
             "cat": "trace",
-            "name": "Broadcast",
+            "name": "AllReduce: 2412336 ncclFloat32",
             "ph": "B",
             "pid": 1,
             "tid": 1,
@@ -1210,39 +2034,23 @@
         },
         {
             "cat": "trace",
-            "name": "369603 ncclFloat32",
-            "ph": "B",
-            "pid": 2,
-            "tid": 0,
-            "ts": 500
-        },
-        {
-            "cat": "trace",
-            "name": "369603 ncclFloat32",
+            "name": "AllReduce: 2412336 ncclFloat32",
             "ph": "E",
-            "pid": 2,
-            "tid": 0,
+            "pid": 1,
+            "tid": 1,
             "ts": 510
         },
         {
             "cat": "trace",
-            "name": "369603 ncclFloat32",
+            "name": "AllReduce: 2514096 ncclFloat32",
             "ph": "B",
-            "pid": 2,
+            "pid": 1,
             "tid": 1,
             "ts": 510
         },
         {
             "cat": "trace",
-            "name": "369603 ncclFloat32",
-            "ph": "E",
-            "pid": 2,
-            "tid": 1,
-            "ts": 520
-        },
-        {
-            "cat": "trace",
-            "name": "Broadcast",
+            "name": "AllReduce: 2514096 ncclFloat32",
             "ph": "E",
             "pid": 1,
             "tid": 1,
@@ -1250,7 +2058,7 @@
         },
         {
             "cat": "trace",
-            "name": "AllReduce",
+            "name": "Broadcast: 369603 ncclFloat32",
             "ph": "B",
             "pid": 1,
             "tid": 1,
@@ -1258,1147 +2066,161 @@
         },
         {
             "cat": "trace",
-            "name": "2412336 ncclFloat32",
+            "name": "Send 1478412",
             "ph": "B",
             "pid": 2,
-            "tid": 0,
+            "tid": 100,
             "ts": 520
         },
         {
             "cat": "trace",
-            "name": "2412336 ncclFloat32",
+            "name": "Recv 1478412",
+            "ph": "B",
+            "pid": 2,
+            "tid": 101,
+            "ts": 520
+        },
+        {
+            "cat": "trace",
+            "name": "Send 1478412",
             "ph": "E",
             "pid": 2,
-            "tid": 0,
+            "tid": 100,
             "ts": 530
         },
         {
             "cat": "trace",
-            "name": "2412336 ncclFloat32",
-            "ph": "B",
+            "name": "Recv 1478412",
+            "ph": "E",
             "pid": 2,
-            "tid": 1,
+            "tid": 101,
             "ts": 530
         },
         {
             "cat": "trace",
-            "name": "2412336 ncclFloat32",
-            "ph": "E",
+            "name": "flow",
+            "id": 200,
+            "ph": "s",
+            "ts": 527,
             "pid": 2,
-            "tid": 1,
-            "ts": 540
+            "tid": 100
         },
         {
             "cat": "trace",
-            "name": "AllReduce",
-            "ph": "E",
-            "pid": 1,
-            "tid": 1,
-            "ts": 540
+            "name": "flow",
+            "id": 200,
+            "ph": "f",
+            "bp": "e",
+            "ts": 533,
+            "pid": 2,
+            "tid": 101
         },
         {
             "cat": "trace",
-            "name": "AllReduce",
-            "ph": "B",
-            "pid": 1,
-            "tid": 1,
-            "ts": 540
-        },
-        {
-            "cat": "trace",
-            "name": "2514096 ncclFloat32",
+            "name": "Send 1478412",
             "ph": "B",
             "pid": 2,
-            "tid": 0,
+            "tid": 101,
+            "ts": 530
+        },
+        {
+            "cat": "trace",
+            "name": "Recv 1478412",
+            "ph": "B",
+            "pid": 2,
+            "tid": 102,
+            "ts": 530
+        },
+        {
+            "cat": "trace",
+            "name": "Send 1478412",
+            "ph": "E",
+            "pid": 2,
+            "tid": 101,
             "ts": 540
         },
         {
             "cat": "trace",
-            "name": "2514096 ncclFloat32",
+            "name": "Recv 1478412",
             "ph": "E",
             "pid": 2,
-            "tid": 0,
+            "tid": 102,
+            "ts": 540
+        },
+        {
+            "cat": "trace",
+            "name": "flow",
+            "id": 201,
+            "ph": "s",
+            "ts": 537,
+            "pid": 2,
+            "tid": 101
+        },
+        {
+            "cat": "trace",
+            "name": "flow",
+            "id": 201,
+            "ph": "f",
+            "bp": "e",
+            "ts": 543,
+            "pid": 2,
+            "tid": 102
+        },
+        {
+            "cat": "trace",
+            "name": "Send 1478412",
+            "ph": "B",
+            "pid": 2,
+            "tid": 102,
+            "ts": 540
+        },
+        {
+            "cat": "trace",
+            "name": "Recv 1478412",
+            "ph": "B",
+            "pid": 2,
+            "tid": 103,
+            "ts": 540
+        },
+        {
+            "cat": "trace",
+            "name": "Send 1478412",
+            "ph": "E",
+            "pid": 2,
+            "tid": 102,
             "ts": 550
         },
         {
             "cat": "trace",
-            "name": "2514096 ncclFloat32",
-            "ph": "B",
+            "name": "Recv 1478412",
+            "ph": "E",
             "pid": 2,
+            "tid": 103,
+            "ts": 550
+        },
+        {
+            "cat": "trace",
+            "name": "Broadcast: 369603 ncclFloat32",
+            "ph": "E",
+            "pid": 1,
             "tid": 1,
             "ts": 550
         },
         {
             "cat": "trace",
-            "name": "2514096 ncclFloat32",
-            "ph": "E",
-            "pid": 2,
+            "name": "AllReduce: 2412336 ncclFloat32",
+            "ph": "B",
+            "pid": 1,
             "tid": 1,
-            "ts": 560
+            "ts": 550
         },
         {
             "cat": "trace",
-            "name": "AllReduce",
+            "name": "AllReduce: 2412336 ncclFloat32",
             "ph": "E",
             "pid": 1,
             "tid": 1,
             "ts": 560
-        },
-        {
-            "cat": "trace",
-            "name": "Broadcast",
-            "ph": "B",
-            "pid": 1,
-            "tid": 1,
-            "ts": 560
-        },
-        {
-            "cat": "trace",
-            "name": "369603 ncclFloat32",
-            "ph": "B",
-            "pid": 2,
-            "tid": 0,
-            "ts": 560
-        },
-        {
-            "cat": "trace",
-            "name": "369603 ncclFloat32",
-            "ph": "E",
-            "pid": 2,
-            "tid": 0,
-            "ts": 570
-        },
-        {
-            "cat": "trace",
-            "name": "369603 ncclFloat32",
-            "ph": "B",
-            "pid": 2,
-            "tid": 1,
-            "ts": 570
-        },
-        {
-            "cat": "trace",
-            "name": "369603 ncclFloat32",
-            "ph": "E",
-            "pid": 2,
-            "tid": 1,
-            "ts": 580
-        },
-        {
-            "cat": "trace",
-            "name": "Broadcast",
-            "ph": "E",
-            "pid": 1,
-            "tid": 1,
-            "ts": 580
-        },
-        {
-            "cat": "trace",
-            "name": "AllReduce",
-            "ph": "B",
-            "pid": 1,
-            "tid": 1,
-            "ts": 580
-        },
-        {
-            "cat": "trace",
-            "name": "2412336 ncclFloat32",
-            "ph": "B",
-            "pid": 2,
-            "tid": 0,
-            "ts": 580
-        },
-        {
-            "cat": "trace",
-            "name": "2412336 ncclFloat32",
-            "ph": "E",
-            "pid": 2,
-            "tid": 0,
-            "ts": 590
-        },
-        {
-            "cat": "trace",
-            "name": "2412336 ncclFloat32",
-            "ph": "B",
-            "pid": 2,
-            "tid": 1,
-            "ts": 590
-        },
-        {
-            "cat": "trace",
-            "name": "2412336 ncclFloat32",
-            "ph": "E",
-            "pid": 2,
-            "tid": 1,
-            "ts": 600
-        },
-        {
-            "cat": "trace",
-            "name": "AllReduce",
-            "ph": "E",
-            "pid": 1,
-            "tid": 1,
-            "ts": 600
-        },
-        {
-            "cat": "trace",
-            "name": "AllReduce",
-            "ph": "B",
-            "pid": 1,
-            "tid": 1,
-            "ts": 600
-        },
-        {
-            "cat": "trace",
-            "name": "2514096 ncclFloat32",
-            "ph": "B",
-            "pid": 2,
-            "tid": 0,
-            "ts": 600
-        },
-        {
-            "cat": "trace",
-            "name": "2514096 ncclFloat32",
-            "ph": "E",
-            "pid": 2,
-            "tid": 0,
-            "ts": 610
-        },
-        {
-            "cat": "trace",
-            "name": "2514096 ncclFloat32",
-            "ph": "B",
-            "pid": 2,
-            "tid": 1,
-            "ts": 610
-        },
-        {
-            "cat": "trace",
-            "name": "2514096 ncclFloat32",
-            "ph": "E",
-            "pid": 2,
-            "tid": 1,
-            "ts": 620
-        },
-        {
-            "cat": "trace",
-            "name": "AllReduce",
-            "ph": "E",
-            "pid": 1,
-            "tid": 1,
-            "ts": 620
-        },
-        {
-            "cat": "trace",
-            "name": "Broadcast",
-            "ph": "B",
-            "pid": 1,
-            "tid": 1,
-            "ts": 620
-        },
-        {
-            "cat": "trace",
-            "name": "369603 ncclFloat32",
-            "ph": "B",
-            "pid": 2,
-            "tid": 0,
-            "ts": 620
-        },
-        {
-            "cat": "trace",
-            "name": "369603 ncclFloat32",
-            "ph": "E",
-            "pid": 2,
-            "tid": 0,
-            "ts": 630
-        },
-        {
-            "cat": "trace",
-            "name": "369603 ncclFloat32",
-            "ph": "B",
-            "pid": 2,
-            "tid": 1,
-            "ts": 630
-        },
-        {
-            "cat": "trace",
-            "name": "369603 ncclFloat32",
-            "ph": "E",
-            "pid": 2,
-            "tid": 1,
-            "ts": 640
-        },
-        {
-            "cat": "trace",
-            "name": "Broadcast",
-            "ph": "E",
-            "pid": 1,
-            "tid": 1,
-            "ts": 640
-        },
-        {
-            "cat": "trace",
-            "name": "AllReduce",
-            "ph": "B",
-            "pid": 1,
-            "tid": 1,
-            "ts": 640
-        },
-        {
-            "cat": "trace",
-            "name": "2412336 ncclFloat32",
-            "ph": "B",
-            "pid": 2,
-            "tid": 0,
-            "ts": 640
-        },
-        {
-            "cat": "trace",
-            "name": "2412336 ncclFloat32",
-            "ph": "E",
-            "pid": 2,
-            "tid": 0,
-            "ts": 650
-        },
-        {
-            "cat": "trace",
-            "name": "2412336 ncclFloat32",
-            "ph": "B",
-            "pid": 2,
-            "tid": 1,
-            "ts": 650
-        },
-        {
-            "cat": "trace",
-            "name": "2412336 ncclFloat32",
-            "ph": "E",
-            "pid": 2,
-            "tid": 1,
-            "ts": 660
-        },
-        {
-            "cat": "trace",
-            "name": "AllReduce",
-            "ph": "E",
-            "pid": 1,
-            "tid": 1,
-            "ts": 660
-        },
-        {
-            "cat": "trace",
-            "name": "AllReduce",
-            "ph": "B",
-            "pid": 1,
-            "tid": 1,
-            "ts": 660
-        },
-        {
-            "cat": "trace",
-            "name": "2514096 ncclFloat32",
-            "ph": "B",
-            "pid": 2,
-            "tid": 0,
-            "ts": 660
-        },
-        {
-            "cat": "trace",
-            "name": "2514096 ncclFloat32",
-            "ph": "E",
-            "pid": 2,
-            "tid": 0,
-            "ts": 670
-        },
-        {
-            "cat": "trace",
-            "name": "2514096 ncclFloat32",
-            "ph": "B",
-            "pid": 2,
-            "tid": 1,
-            "ts": 670
-        },
-        {
-            "cat": "trace",
-            "name": "2514096 ncclFloat32",
-            "ph": "E",
-            "pid": 2,
-            "tid": 1,
-            "ts": 680
-        },
-        {
-            "cat": "trace",
-            "name": "AllReduce",
-            "ph": "E",
-            "pid": 1,
-            "tid": 1,
-            "ts": 680
-        },
-        {
-            "cat": "trace",
-            "name": "Broadcast",
-            "ph": "B",
-            "pid": 1,
-            "tid": 1,
-            "ts": 680
-        },
-        {
-            "cat": "trace",
-            "name": "369603 ncclFloat32",
-            "ph": "B",
-            "pid": 2,
-            "tid": 0,
-            "ts": 680
-        },
-        {
-            "cat": "trace",
-            "name": "369603 ncclFloat32",
-            "ph": "E",
-            "pid": 2,
-            "tid": 0,
-            "ts": 690
-        },
-        {
-            "cat": "trace",
-            "name": "369603 ncclFloat32",
-            "ph": "B",
-            "pid": 2,
-            "tid": 1,
-            "ts": 690
-        },
-        {
-            "cat": "trace",
-            "name": "369603 ncclFloat32",
-            "ph": "E",
-            "pid": 2,
-            "tid": 1,
-            "ts": 700
-        },
-        {
-            "cat": "trace",
-            "name": "Broadcast",
-            "ph": "E",
-            "pid": 1,
-            "tid": 1,
-            "ts": 700
-        },
-        {
-            "cat": "trace",
-            "name": "AllReduce",
-            "ph": "B",
-            "pid": 1,
-            "tid": 1,
-            "ts": 700
-        },
-        {
-            "cat": "trace",
-            "name": "2412336 ncclFloat32",
-            "ph": "B",
-            "pid": 2,
-            "tid": 0,
-            "ts": 700
-        },
-        {
-            "cat": "trace",
-            "name": "2412336 ncclFloat32",
-            "ph": "E",
-            "pid": 2,
-            "tid": 0,
-            "ts": 710
-        },
-        {
-            "cat": "trace",
-            "name": "2412336 ncclFloat32",
-            "ph": "B",
-            "pid": 2,
-            "tid": 1,
-            "ts": 710
-        },
-        {
-            "cat": "trace",
-            "name": "2412336 ncclFloat32",
-            "ph": "E",
-            "pid": 2,
-            "tid": 1,
-            "ts": 720
-        },
-        {
-            "cat": "trace",
-            "name": "AllReduce",
-            "ph": "E",
-            "pid": 1,
-            "tid": 1,
-            "ts": 720
-        },
-        {
-            "cat": "trace",
-            "name": "AllReduce",
-            "ph": "B",
-            "pid": 1,
-            "tid": 1,
-            "ts": 720
-        },
-        {
-            "cat": "trace",
-            "name": "2514096 ncclFloat32",
-            "ph": "B",
-            "pid": 2,
-            "tid": 0,
-            "ts": 720
-        },
-        {
-            "cat": "trace",
-            "name": "2514096 ncclFloat32",
-            "ph": "E",
-            "pid": 2,
-            "tid": 0,
-            "ts": 730
-        },
-        {
-            "cat": "trace",
-            "name": "2514096 ncclFloat32",
-            "ph": "B",
-            "pid": 2,
-            "tid": 1,
-            "ts": 730
-        },
-        {
-            "cat": "trace",
-            "name": "2514096 ncclFloat32",
-            "ph": "E",
-            "pid": 2,
-            "tid": 1,
-            "ts": 740
-        },
-        {
-            "cat": "trace",
-            "name": "AllReduce",
-            "ph": "E",
-            "pid": 1,
-            "tid": 1,
-            "ts": 740
-        },
-        {
-            "cat": "trace",
-            "name": "Broadcast",
-            "ph": "B",
-            "pid": 1,
-            "tid": 1,
-            "ts": 740
-        },
-        {
-            "cat": "trace",
-            "name": "369603 ncclFloat32",
-            "ph": "B",
-            "pid": 2,
-            "tid": 0,
-            "ts": 740
-        },
-        {
-            "cat": "trace",
-            "name": "369603 ncclFloat32",
-            "ph": "E",
-            "pid": 2,
-            "tid": 0,
-            "ts": 750
-        },
-        {
-            "cat": "trace",
-            "name": "369603 ncclFloat32",
-            "ph": "B",
-            "pid": 2,
-            "tid": 1,
-            "ts": 750
-        },
-        {
-            "cat": "trace",
-            "name": "369603 ncclFloat32",
-            "ph": "E",
-            "pid": 2,
-            "tid": 1,
-            "ts": 760
-        },
-        {
-            "cat": "trace",
-            "name": "Broadcast",
-            "ph": "E",
-            "pid": 1,
-            "tid": 1,
-            "ts": 760
-        },
-        {
-            "cat": "trace",
-            "name": "AllReduce",
-            "ph": "B",
-            "pid": 1,
-            "tid": 1,
-            "ts": 760
-        },
-        {
-            "cat": "trace",
-            "name": "2412336 ncclFloat32",
-            "ph": "B",
-            "pid": 2,
-            "tid": 0,
-            "ts": 760
-        },
-        {
-            "cat": "trace",
-            "name": "2412336 ncclFloat32",
-            "ph": "E",
-            "pid": 2,
-            "tid": 0,
-            "ts": 770
-        },
-        {
-            "cat": "trace",
-            "name": "2412336 ncclFloat32",
-            "ph": "B",
-            "pid": 2,
-            "tid": 1,
-            "ts": 770
-        },
-        {
-            "cat": "trace",
-            "name": "2412336 ncclFloat32",
-            "ph": "E",
-            "pid": 2,
-            "tid": 1,
-            "ts": 780
-        },
-        {
-            "cat": "trace",
-            "name": "AllReduce",
-            "ph": "E",
-            "pid": 1,
-            "tid": 1,
-            "ts": 780
-        },
-        {
-            "cat": "trace",
-            "name": "AllReduce",
-            "ph": "B",
-            "pid": 1,
-            "tid": 1,
-            "ts": 780
-        },
-        {
-            "cat": "trace",
-            "name": "2514096 ncclFloat32",
-            "ph": "B",
-            "pid": 2,
-            "tid": 0,
-            "ts": 780
-        },
-        {
-            "cat": "trace",
-            "name": "2514096 ncclFloat32",
-            "ph": "E",
-            "pid": 2,
-            "tid": 0,
-            "ts": 790
-        },
-        {
-            "cat": "trace",
-            "name": "2514096 ncclFloat32",
-            "ph": "B",
-            "pid": 2,
-            "tid": 1,
-            "ts": 790
-        },
-        {
-            "cat": "trace",
-            "name": "2514096 ncclFloat32",
-            "ph": "E",
-            "pid": 2,
-            "tid": 1,
-            "ts": 800
-        },
-        {
-            "cat": "trace",
-            "name": "AllReduce",
-            "ph": "E",
-            "pid": 1,
-            "tid": 1,
-            "ts": 800
-        },
-        {
-            "cat": "trace",
-            "name": "Broadcast",
-            "ph": "B",
-            "pid": 1,
-            "tid": 1,
-            "ts": 800
-        },
-        {
-            "cat": "trace",
-            "name": "369603 ncclFloat32",
-            "ph": "B",
-            "pid": 2,
-            "tid": 0,
-            "ts": 800
-        },
-        {
-            "cat": "trace",
-            "name": "369603 ncclFloat32",
-            "ph": "E",
-            "pid": 2,
-            "tid": 0,
-            "ts": 810
-        },
-        {
-            "cat": "trace",
-            "name": "369603 ncclFloat32",
-            "ph": "B",
-            "pid": 2,
-            "tid": 1,
-            "ts": 810
-        },
-        {
-            "cat": "trace",
-            "name": "369603 ncclFloat32",
-            "ph": "E",
-            "pid": 2,
-            "tid": 1,
-            "ts": 820
-        },
-        {
-            "cat": "trace",
-            "name": "Broadcast",
-            "ph": "E",
-            "pid": 1,
-            "tid": 1,
-            "ts": 820
-        },
-        {
-            "cat": "trace",
-            "name": "AllReduce",
-            "ph": "B",
-            "pid": 1,
-            "tid": 1,
-            "ts": 820
-        },
-        {
-            "cat": "trace",
-            "name": "2412336 ncclFloat32",
-            "ph": "B",
-            "pid": 2,
-            "tid": 0,
-            "ts": 820
-        },
-        {
-            "cat": "trace",
-            "name": "2412336 ncclFloat32",
-            "ph": "E",
-            "pid": 2,
-            "tid": 0,
-            "ts": 830
-        },
-        {
-            "cat": "trace",
-            "name": "2412336 ncclFloat32",
-            "ph": "B",
-            "pid": 2,
-            "tid": 1,
-            "ts": 830
-        },
-        {
-            "cat": "trace",
-            "name": "2412336 ncclFloat32",
-            "ph": "E",
-            "pid": 2,
-            "tid": 1,
-            "ts": 840
-        },
-        {
-            "cat": "trace",
-            "name": "AllReduce",
-            "ph": "E",
-            "pid": 1,
-            "tid": 1,
-            "ts": 840
-        },
-        {
-            "cat": "trace",
-            "name": "AllReduce",
-            "ph": "B",
-            "pid": 1,
-            "tid": 1,
-            "ts": 840
-        },
-        {
-            "cat": "trace",
-            "name": "2514096 ncclFloat32",
-            "ph": "B",
-            "pid": 2,
-            "tid": 0,
-            "ts": 840
-        },
-        {
-            "cat": "trace",
-            "name": "2514096 ncclFloat32",
-            "ph": "E",
-            "pid": 2,
-            "tid": 0,
-            "ts": 850
-        },
-        {
-            "cat": "trace",
-            "name": "2514096 ncclFloat32",
-            "ph": "B",
-            "pid": 2,
-            "tid": 1,
-            "ts": 850
-        },
-        {
-            "cat": "trace",
-            "name": "2514096 ncclFloat32",
-            "ph": "E",
-            "pid": 2,
-            "tid": 1,
-            "ts": 860
-        },
-        {
-            "cat": "trace",
-            "name": "AllReduce",
-            "ph": "E",
-            "pid": 1,
-            "tid": 1,
-            "ts": 860
-        },
-        {
-            "cat": "trace",
-            "name": "Broadcast",
-            "ph": "B",
-            "pid": 1,
-            "tid": 1,
-            "ts": 860
-        },
-        {
-            "cat": "trace",
-            "name": "369603 ncclFloat32",
-            "ph": "B",
-            "pid": 2,
-            "tid": 0,
-            "ts": 860
-        },
-        {
-            "cat": "trace",
-            "name": "369603 ncclFloat32",
-            "ph": "E",
-            "pid": 2,
-            "tid": 0,
-            "ts": 870
-        },
-        {
-            "cat": "trace",
-            "name": "369603 ncclFloat32",
-            "ph": "B",
-            "pid": 2,
-            "tid": 1,
-            "ts": 870
-        },
-        {
-            "cat": "trace",
-            "name": "369603 ncclFloat32",
-            "ph": "E",
-            "pid": 2,
-            "tid": 1,
-            "ts": 880
-        },
-        {
-            "cat": "trace",
-            "name": "Broadcast",
-            "ph": "E",
-            "pid": 1,
-            "tid": 1,
-            "ts": 880
-        },
-        {
-            "cat": "trace",
-            "name": "AllReduce",
-            "ph": "B",
-            "pid": 1,
-            "tid": 1,
-            "ts": 880
-        },
-        {
-            "cat": "trace",
-            "name": "2412336 ncclFloat32",
-            "ph": "B",
-            "pid": 2,
-            "tid": 0,
-            "ts": 880
-        },
-        {
-            "cat": "trace",
-            "name": "2412336 ncclFloat32",
-            "ph": "E",
-            "pid": 2,
-            "tid": 0,
-            "ts": 890
-        },
-        {
-            "cat": "trace",
-            "name": "2412336 ncclFloat32",
-            "ph": "B",
-            "pid": 2,
-            "tid": 1,
-            "ts": 890
-        },
-        {
-            "cat": "trace",
-            "name": "2412336 ncclFloat32",
-            "ph": "E",
-            "pid": 2,
-            "tid": 1,
-            "ts": 900
-        },
-        {
-            "cat": "trace",
-            "name": "AllReduce",
-            "ph": "E",
-            "pid": 1,
-            "tid": 1,
-            "ts": 900
-        },
-        {
-            "cat": "trace",
-            "name": "AllReduce",
-            "ph": "B",
-            "pid": 1,
-            "tid": 1,
-            "ts": 900
-        },
-        {
-            "cat": "trace",
-            "name": "2514096 ncclFloat32",
-            "ph": "B",
-            "pid": 2,
-            "tid": 0,
-            "ts": 900
-        },
-        {
-            "cat": "trace",
-            "name": "2514096 ncclFloat32",
-            "ph": "E",
-            "pid": 2,
-            "tid": 0,
-            "ts": 910
-        },
-        {
-            "cat": "trace",
-            "name": "2514096 ncclFloat32",
-            "ph": "B",
-            "pid": 2,
-            "tid": 1,
-            "ts": 910
-        },
-        {
-            "cat": "trace",
-            "name": "2514096 ncclFloat32",
-            "ph": "E",
-            "pid": 2,
-            "tid": 1,
-            "ts": 920
-        },
-        {
-            "cat": "trace",
-            "name": "AllReduce",
-            "ph": "E",
-            "pid": 1,
-            "tid": 1,
-            "ts": 920
-        },
-        {
-            "cat": "trace",
-            "name": "Broadcast",
-            "ph": "B",
-            "pid": 1,
-            "tid": 1,
-            "ts": 920
-        },
-        {
-            "cat": "trace",
-            "name": "369603 ncclFloat32",
-            "ph": "B",
-            "pid": 2,
-            "tid": 0,
-            "ts": 920
-        },
-        {
-            "cat": "trace",
-            "name": "369603 ncclFloat32",
-            "ph": "E",
-            "pid": 2,
-            "tid": 0,
-            "ts": 930
-        },
-        {
-            "cat": "trace",
-            "name": "369603 ncclFloat32",
-            "ph": "B",
-            "pid": 2,
-            "tid": 1,
-            "ts": 930
-        },
-        {
-            "cat": "trace",
-            "name": "369603 ncclFloat32",
-            "ph": "E",
-            "pid": 2,
-            "tid": 1,
-            "ts": 940
-        },
-        {
-            "cat": "trace",
-            "name": "Broadcast",
-            "ph": "E",
-            "pid": 1,
-            "tid": 1,
-            "ts": 940
-        },
-        {
-            "cat": "trace",
-            "name": "AllReduce",
-            "ph": "B",
-            "pid": 1,
-            "tid": 1,
-            "ts": 940
-        },
-        {
-            "cat": "trace",
-            "name": "2412336 ncclFloat32",
-            "ph": "B",
-            "pid": 2,
-            "tid": 0,
-            "ts": 940
-        },
-        {
-            "cat": "trace",
-            "name": "2412336 ncclFloat32",
-            "ph": "E",
-            "pid": 2,
-            "tid": 0,
-            "ts": 950
-        },
-        {
-            "cat": "trace",
-            "name": "2412336 ncclFloat32",
-            "ph": "B",
-            "pid": 2,
-            "tid": 1,
-            "ts": 950
-        },
-        {
-            "cat": "trace",
-            "name": "2412336 ncclFloat32",
-            "ph": "E",
-            "pid": 2,
-            "tid": 1,
-            "ts": 960
-        },
-        {
-            "cat": "trace",
-            "name": "AllReduce",
-            "ph": "E",
-            "pid": 1,
-            "tid": 1,
-            "ts": 960
-        },
-        {
-            "cat": "trace",
-            "name": "AllReduce",
-            "ph": "B",
-            "pid": 1,
-            "tid": 1,
-            "ts": 960
-        },
-        {
-            "cat": "trace",
-            "name": "2514096 ncclFloat32",
-            "ph": "B",
-            "pid": 2,
-            "tid": 0,
-            "ts": 960
-        },
-        {
-            "cat": "trace",
-            "name": "2514096 ncclFloat32",
-            "ph": "E",
-            "pid": 2,
-            "tid": 0,
-            "ts": 970
-        },
-        {
-            "cat": "trace",
-            "name": "2514096 ncclFloat32",
-            "ph": "B",
-            "pid": 2,
-            "tid": 1,
-            "ts": 970
-        },
-        {
-            "cat": "trace",
-            "name": "2514096 ncclFloat32",
-            "ph": "E",
-            "pid": 2,
-            "tid": 1,
-            "ts": 980
-        },
-        {
-            "cat": "trace",
-            "name": "AllReduce",
-            "ph": "E",
-            "pid": 1,
-            "tid": 1,
-            "ts": 980
-        },
-        {
-            "cat": "trace",
-            "name": "Broadcast",
-            "ph": "B",
-            "pid": 1,
-            "tid": 1,
-            "ts": 980
-        },
-        {
-            "cat": "trace",
-            "name": "369603 ncclFloat32",
-            "ph": "B",
-            "pid": 2,
-            "tid": 0,
-            "ts": 980
-        },
-        {
-            "cat": "trace",
-            "name": "369603 ncclFloat32",
-            "ph": "E",
-            "pid": 2,
-            "tid": 0,
-            "ts": 990
-        },
-        {
-            "cat": "trace",
-            "name": "369603 ncclFloat32",
-            "ph": "B",
-            "pid": 2,
-            "tid": 1,
-            "ts": 990
-        },
-        {
-            "cat": "trace",
-            "name": "369603 ncclFloat32",
-            "ph": "E",
-            "pid": 2,
-            "tid": 1,
-            "ts": 1000
-        },
-        {
-            "cat": "trace",
-            "name": "Broadcast",
-            "ph": "E",
-            "pid": 1,
-            "tid": 1,
-            "ts": 1000
         }
     ]
 }

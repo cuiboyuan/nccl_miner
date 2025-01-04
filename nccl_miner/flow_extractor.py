@@ -39,7 +39,7 @@ def parse_ring_topo_log(log_line):
             r"(?P<pid>\d+):(?P<tid>\d+)\s+"             # PID and TID
             r"\[(?P<cuda_device>[^\]]*)\]\s+"           # CUDA device
             r"NCCL INFO\s+"
-            r"Ring (?P<ring_id>\d+) : (?P<prev>\d+) -> (?P<cur>\d+) -> (?P<next>\d+)"
+            r"Ring 00 : (?P<prev>\d+) -> (?P<cur>\d+) -> (?P<next>\d+)"
         )
 
     # Match the pattern with the log line
@@ -77,7 +77,7 @@ def extract_flows_from_logs(log_files):
                 if ring_topo_info is not None:
                     ring_topos.append(ring_topo_info)
 
-    nccl_ring = NcclRing(ring_topos)
+    nccl_ring = NcclAlgoRing(ring_topos)
     
     coll_flows = []
     for coll in coll_comms:
