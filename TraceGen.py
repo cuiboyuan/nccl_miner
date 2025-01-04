@@ -2,8 +2,14 @@ import re
 import json
 from nccl_miner.flow_extractor import extract_flows_from_logs
 
+def device_tid(device_id):
+    return 100 + device_id
 
 def data_flow_events(flow, ts_offset):
+    '''
+    Given a NcclDataFlow, create events that represent sending and receiving data in Chrome Trace.
+    The events will start at ts_offset.
+    '''
     events = []
     # Start
     events.append({
@@ -11,7 +17,7 @@ def data_flow_events(flow, ts_offset):
         'name': f"Send {flow.size} bytes",
         'ph':'B',
         'pid':2,
-        'tid':100+flow.src,
+        'tid':device_tid(flow.src),
         'ts':ts_offset
     })
     events.append({
@@ -19,7 +25,7 @@ def data_flow_events(flow, ts_offset):
         'name': f"Recv {flow.size} bytes",
         'ph':'B',
         'pid':2,
-        'tid':100+flow.dst,
+        'tid':device_tid(flow.dst),
         'ts':ts_offset
     })
     end_ts = ts_offset + 10
@@ -29,7 +35,7 @@ def data_flow_events(flow, ts_offset):
         'name': f"Send {flow.size} bytes",
         'ph':'E',
         'pid':2,
-        'tid':100+flow.src,
+        'tid':device_tid(flow.src),
         'ts':end_ts
     })
     events.append({
@@ -37,67 +43,93 @@ def data_flow_events(flow, ts_offset):
         'name': f"Recv {flow.size} bytes",
         'ph':'E',
         'pid':2,
-        'tid':100+flow.dst,
+        'tid':device_tid(flow.dst),
         'ts':end_ts
     })
     return events
 
 
-def gen_trace_events_from_flows(data_flows, dependencies, ts_offset, all_data_flow):
-    timestamp = ts_offset
-    events = []
+def gen_trace_events_from_flows(cur_data_flows, dependencies, ts_offset, all_data_flow):
+    '''
+    cur_data_flows: 
+        A list of NcclDataFlow to be added to the trace.
+        Represents data flows whose dependencies are fulfilled or with zero dependency.
+    dependencies: 
+        Available flow dependencies that can be triggered by cur_data_flows
+    ts_offset: 
+        Assigned starting timestamp of all flows in cur_data_flows. Used to create traces.
+    all_data_flow: 
+        All data flows globally, regardless of whether it is already added to the trace.
+        Used to find the next set of data flows that are triggered by cur_data_flows through dependencies.
+
+    Return: a tuple of trace_events (List of Dict) and an ending timestamp (int).
+        trace_events contain all flows in cur_data_flows, as well as all flows triggered through dependencies.
+    '''
+    trace_events = []
     if len(dependencies) == 0:
-        # base case
-        for flow in data_flows:
-            flow_events = data_flow_events(flow, ts_offset)
-            events.extend(flow_events)
+        # Base case:
+        # No flow dependencies that can be triggered, so just add all current flows to trace.
+        for cur_flow in cur_data_flows:
+            flow_events = data_flow_events(cur_flow, ts_offset)
+            trace_events.extend(flow_events)
             # no deps to trigger
-        return events, ts_offset+10
+        # All flows here have the same duration, so just hard-code return ending ts.
+        end_ts = ts_offset+10
+        return trace_events, end_ts
     else:
         max_end_ts = 0
-        # recursive case
-        for flow in data_flows:
-            flow_events = data_flow_events(flow, ts_offset)
-            events.extend(flow_events)
-            # check dependencies
-            new_data_flows = []
-            new_dependencies = dependencies.copy()
+        # Recursive case
+        for cur_flow in cur_data_flows:
+            # First, add all current flows to trace, like in the base case.
+            flow_events = data_flow_events(cur_flow, ts_offset)
+            trace_events.extend(flow_events)
+
+            # Now, we need to check whether current flows fulfilled some dependencies.
+            new_data_flows = [] # Next set of flows whose deps are fulfilled
+            new_dependencies = dependencies.copy() # make a copy to avoid python error
             for next_flow_id, deps in dependencies.items():
-                if flow.id in deps:
-                    # update dependencies
-                    new_dependencies[next_flow_id].remove(flow.id)
-                if len(new_dependencies[next_flow_id]) == 0:
-                    # trigger dependencies
-                    new_dependencies.pop(next_flow_id)
-                    next_flow = all_data_flow[next_flow_id]
-                    new_data_flows.append(next_flow)
-                    # add trace events for deps
-                    events.append({
+                next_flow = all_data_flow[next_flow_id]
+                # check if any dep is fulfilled
+                if cur_flow.id in deps:
+                    new_dependencies[next_flow_id].remove(cur_flow.id)
+                    # Add an arrow in the trace to represent dependency
+                    trace_events.append({
                         "cat": "trace",
                         "name": "flow",
-                        "id": 200+flow.id,
+                        "id": cur_flow.id,
                         "ph": "s",
                         "ts": ts_offset+7,
                         "pid": 2,
-                        "tid": 100+flow.src
+                        "tid": device_tid(cur_flow.src)
                     })
-                    events.append({
+                    trace_events.append({
                         "cat": "trace",
                         "name": "flow",
-                        "id": 200+flow.id,
+                        "id": cur_flow.id,
                         "ph": "f",
                         "bp": "e",
                         "ts": ts_offset+13,
                         "pid": 2,
-                        "tid": 100+next_flow.src
+                        "tid": device_tid(next_flow.src)
                     })
-            
+
+                # Check if all deps are fulfilled for next_flow
+                if len(new_dependencies[next_flow_id]) == 0:
+                    # Remove empty deps, and next_flow is ready to be added.
+                    new_dependencies.pop(next_flow_id)
+                    new_data_flows.append(next_flow)
+
+            # Now, we have a new set of flows whose deps are all fulfilled
             if len(new_data_flows) > 0:
-                # trigger new data flow events
-                new_events, new_end_ts = gen_trace_events_from_flows(new_data_flows, new_dependencies, ts_offset+10, all_data_flow)
+                # All cur_flows have the same duration, so just hard-code ending ts
+                end_ts = ts_offset + 10
+                # Recursively get flows triggered by new_data_flows and new_deps
+                new_events, new_end_ts = gen_trace_events_from_flows(new_data_flows, new_dependencies, end_ts, all_data_flow)
+                trace_events.extend(new_events)
+                # The ending ts of this function is the end of the last event
                 max_end_ts = new_end_ts if new_end_ts > max_end_ts else max_end_ts
-                events.extend(new_events)
-        return events, max_end_ts
+
+        return trace_events, max_end_ts
 
 
 
@@ -112,7 +144,7 @@ def main(log_files):
     events = []
     ts_offset = 0
     for idx, coll in enumerate(coll_events):
-        # start of a NCCL op
+        # Start of a NCCL op
         events.append({
             "cat": "trace",
             'name': f"{coll.func}: {coll.data_num} {coll.data_type}",
@@ -124,25 +156,25 @@ def main(log_files):
 
         data_flows, data_deps = coll_flows[idx]
 
-        # first, find flows without dep
+        # First, find flows with zero-deps
         entry_flows = []
         for flow_id, flow in data_flows.items():
             if flow_id not in data_deps or len(data_deps[flow_id])==0:
                 entry_flows.append(flow)
-        # add events to trace
+        # Get all flow events
         flow_events, end_ts = gen_trace_events_from_flows(entry_flows, data_deps, ts_offset, data_flows)
-        ts_offset = end_ts
         events.extend(flow_events)
         
-        # end of the NCCL op
+        # End of the NCCL op
         events.append({
             "cat": "trace",
             'name': f"{coll.func}: {coll.data_num} {coll.data_type}",
             'ph':'E',
             'pid':1,
             'tid':1,
-            'ts':ts_offset
+            'ts':end_ts
         })
+        ts_offset = end_ts
     
     chrome_trace = {
         "traceEvents": events
@@ -152,13 +184,6 @@ def main(log_files):
 
 
 if __name__ == "__main__":
-    # log = "104-171-202-216:21232:21232 [1] NCCL INFO Broadcast: opCount 1 sendbuff 0x7582abbcf000 recvbuff 0x7582abbcf000 count 112 datatype 4 op 0 root 0 comm 0x57335165fc40 [nranks=2] stream 0x5733511d85d0"
-    # ret = parse_coll_log(log)
-    # print(ret)
-
-    # topo_log = "104-171-202-216:21232:21301 [1] NCCL INFO Ring 00 : 0 -> 1 -> 0"
-    # ret = parse_topo_ring_log(topo_log)
-    # print(ret)
     main(["example_nccl_logs/four_gpu_p2p_shm_disabled/nccl_logs.192-222-54-170.6559",
           "example_nccl_logs/four_gpu_p2p_shm_disabled/nccl_logs.192-222-54-170.6561",
           "example_nccl_logs/four_gpu_p2p_shm_disabled/nccl_logs.192-222-54-170.6562",
