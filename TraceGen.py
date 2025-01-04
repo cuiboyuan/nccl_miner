@@ -5,6 +5,9 @@ from nccl_miner.flow_extractor import extract_flows_from_logs
 def device_tid(device_id):
     return 100 + device_id
 
+def arrow_id(src_id, dst_id):
+    return int(f"{src_id}{dst_id}")
+
 def data_flow_events(flow, ts_offset):
     '''
     Given a NcclDataFlow, create events that represent sending and receiving data in Chrome Trace.
@@ -93,10 +96,12 @@ def gen_trace_events_from_flows(cur_data_flows, dependencies, ts_offset, all_dat
                 if cur_flow.id in deps:
                     new_dependencies[next_flow_id].remove(cur_flow.id)
                     # Add an arrow in the trace to represent dependency
+                    # TODO: arrow display will be a problem is one triggers multi or vice versa.
+                    # TODO: probably easier if just add arrows separately based on deps.
                     trace_events.append({
                         "cat": "trace",
                         "name": "flow",
-                        "id": cur_flow.id,
+                        "id": arrow_id(cur_flow.id,next_flow.id),
                         "ph": "s",
                         "ts": ts_offset+7,
                         "pid": 2,
@@ -105,7 +110,7 @@ def gen_trace_events_from_flows(cur_data_flows, dependencies, ts_offset, all_dat
                     trace_events.append({
                         "cat": "trace",
                         "name": "flow",
-                        "id": cur_flow.id,
+                        "id": arrow_id(cur_flow.id,next_flow.id),
                         "ph": "f",
                         "bp": "e",
                         "ts": ts_offset+13,
