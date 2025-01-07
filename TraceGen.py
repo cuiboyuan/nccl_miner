@@ -1,5 +1,6 @@
 import re
 import json
+from copy import deepcopy
 from nccl_miner.flow_extractor import extract_flows_from_logs
 
 def device_tid(device_id):
@@ -80,16 +81,18 @@ def gen_trace_events_from_flows(cur_data_flows, dependencies, ts_offset, all_dat
         end_ts = ts_offset+10
         return trace_events, end_ts
     else:
-        max_end_ts = 0
+        max_end_ts = ts_offset
         # Recursive case
         for cur_flow in cur_data_flows:
             # First, add all current flows to trace, like in the base case.
             flow_events = data_flow_events(cur_flow, ts_offset)
             trace_events.extend(flow_events)
+            # All cur_flows have the same duration, so just hard-code ending ts
+            end_ts = ts_offset + 10
 
             # Now, we need to check whether current flows fulfilled some dependencies.
             new_data_flows = [] # Next set of flows whose deps are fulfilled
-            new_dependencies = dependencies.copy() # make a copy to avoid python error
+            new_dependencies = deepcopy(dependencies) # make a copy to avoid python error
             for next_flow_id, deps in dependencies.items():
                 next_flow = all_data_flow[next_flow_id]
                 # check if any dep is fulfilled
@@ -126,13 +129,11 @@ def gen_trace_events_from_flows(cur_data_flows, dependencies, ts_offset, all_dat
 
             # Now, we have a new set of flows whose deps are all fulfilled
             if len(new_data_flows) > 0:
-                # All cur_flows have the same duration, so just hard-code ending ts
-                end_ts = ts_offset + 10
                 # Recursively get flows triggered by new_data_flows and new_deps
-                new_events, new_end_ts = gen_trace_events_from_flows(new_data_flows, new_dependencies, end_ts, all_data_flow)
+                new_events, end_ts = gen_trace_events_from_flows(new_data_flows, new_dependencies, end_ts, all_data_flow)
                 trace_events.extend(new_events)
                 # The ending ts of this function is the end of the last event
-                max_end_ts = new_end_ts if new_end_ts > max_end_ts else max_end_ts
+            max_end_ts = end_ts if end_ts > max_end_ts else max_end_ts
 
         return trace_events, max_end_ts
 
@@ -179,7 +180,7 @@ def main(log_files):
             'tid':1,
             'ts':end_ts
         })
-        ts_offset = end_ts
+        ts_offset = end_ts+2
     
     chrome_trace = {
         "traceEvents": events

@@ -34,7 +34,7 @@ class NcclDataFlow:
         self.id = id
 
     def __repr__(self):
-        return f"{self.src}->{self.dst}[{self.size} bytes]"
+        return f"Flow {self.id}:{self.src}->{self.dst}[{self.size} bytes]"
 
 
 class NcclRing:
@@ -118,10 +118,10 @@ class NcclAlgoRing:
         data_flows = {}
         dependencies = {}
 
+        global_flow_counter = 0
         if coll_op.func == "Broadcast":
             # Based on NCCL implementation in src/device/broadcast.h:runRing()
             # TODO: Naive understanding for now, need more details
-            global_flow_id_offset = 0
             for _, ring in self.rings.items():
                 cur_node = coll_op.root
                 next_node = ring.get_next_node(cur_node)
@@ -129,18 +129,21 @@ class NcclAlgoRing:
                 prev_flow_id = None
                 while next_node != coll_op.root:
                     # send data to next GPU
-                    cur_flow_id = global_flow_id_offset
-                    data_flows[cur_flow_id] = NcclDataFlow(cur_node, next_node, coll_op.data_size, id=cur_flow_id)
-                    global_flow_id_offset += 1
+                    data_flows[global_flow_counter] = NcclDataFlow(cur_node, next_node, coll_op.data_size, id=global_flow_counter)
                     # add dependencies
+                    # flow from the root is the first flow, it has zero deps
                     if cur_node != coll_op.root:
+                        if prev_flow_id is None:
+                            # should not enter here.
+                            assert False
                         # need to wait for the previous flow to finish.
-                        if cur_flow_id not in dependencies:
-                            dependencies[cur_flow_id] = [prev_flow_id]
+                        if global_flow_counter not in dependencies:
+                            dependencies[global_flow_counter] = [prev_flow_id]
                         else:
-                            dependencies[cur_flow_id].append(prev_flow_id)
+                            dependencies[global_flow_counter].append(prev_flow_id)
                     # done cur data flow, move on to the next
-                    prev_flow_id = cur_flow_id
+                    prev_flow_id = global_flow_counter
+                    global_flow_counter += 1
 
                     cur_node = next_node
                     next_node = ring.get_next_node(cur_node)
@@ -148,7 +151,38 @@ class NcclAlgoRing:
             
         elif coll_op.func == "AllReduce":
             # Based on NCCL implementation in src/device/all_reduce.h:runRing()
-            pass
+            # TODO: Naive understanding, need more reading on NCCL codes
+            nranks = self.size
+            for _, ring in self.rings.items():
+                for idx, rank in enumerate(ring.nodes):
+                    # 1. reduce and copy to next GPU (nranks-1 steps)
+                    # my understanding: cur_node reduce on its own node, and transfer whatever it receives to the next GPU as is
+                    # push data to next GPU
+                    # 2. copy to next GPU (nranks-1 steps)
+                    # my understanding: now, broadcast the final reduced result to all nodes in the ring.
+                    prev_flow_id = None
+                    j = 0
+                    cur_node = rank
+                    next_node = ring.get_next_node(cur_node)
+                    while j < 2*(nranks-1):
+                        data_flows[global_flow_counter] = NcclDataFlow(cur_node, next_node, coll_op.data_size, id=global_flow_counter)
+
+                        if prev_flow_id is None:
+                            # first flow, zero dependency
+                            pass
+                        else:
+                            # need to wait for the previous flow to finish.
+                            if global_flow_counter not in dependencies:
+                                dependencies[global_flow_counter] = [prev_flow_id]
+                            else:
+                                dependencies[global_flow_counter].append(prev_flow_id)
+                        
+                        prev_flow_id = global_flow_counter
+                        global_flow_counter += 1
+                        cur_node = next_node
+                        next_node = ring.get_next_node(cur_node)
+                        j += 1
+
 
         elif coll_op.func == "AllGather":
             # Based on NCCL implementation in src/device/all_gather.h:runRing()
