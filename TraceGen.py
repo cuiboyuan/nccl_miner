@@ -3,8 +3,8 @@ import json
 from copy import deepcopy
 from nccl_miner.flow_extractor import extract_flows_from_logs
 
-def device_tid(device_id):
-    return 100 + device_id
+def flow_tid(src_id, dst_id):
+    return 100*src_id + dst_id
 
 def arrow_id(src_id, dst_id):
     return int(f"{src_id}{dst_id}")
@@ -18,37 +18,20 @@ def data_flow_events(flow, ts_offset):
     # Start
     events.append({
         "cat": "trace",
-        'name': f"Send {flow.size} bytes",
+        'name': f"{flow.src} sends {flow.data_name} to {flow.dst}",
         'ph':'B',
         'pid':2,
-        'tid':device_tid(flow.src),
+        'tid':flow_tid(flow.src, flow.dst),
         'ts':ts_offset
     })
-    events.append({
-        "cat": "trace",
-        'name': f"Recv {flow.size} bytes",
-        'ph':'B',
-        'pid':2,
-        'tid':device_tid(flow.dst),
-        'ts':ts_offset
-    })
-    end_ts = ts_offset + 10
     # End
     events.append({
         "cat": "trace",
-        'name': f"Send {flow.size} bytes",
+        'name': f"{flow.src} sends {flow.data_name} to {flow.dst}",
         'ph':'E',
         'pid':2,
-        'tid':device_tid(flow.src),
-        'ts':end_ts
-    })
-    events.append({
-        "cat": "trace",
-        'name': f"Recv {flow.size} bytes",
-        'ph':'E',
-        'pid':2,
-        'tid':device_tid(flow.dst),
-        'ts':end_ts
+        'tid':flow_tid(flow.src, flow.dst),
+        'ts':ts_offset+flow.duration
     })
     return events
 
@@ -72,14 +55,18 @@ def gen_trace_events_from_flows(cur_data_flows, dependencies, ts_offset, all_dat
     trace_events = []
     if len(dependencies) == 0:
         # Base case:
+        max_end_ts = ts_offset
         # No flow dependencies that can be triggered, so just add all current flows to trace.
         for cur_flow in cur_data_flows:
             flow_events = data_flow_events(cur_flow, ts_offset)
             trace_events.extend(flow_events)
+            # Add flow duration to ts_offset
+            end_ts = ts_offset + cur_flow.duration
             # no deps to trigger
-        # All flows here have the same duration, so just hard-code return ending ts.
-        end_ts = ts_offset+10
-        return trace_events, end_ts
+            # ...
+            if end_ts > max_end_ts:
+                max_end_ts = end_ts
+        return trace_events, max_end_ts
     else:
         max_end_ts = ts_offset
         # Recursive case
@@ -87,8 +74,8 @@ def gen_trace_events_from_flows(cur_data_flows, dependencies, ts_offset, all_dat
             # First, add all current flows to trace, like in the base case.
             flow_events = data_flow_events(cur_flow, ts_offset)
             trace_events.extend(flow_events)
-            # All cur_flows have the same duration, so just hard-code ending ts
-            end_ts = ts_offset + 10
+            # Add flow duration to ts_offset
+            end_ts = ts_offset + cur_flow.duration
 
             # Now, we need to check whether current flows fulfilled some dependencies.
             new_data_flows = [] # Next set of flows whose deps are fulfilled
@@ -108,7 +95,7 @@ def gen_trace_events_from_flows(cur_data_flows, dependencies, ts_offset, all_dat
                         "ph": "s",
                         "ts": ts_offset+7,
                         "pid": 2,
-                        "tid": device_tid(cur_flow.src)
+                        "tid": flow_tid(cur_flow.src,cur_flow.dst)
                     })
                     trace_events.append({
                         "cat": "trace",
@@ -118,7 +105,7 @@ def gen_trace_events_from_flows(cur_data_flows, dependencies, ts_offset, all_dat
                         "bp": "e",
                         "ts": ts_offset+13,
                         "pid": 2,
-                        "tid": device_tid(next_flow.src)
+                        "tid": flow_tid(next_flow.src,next_flow.dst)
                     })
 
                 # Check if all deps are fulfilled for next_flow
@@ -133,7 +120,8 @@ def gen_trace_events_from_flows(cur_data_flows, dependencies, ts_offset, all_dat
                 new_events, end_ts = gen_trace_events_from_flows(new_data_flows, new_dependencies, end_ts, all_data_flow)
                 trace_events.extend(new_events)
                 # The ending ts of this function is the end of the last event
-            max_end_ts = end_ts if end_ts > max_end_ts else max_end_ts
+            if end_ts > max_end_ts:
+                max_end_ts = end_ts
 
         return trace_events, max_end_ts
 
