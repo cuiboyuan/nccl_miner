@@ -1,6 +1,8 @@
-import re
 import json
+import os
 from copy import deepcopy
+import argparse
+
 from nccl_miner.flow_extractor import extract_flows_from_logs
 
 def flow_tid(src_id, dst_id):
@@ -18,7 +20,7 @@ def data_flow_events(flow, ts_offset):
     # Start
     events.append({
         "cat": "trace",
-        'name': f"{flow.src} sends {flow.data_name} to {flow.dst}",
+        'name': f"{flow.src} sends {flow.data_name} ({flow.size} bytes) to {flow.dst}",
         'ph':'B',
         'pid':2,
         'tid':flow_tid(flow.src, flow.dst),
@@ -27,7 +29,7 @@ def data_flow_events(flow, ts_offset):
     # End
     events.append({
         "cat": "trace",
-        'name': f"{flow.src} sends {flow.data_name} to {flow.dst}",
+        'name': f"{flow.src} sends {flow.data_name} ({flow.size} bytes) to {flow.dst}",
         'ph':'E',
         'pid':2,
         'tid':flow_tid(flow.src, flow.dst),
@@ -128,7 +130,7 @@ def gen_trace_events_from_flows(cur_data_flows, dependencies, ts_offset, all_dat
 
 
 
-def main(log_files):
+def main(log_files, out_json):
 
     coll_events, coll_flows = extract_flows_from_logs(log_files)
     # print(coll_events)
@@ -173,13 +175,21 @@ def main(log_files):
     chrome_trace = {
         "traceEvents": events
     }
-    with open("dml_trace.json", "w") as f:
+    with open(out_json, "w") as f:
         json.dump(chrome_trace, f, indent=4)
 
 
 if __name__ == "__main__":
-    main(["example_nccl_logs/four_gpu_p2p_shm_disabled/nccl_logs.192-222-54-170.6559",
-          "example_nccl_logs/four_gpu_p2p_shm_disabled/nccl_logs.192-222-54-170.6561",
-          "example_nccl_logs/four_gpu_p2p_shm_disabled/nccl_logs.192-222-54-170.6562",
-          "example_nccl_logs/four_gpu_p2p_shm_disabled/nccl_logs.192-222-54-170.6564"])
+    parser = argparse.ArgumentParser()
+    parser.add_argument("log_dir", type=str, help="The directory which contains NCCL logs to parse.")
+    parser.add_argument("-o", "--output_file", default="nccl_trace.json", type=str, help="The name of the output trace JSON file.")
+    args = parser.parse_args()
+
+    nccl_log_files = []
+    for log_file in os.listdir(args.log_dir):
+        log_path = os.path.join(args.log_dir, log_file)
+        if os.path.isfile(log_path):
+            nccl_log_files.append(log_path)
+    print(nccl_log_files)
+    main(nccl_log_files, args.output_file)
 
