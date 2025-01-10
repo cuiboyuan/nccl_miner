@@ -1,5 +1,5 @@
-# dml-tracer
-A tool that traces data flows in Distributed Machine Learning. The tracer collects data flow information such as size and type of the flow, source and destination, and flow dependencies.
+# NCCL Miner
+NCCL Miner "Nickel Miner" is a tool that extracts data flow information from NCCL logs in Distributed Machine Learning. Flow information includes the size and type of the flow, the source and destination of the flow, and dependencies between the flows, etc.
 
 ## NCCL Material
 
@@ -9,7 +9,7 @@ NCCL API: https://docs.nvidia.com/deeplearning/nccl/user-guide/docs/api/colls.ht
 
 NCCL Data Types: https://docs.nvidia.com/deeplearning/nccl/user-guide/docs/api/types.html#c.ncclDataType_t
 
-# Example: GPT2
+# Example Usage: GPT2
 
 ## Step 1: Obtain NCCL Logs
 
