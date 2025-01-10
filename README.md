@@ -32,14 +32,20 @@ pip install -r requirements.txt
 ```
 NCCL_SHM_DISABLE=1 NCCL_P2P_DISABLE=1 NCCL_DEBUG=TRACE NCCL_DEBUG_SUBSYS=ALL NCCL_DEBUG_FILE=nccl_logs.%h.%p python GPT2Dist.py
 ```
+Then put all `nccl_logs.*` files in a folder.
 
 ## Step 2: Generate Trace of Data Flow
 
-### Using Existing Example Logs
+### Parse the NCCL Logs into Trace
+```
+python TraceGen.py <your nccl log folder>
+```
+The output trace is called `nccl_trace.json`.
+
+You can also use existing logs as an example:
 ```
 python TraceGen.py example_nccl_logs/four_gpu_p2p_shm_disabled/
 ```
-The output is in `nccl_trace.json`
 
 ## Step 3: View Trace
 Open `nccl_trace.json` in chrome://tracing
