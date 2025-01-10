@@ -3,7 +3,7 @@ import os
 from copy import deepcopy
 import argparse
 
-from nccl_miner.flow_extractor import extract_flows_from_logs
+from nccl_miner.log_parser import extract_flows_from_logs
 
 def flow_tid(src_id, dst_id):
     return 100*src_id + dst_id

@@ -1,7 +1,7 @@
 '''
 Reflect the meaning of values in the NCCL debugging logs. This information comes from the NCCL database.
 '''
-from .nccl_utils import *
+from .utils import *
 
 class NcclCollective:
     def __init__(self, coll_info):

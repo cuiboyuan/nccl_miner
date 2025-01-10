@@ -2,7 +2,7 @@
 Extract data flow from the logs. User can then use the extracted information for their downstream tasks.
 '''
 import re
-from .nccl_prober import *
+from .impl_prober import *
 
 def parse_coll_log(log_line):
     log_pattern = (
