@@ -1,5 +1,16 @@
 # NCCL Miner
-NCCL Miner "Nickel Miner" is a tool that extracts data flow information from NCCL logs in Distributed Machine Learning. Flow information includes the size and type of the flow, the source and destination of the flow, and dependencies between the flows, etc.
+NCCL Miner "Nickel Miner" is a tool for extracting data flow information from NCCL logs in Distributed Machine Learning usecases. Flow information includes the size and type of the flow, the source and destination of the flow, and dependencies between the flows, etc.
+
+## File Structure
+- `example_nccl_logs/`: NCCL logs gathered in real training scenarios for example usage
+- `example_nccl_topo/`: Hardware topology detected by NCCL for example usage
+- `mingpt/`: From https://github.com/karpathy/minGPT, a clean, simple PyTorch implementation of GPT-2 model
+- `nccl_miner/`: Main folder containing scripts extracting flow-level information from NCCL logs
+- `nvbit_path`: Archived. Previous exploration of using NVBit to extact flow-level info
+- `DataParallel.py`: Example training GPT-2 with single-process PyTorch DataParallel module
+- `GPT2Dist.py`: Example training GPT-2 with multi-process PyTorch DistributedDataParallel module
+- `MPI_GPT2Dist.py`: Example training GPT-2 with OpenMPI PyTorch, untested.
+- `TraceGen.py`: Generate Chrome traces from data flow extracted by NCCL Miner
 
 ## NCCL Material
 
