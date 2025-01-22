@@ -169,7 +169,7 @@ class NcclAlgoRing:
                     cur_node = rank
                     next_node = ring.get_next_node(cur_node)
                     while j < (nranks-1):
-                        cur_flow = NcclDataFlow(cur_node, next_node, coll_op.data_size, name=f"{rank}'s Data")
+                        cur_flow = NcclDataFlow(cur_node, next_node, coll_op.data_size, name=f"{rank}'s data")
                         cur_flow_id = cur_flow.id
                         data_flows[cur_flow_id] = cur_flow
 
@@ -190,7 +190,7 @@ class NcclAlgoRing:
                     # 2. copy to next GPU (nranks-1 steps)
                     # my understanding: now, broadcast the final reduced result to all nodes in the ring.
                     while j < 2*(nranks-1):
-                        cur_flow = NcclDataFlow(cur_node, next_node, coll_op.data_size, name=f"All-reduced Data")
+                        cur_flow = NcclDataFlow(cur_node, next_node, coll_op.data_size, name=f"all-reduced result")
                         cur_flow_id = cur_flow.id
                         data_flows[cur_flow_id] = cur_flow
 
@@ -206,9 +206,40 @@ class NcclAlgoRing:
                         next_node = ring.get_next_node(cur_node)
                         j += 1
 
-
         elif coll_op.func == "AllGather":
             # Based on NCCL implementation in src/device/all_gather.h:runRing()
+            # TODO: Naive understanding, need more reading on NCCL codes
+            nranks = self.size
+            for _, ring in self.rings.items():
+                shard_size = coll_op.data_size // nranks
+                for idx, rank in enumerate(ring.nodes):
+                    # 1. Push my piece of data to next GPU
+                    cur_node = rank
+                    next_node = ring.get_next_node(cur_node)
+                    prev_flow_id = None
+                    # 2. Pass around to other GPUs
+                    while next_node != rank:
+                        # Get flow
+                        cur_flow = NcclDataFlow(cur_node, next_node, shard_size, name=f"{rank}'s data shard")
+                        cur_flow_id = cur_flow.id
+                        data_flows[cur_flow_id] = cur_flow
+
+                        if prev_flow_id is not None:
+                            # need to wait for the previous flow to finish.
+                            if cur_flow_id not in dependencies:
+                                dependencies[cur_flow_id] = [prev_flow_id]
+                            else:
+                                dependencies[cur_flow_id].append(prev_flow_id)
+
+                        # advance to the next pair in Ring
+                        cur_node = next_node
+                        next_node = ring.get_next_node(cur_node)
+                        prev_flow_id = cur_flow_id
+
+        elif coll_op.func == "Reduce":
+            pass
+
+        elif coll_op.func == "ReduceScatter":
             pass
 
         return data_flows, dependencies
