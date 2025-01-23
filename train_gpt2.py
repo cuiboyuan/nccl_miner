@@ -29,7 +29,6 @@ from mingpt.bpe import BPETokenizer
 from mingpt.model import GPT
 from mingpt.utils import set_seed 
 
-MENG_PORT="30001"
 
 class LanguageModelDataset(Dataset):
     def __init__(self, split):
@@ -89,7 +88,7 @@ class LanguageModelDataset(Dataset):
         # max model input length for GPT-2
         return self.max_sentence_length
     
-def train(model, rank, world_sz, loader, optimizer, ep):
+def train(model, rank, loader, optimizer, ep):
     model.train()
     
     distributed_loss = torch.zeros(2).to(rank)
@@ -129,38 +128,25 @@ def train(model, rank, world_sz, loader, optimizer, ep):
     # else:
     #     dist.recv(distributed_loss, src=0)
     #     #print(f"Train Epoch: {ep} \t Loss: {distributed_loss[0]/distributed_loss[1]}")
-        
 
 
-def validate(model, rank, world_sz, loader):
-    model.eval()
-
-def setup(rank, world_size):
-    os.environ['MASTER_ADDR'] = 'localhost'
-    os.environ['MASTER_PORT'] = MENG_PORT
-
-    # initialize the process group
-    dist.init_process_group("nccl", rank=rank, world_size=world_size)
-
-def cleanup():
-    dist.destroy_process_group()
-
-def fsdp_main(rank, world_size, train_args):
+def main(train_args):
+    rank = int(os.environ["LOCAL_RANK"])
     print(f"Rank {rank} starts", flush=True)
     
     batch_size, num_epochs, save_model = train_args['batch_size'], train_args['num_epochs'], train_args['save_model']
     
-    setup(rank, world_size)
-
-    train_sampler = DistributedSampler(train_dataset, rank=rank, num_replicas=world_size, shuffle=True)
-    val_sampler = DistributedSampler(val_dataset, rank=rank, num_replicas=world_size)
+    # initialize the process group
+    dist.init_process_group(backend="nccl")
 
     train_loader = DataLoader(train_dataset,
                               batch_size=batch_size,
-                              sampler=train_sampler)
+                              shuffle=False,
+                              sampler=DistributedSampler(train_dataset))
     val_loader = DataLoader(val_dataset,
                               batch_size=batch_size,
-                              sampler=val_sampler)
+                              shuffle=False,
+                              sampler=DistributedSampler(val_dataset))
     
     # torch.cuda.set_device(rank)
 
@@ -181,8 +167,7 @@ def fsdp_main(rank, world_size, train_args):
     print(f"Rank {rank} Start training", flush=True)
     
     for epoch in range(1, num_epochs + 1):
-        train_sampler.set_epoch(epoch)
-        train(model=model, rank=rank, world_sz=world_size, loader=train_loader, optimizer=optimizer, ep=epoch)
+        train(model=model, rank=rank, loader=train_loader, optimizer=optimizer, ep=epoch)
         print(f"Rank {rank} epoch {epoch} done", flush=True)
         
         # validate(model=model, rank=rank, world_sz=world_size, loader=val_loader)
@@ -192,7 +177,7 @@ def fsdp_main(rank, world_size, train_args):
         if rank == 0:
             torch.save(model.state_dict, "/workspace/mingpt.pt")
 
-    cleanup()
+    dist.destroy_process_group()
     print(f"Rank {rank} ends", flush=True)
     
 
@@ -210,7 +195,6 @@ if __name__ == "__main__":
     print(len(test_dataset))
     print(test_dataset.get_block_size())
 
-    WORLD_SIZE = 1
     WORLD_SIZE = torch.cuda.device_count()
     print(f"We have {WORLD_SIZE} GPUs")
 
@@ -219,14 +203,5 @@ if __name__ == "__main__":
         'num_epochs': 1,
         'save_model': False,
     }
-    # os.environ["TOKENIZERS_PARALLELISM"] = "true"
-
-    processes = []
-    # mp.set_start_method("spawn")
-    for rank in range(WORLD_SIZE):
-        p = mp.Process(target=fsdp_main, args=(rank, WORLD_SIZE, train_args))
-        p.start()
-        processes.append(p)
-
-    for p in processes:
-        p.join()
+    
+    main(train_args)
