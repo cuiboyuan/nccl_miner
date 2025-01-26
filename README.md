@@ -6,6 +6,7 @@ NCCL Miner "Nickel Miner" is a tool for extracting data flow information from NC
 - `example_topo/`: Hardware topology detected by NCCL for example usage
 - `mingpt/`: From https://github.com/karpathy/minGPT, a clean, simple PyTorch implementation of GPT-2 model
 - `nccl_miner/`: Main folder containing scripts extracting flow-level information from NCCL logs
+- `picotron/`: From https://github.com/huggingface/picotron, a simple educational project helping people quickly get familiar with all techniques in distributed training.
 - `train_gpt2.py`: Example training GPT-2 with torchrun
 - `trace_gen.py`: Generate Chrome traces from data flow extracted by NCCL Miner
 
