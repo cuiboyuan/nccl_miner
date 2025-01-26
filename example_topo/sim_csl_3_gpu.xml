@@ -1,0 +1,30 @@
+<system version="1">
+  <cpu host_hash="0x134139188942a114" numaid="0" affinity="00,3ff003ff" arch="x86_64" vendor="GenuineIntel" familyid="6" modelid="85">
+    <pci busid="0000:00:1f.6" class="0x020000" vendor="0x8086" device="0x15b9" subsystem_vendor="0x1028" subsystem_device="0x073a" link_speed="" link_width="0">
+      <nic>
+        <net name="enp0s31f6" dev="1" speed="1000" port="0" latency="0.000000" guid="0x1" maxconn="65536" gdr="0"/>
+      </nic>
+    </pci>
+    <pci busid="0000:02:00.0" class="0x020000" vendor="0x8086" device="0x1533" subsystem_vendor="0x1028" subsystem_device="0x0619" link_speed="2.5 GT/s" link_width="1">
+      <nic>
+        <net name="enp2s0" dev="0" speed="1000" port="0" latency="0.000000" guid="0x0" maxconn="65536" gdr="0"/>
+      </nic>
+    </pci>
+    <pci busid="0000:17:00.0" class="0x030000" vendor="0x10de" device="0x2232" subsystem_vendor="0x1028" subsystem_device="0x163c" link_speed="8 GT/s" link_width="16">
+      <gpu dev="0" sm="86" rank="0" gdr="1"/>
+    </pci>
+    <pci busid="0000:73:00.0" class="0x030000" vendor="0x10de" device="0x2232" subsystem_vendor="0x1028" subsystem_device="0x163c" link_speed="8 GT/s" link_width="16">
+      <gpu dev="1" sm="86" rank="1" gdr="1"/>
+    </pci>
+    <nic>
+      <net name="br-017419b04223" dev="2" speed="10000" port="0" latency="0.000000" guid="0x2" maxconn="65536" gdr="0"/>
+      <net name="br-ab1000c86735" dev="3" speed="10000" port="0" latency="0.000000" guid="0x3" maxconn="65536" gdr="0"/>
+      <net name="veth77505c6" dev="4" speed="10000" port="0" latency="0.000000" guid="0x4" maxconn="65536" gdr="0"/>
+    </nic>
+  </cpu>
+  <cpu host_hash="0x134139188942a114" numaid="1" affinity="ff,c00ffc00" arch="x86_64" vendor="GenuineIntel" familyid="6" modelid="85">
+    <pci busid="0000:a6:00.0" class="0x030000" vendor="0x10de" device="0x2232" subsystem_vendor="0x1028" subsystem_device="0x163c" link_speed="8 GT/s" link_width="16">
+      <gpu dev="2" sm="86" rank="2" gdr="1"/>
+    </pci>
+  </cpu>
+</system>
