@@ -9,7 +9,7 @@ class NcclCollective:
         # self.pid = int(coll_info['pid'])
         # self.tid = int(coll_info['tid'])
 
-        # self.device = int(coll_info['cuda_device'])
+        self.device = int(coll_info['cuda_device'])
         
         self.func = coll_info['coll_op']
         
@@ -25,6 +25,27 @@ class NcclCollective:
     def __repr__(self):
         return f"{self.func}: {self.data_size} bytes ({self.data_num} {self.data_type})"
 
+class NcclPtp:
+    def __init__(self, coll_info):
+        # self.host = coll_info['host_name']
+        # self.pid = int(coll_info['pid'])
+        # self.tid = int(coll_info['tid'])
+
+        self.device = int(coll_info['cuda_device'])
+        
+        self.func = coll_info['ptp_op']
+        
+        self.data_num = int(coll_info['num_elem'])
+        self.data_type = NcclDataType(coll_info['data_type'])
+        self.data_size = self.data_type.bytes * self.data_num
+
+        self.peer = int(coll_info['peer_device'])
+
+        # self.src_buf = coll_info['src_buf_addr']
+        # self.dst_buf = coll_info['dst_buf_addr']
+    
+    def __repr__(self):
+        return f"{self.func}: {self.data_size} bytes ({self.data_num} {self.data_type})"
 
 class NcclDataFlow:
     # counter used to generate flow id.
@@ -92,6 +113,7 @@ class NcclRing:
 
 class NcclAlgoRing:
     def __init__(self, all_topo_info):
+        print(all_topo_info)
         incomplete_rings = {}
         for topo in all_topo_info:
             ring_id = '00'
@@ -104,6 +126,7 @@ class NcclAlgoRing:
 
         self.rings = {}
         for ring_id, ring in incomplete_rings.items():
+            print(ring.incomplete_ring)
             ring.finalize_ring()
             self.rings[ring_id] = ring
         
@@ -123,8 +146,17 @@ class NcclAlgoRing:
     def probe_coll_op(self, coll_op):
         data_flows = {}
         dependencies = {}
+        
 
-        if coll_op.func == "Broadcast":
+        if coll_op.func == "Send":
+            flow = NcclDataFlow(coll_op.device, coll_op.peer, coll_op.data_size, name=f"{coll_op.device}'s Data")
+            data_flows[flow.id] = flow
+
+        elif coll_op.func == "Recv":
+            # assume it's successfully received.
+            pass
+
+        elif coll_op.func == "Broadcast":
             # Based on NCCL implementation in src/device/broadcast.h:runRing()
             # TODO: Naive understanding for now, need more details
             for _, ring in self.rings.items():

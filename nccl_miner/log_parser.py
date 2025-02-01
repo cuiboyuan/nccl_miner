@@ -2,7 +2,38 @@
 Extract data flow from the logs. User can then use the extracted information for their downstream tasks.
 '''
 import re
+from tqdm import tqdm
 from .impl_prober import *
+
+
+def parse_ptp_log(log_line):
+    log_pattern = (
+            r"(?P<host_name>[^:]+):"                     # Host name
+            r"(?P<pid>\d+):(?P<tid>\d+)\s+"             # PID and TID
+            r"\[(?P<cuda_device>[^\]]*)\]\s+"           # CUDA device
+            r"NCCL INFO\s+"
+            r"(?P<ptp_op>\w+):\s+"         # Collective operation
+            r"opCount\s+(?P<op_cnt>\d+)\s+"             # Operation count
+            r"sendbuff\s+\(nil\)\s+"  # Source buffer address (N/A)
+            r"recvbuff\s+(?P<buf_addr>0x[0-9a-f]+)\s+"  # Send/Recv buffer address
+            r"count\s+(?P<num_elem>\d+)\s+"             # Number of elements
+            r"datatype\s+(?P<data_type>\w+)\s+"         # Data type
+            r"op\s+(?P<operator>\w+)\s+"                # Operator
+            r"root\s+(?P<peer_device>\d+)\s+"           # peer device
+            r"comm\s+(?P<comm_obj_ptr>0x[0-9a-f]+)\s+"  # Comm object pointer
+            r"\[nranks=(?P<nranks>\d+)\]\s+"       # Total ranks
+            r"stream\s+(?P<stream_obj_ptr>0x[0-9a-f]+)" # Stream object pointer
+        )
+
+    # Match the pattern with the log line
+    match = re.match(log_pattern, log_line)
+    if match:
+        # Return the extracted information as a dictionary
+        raw_info = match.groupdict()
+        return raw_info
+    else:
+        return None
+
 
 def parse_coll_log(log_line):
     log_pattern = (
@@ -59,28 +90,51 @@ def extract_flows_from_logs(log_files):
 
     root_log = log_files[0]
     with open(root_log, "r") as f:
-        for log_line in f.readlines():
+        print("Parsing log file...")
+        ring_topo_info = None
+        for log_line in tqdm(f.readlines()):
             coll_info = parse_coll_log(log_line)
-            ring_topo_info = parse_ring_topo_log(log_line)
-
             if coll_info is not None:
                 coll_comms.append(NcclCollective(coll_info))
-            elif ring_topo_info is not None:
-                ring_topos.append(ring_topo_info)
+            
+            ptp_info = parse_ptp_log(log_line)
+            if ptp_info is not None:
+                coll_comms.append(NcclPtp(ptp_info))
+
+            #TODO: observed multiple "Ring 00" in NCCL logs
+            # Need to confirm which one is valid.
+            # Right now use the first one encountered.
+            if ring_topo_info is None:
+                ring_topo_match = parse_ring_topo_log(log_line)
+                ring_topo_info = ring_topo_match
+
+        if ring_topo_info is not None:
+            ring_topos.append(ring_topo_info)
 
 
     for log in log_files[1:]:
         with open(log, "r") as f:
-            for log_line in f.readlines():
-                ring_topo_info = parse_ring_topo_log(log_line)
+            print("Parsing log file..")
+            ring_topo_info = None
+            for log_line in tqdm(f.readlines()):
+                ptp_info = parse_ptp_log(log_line)
+                if ptp_info is not None:
+                    coll_comms.append(NcclPtp(ptp_info))
 
-                if ring_topo_info is not None:
-                    ring_topos.append(ring_topo_info)
+                ring_topo_match = parse_ring_topo_log(log_line)
+                if ring_topo_info is None:
+                    ring_topo_match = parse_ring_topo_log(log_line)
+                    ring_topo_info = ring_topo_match
 
+            if ring_topo_info is not None:
+                ring_topos.append(ring_topo_info)
+
+    print("Constructing Ring..")
     nccl_ring = NcclAlgoRing(ring_topos)
     
     coll_flows = []
-    for coll in coll_comms:
+    print("Probe collective operations...")
+    for coll in tqdm(coll_comms):
         flows, deps = nccl_ring.probe_coll_op(coll)
         coll_flows.append((flows,deps))
     

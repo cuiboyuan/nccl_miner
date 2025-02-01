@@ -1,0 +1,52 @@
+{
+    "distributed": {
+        "tp_size": 1,
+        "cp_size": 1,
+        "pp_size": 1,
+        "dp_size": 3,
+        "pp_engine": "1f1b",
+        "backend": "nccl",
+        "use_cpu": false
+    },
+    "model": {
+        "name": "HuggingFaceTB/SmolLM-1.7B",
+        "num_hidden_layers": 15,
+        "num_attention_heads": 32,
+        "num_key_value_heads": 32,
+        "dtype": "bfloat16",
+        "use_flash_attention": true,
+        "use_fused_adam": false
+    },
+    "training": {
+        "seed": 42,
+        "learning_rate": 0.0003,
+        "total_train_steps": 20,
+        "seq_length": 1024,
+        "micro_batch_size": 4,
+        "gradient_accumulation_steps": 32,
+        "num_samples": 400000,
+        "max_tokens": null
+    },
+    "dataset": {
+        "name": "roneneldan/TinyStories",
+        "subset_name": null,
+        "num_workers": 0,
+        "num_proc": 1
+    },
+    "checkpoint": {
+        "save_dir": "dp/llama-1B",
+        "save_frequency": 300,
+        "load_path": ""
+    },
+    "logging": {
+        "use_wandb": false,
+        "project_name": "picotron",
+        "run_name": "llama-1B"
+    },
+    "environment": {
+        "OMP_NUM_THREADS": "1",
+        "TOKENIZERS_PARALLELISM": "false",
+        "FLASH_ATTEN": "1",
+        "HF_TOKEN": "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"
+    }
+}

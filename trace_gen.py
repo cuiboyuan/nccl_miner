@@ -2,6 +2,7 @@ import json
 import os
 from copy import deepcopy
 import argparse
+from tqdm import tqdm
 
 from nccl_miner.log_parser import extract_flows_from_logs
 
@@ -132,14 +133,17 @@ def gen_trace_events_from_flows(cur_data_flows, dependencies, ts_offset, all_dat
 
 def main(log_files, out_json):
 
+    print("Extracting flows from the logs...")
     coll_events, coll_flows = extract_flows_from_logs(log_files)
+    print("Extracted.")
     # print(coll_events)
     # print(coll_flows)
 
     ## for visualization
     events = []
     ts_offset = 0
-    for idx, coll in enumerate(coll_events):
+    print("Generating trace visualizations...")
+    for idx, coll in tqdm(enumerate(coll_events)):
         # Start of a NCCL op
         events.append({
             "cat": "trace",
@@ -175,8 +179,11 @@ def main(log_files, out_json):
     chrome_trace = {
         "traceEvents": events
     }
+    print("Generated.")
+    print("Writing to file...")
     with open(out_json, "w") as f:
         json.dump(chrome_trace, f, indent=4)
+    print("Done.")
 
 
 if __name__ == "__main__":
