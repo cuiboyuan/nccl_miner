@@ -134,28 +134,28 @@ def gen_trace_events_from_flows(cur_data_flows, dependencies, ts_offset, all_dat
 def main(log_files, out_json):
 
     print("Extracting flows from the logs...")
-    coll_events, coll_flows = extract_flows_from_logs(log_files)
+    comm_events = extract_flows_from_logs(log_files)
     print("Extracted.")
     # print(coll_events)
     # print(coll_flows)
 
     ## for visualization
     events = []
-    ts_offset = 0
     print("Generating trace visualizations...")
-    for idx, coll in tqdm(enumerate(coll_events)):
-        # Start of a NCCL op
-        events.append({
-            "cat": "trace",
-            'name': f"{coll.func}: {coll.data_num} {coll.data_type}",
-            'ph':'B',
-            'pid':1,
-            'tid':1,
-            'ts':ts_offset
-        })
-
-        data_flows, data_deps = coll_flows[idx]
-
+    ts_offset = 0
+    for idx, coll in tqdm(enumerate(comm_events)):
+        # Start of a NCCL op for each participating device
+        for device in coll.devices:
+            events.append({
+                "cat": "trace",
+                'name': f"{coll.name}: {coll.data_num} {coll.data_type}",
+                'ph':'B',
+                'pid':1,
+                'tid':device,
+                'ts':ts_offset
+            })
+        data_flows = coll.data_flows
+        data_deps = coll.dependencies
         # First, find flows with zero-deps
         entry_flows = []
         for flow_id, flow in data_flows.items():
@@ -163,24 +163,27 @@ def main(log_files, out_json):
                 entry_flows.append(flow)
         # Get all flow events
         flow_events, end_ts = gen_trace_events_from_flows(entry_flows, data_deps, ts_offset, data_flows)
-        events.extend(flow_events)
-        
-        # End of the NCCL op
-        events.append({
-            "cat": "trace",
-            'name': f"{coll.func}: {coll.data_num} {coll.data_type}",
-            'ph':'E',
-            'pid':1,
-            'tid':1,
-            'ts':end_ts
-        })
+        if len(flow_events) > 0:
+            events.extend(flow_events)
+        else:
+            end_ts += 10
+        # End of the NCCL op for each participating device
+        for device in coll.devices:
+            events.append({
+                "cat": "trace",
+                'name': f"{coll.name}: {coll.data_num} {coll.data_type}",
+                'ph':'E',
+                'pid':1,
+                'tid':device,
+                'ts':end_ts
+            })
         ts_offset = end_ts+2
-    
+
     chrome_trace = {
         "traceEvents": events
     }
     print("Generated.")
-    print("Writing to file...")
+    print(f"Writing to file {out_json}...")
     with open(out_json, "w") as f:
         json.dump(chrome_trace, f, indent=4)
     print("Done.")

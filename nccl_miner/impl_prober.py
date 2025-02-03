@@ -3,7 +3,7 @@ Reflect the meaning of values in the NCCL debugging logs. This information comes
 '''
 from .utils import *
 
-class NcclCollective:
+class NcclCollectiveCall:
     def __init__(self, coll_info):
         # self.host = coll_info['host_name']
         # self.pid = int(coll_info['pid'])
@@ -18,6 +18,8 @@ class NcclCollective:
         self.data_size = self.data_type.bytes * self.data_num
 
         self.root = int(coll_info['root_device'])
+        self.nranks = int(coll_info['nranks'])
+        self.comm_obj = coll_info['comm_obj_ptr']
 
         # self.src_buf = coll_info['src_buf_addr']
         # self.dst_buf = coll_info['dst_buf_addr']
@@ -25,7 +27,8 @@ class NcclCollective:
     def __repr__(self):
         return f"{self.func}: {self.data_size} bytes ({self.data_num} {self.data_type})"
 
-class NcclPtp:
+
+class NcclPtpCall:
     def __init__(self, coll_info):
         # self.host = coll_info['host_name']
         # self.pid = int(coll_info['pid'])
@@ -40,6 +43,7 @@ class NcclPtp:
         self.data_size = self.data_type.bytes * self.data_num
 
         self.peer = int(coll_info['peer_device'])
+        self.comm_obj = coll_info['comm_obj_ptr']
 
         # self.src_buf = coll_info['src_buf_addr']
         # self.dst_buf = coll_info['dst_buf_addr']
@@ -47,21 +51,33 @@ class NcclPtp:
     def __repr__(self):
         return f"{self.func}: {self.data_size} bytes ({self.data_num} {self.data_type})"
 
+
 class NcclDataFlow:
     # counter used to generate flow id.
     global_flow_counter = 0
 
-    def __init__(self, src, dst, size, name=None):
+    def __init__(self, src, dst, size, name=None, dur=10):
         self.src = src
         self.dst = dst
         self.size = size
         self.data_name = name
-        self.duration = 10
+        self.duration = dur
         self.id = NcclDataFlow.global_flow_counter
         NcclDataFlow.global_flow_counter += 1
 
     def __repr__(self):
         return f"Flow {self.id}:{self.src}->{self.dst}[{self.size} bytes]"
+
+
+class NcclCommunicationOperation:
+    def __init__(self, op_name, data_type, data_num, data_size, devs, flows, deps):
+        self.name = op_name
+        self.data_type = data_type
+        self.data_num = data_num
+        self.data_size = data_size
+        self.data_flows = flows
+        self.dependencies = deps
+        self.devices = devs
 
 
 class NcclRing:
@@ -112,8 +128,7 @@ class NcclRing:
 
 
 class NcclAlgoRing:
-    def __init__(self, all_topo_info):
-        print(all_topo_info)
+    def __init__(self, all_topo_info, rank_to_dev):
         incomplete_rings = {}
         for topo in all_topo_info:
             ring_id = '00'
@@ -124,9 +139,11 @@ class NcclAlgoRing:
                 incomplete_rings[ring_id] = NcclRing(ring_id)
             incomplete_rings[ring_id].add_node(cur, next)
 
+        self.rank_to_device_mapping = rank_to_dev
+        self.devices = [dev for _, dev in self.rank_to_device_mapping.items()]
+
         self.rings = {}
         for ring_id, ring in incomplete_rings.items():
-            print(ring.incomplete_ring)
             ring.finalize_ring()
             self.rings[ring_id] = ring
         
@@ -142,136 +159,161 @@ class NcclAlgoRing:
         for id, ring in self.rings.items():
             ret += f"{id}: {ring}\n"
         return ret
+    
+    def rank_to_device(self, rank):
+        return self.rank_to_device_mapping[rank]
 
     def probe_coll_op(self, coll_op):
         data_flows = {}
         dependencies = {}
-        
+
+        participating_devs = []
 
         if coll_op.func == "Send":
-            flow = NcclDataFlow(coll_op.device, coll_op.peer, coll_op.data_size, name=f"{coll_op.device}'s Data")
-            data_flows[flow.id] = flow
+            participating_devs = [coll_op.device, coll_op.peer]
 
         elif coll_op.func == "Recv":
-            # assume it's successfully received.
-            pass
+            participating_devs = [coll_op.device, coll_op.peer]
 
-        elif coll_op.func == "Broadcast":
-            # Based on NCCL implementation in src/device/broadcast.h:runRing()
-            # TODO: Naive understanding for now, need more details
-            for _, ring in self.rings.items():
-                cur_node = coll_op.root
-                next_node = ring.get_next_node(cur_node)
+        else:
+            # Collective operations that involve all devices
+            participating_devs = self.devices
 
-                prev_flow_id = None
-                while next_node != coll_op.root:
-                    # send data to next GPU
-                    cur_flow = NcclDataFlow(cur_node, next_node, coll_op.data_size, name=f"{coll_op.root}'s Data")
-                    cur_flow_id = cur_flow.id
-                    data_flows[cur_flow_id] = cur_flow
-                    # add dependencies
-                    # flow from the root is the first flow, it has zero deps
-                    if cur_node != coll_op.root:
-                        if prev_flow_id is None:
-                            # should not enter here.
-                            assert False
-                        # need to wait for the previous flow to finish.
-                        if cur_flow_id not in dependencies:
-                            dependencies[cur_flow_id] = [prev_flow_id]
-                        else:
-                            dependencies[cur_flow_id].append(prev_flow_id)
-                    # done cur data flow, move on to the next
-                    prev_flow_id = cur_flow_id
-
-                    cur_node = next_node
+            if coll_op.func == "Broadcast":
+                # Based on NCCL implementation in src/device/broadcast.h:runRing()
+                # TODO: Naive understanding for now, need more details
+                for _, ring in self.rings.items():
+                    cur_node = coll_op.root
                     next_node = ring.get_next_node(cur_node)
 
-            
-        elif coll_op.func == "AllReduce":
-            # Based on NCCL implementation in src/device/all_reduce.h:runRing()
-            # TODO: Naive understanding, need more reading on NCCL codes
-            nranks = self.size
-            for _, ring in self.rings.items():
-                for idx, rank in enumerate(ring.nodes):
-                    # 1. reduce and copy to next GPU (nranks-1 steps)
-                    # my understanding: cur_node reduce on its own node, and transfer whatever it receives to the next GPU as is
-                    # push data to next GPU
                     prev_flow_id = None
-                    j = 0
-                    cur_node = rank
-                    next_node = ring.get_next_node(cur_node)
-                    while j < (nranks-1):
-                        cur_flow = NcclDataFlow(cur_node, next_node, coll_op.data_size, name=f"{rank}'s data")
+                    while next_node != coll_op.root:
+                        # send data to next GPU
+                        cur_flow = NcclDataFlow(self.rank_to_device(cur_node),
+                                                self.rank_to_device(next_node),
+                                                coll_op.data_size,
+                                                name=f"{coll_op.root}'s Data")
                         cur_flow_id = cur_flow.id
                         data_flows[cur_flow_id] = cur_flow
-
-                        if prev_flow_id is None:
-                            # first flow, zero dependency
-                            pass
-                        else:
-                            # need to wait for the previous flow to finish.
-                            if cur_flow_id not in dependencies:
-                                dependencies[cur_flow_id] = [prev_flow_id]
-                            else:
-                                dependencies[cur_flow_id].append(prev_flow_id)                        
-                        prev_flow_id = cur_flow_id
-
-                        cur_node = next_node
-                        next_node = ring.get_next_node(cur_node)
-                        j += 1
-                    # 2. copy to next GPU (nranks-1 steps)
-                    # my understanding: now, broadcast the final reduced result to all nodes in the ring.
-                    while j < 2*(nranks-1):
-                        cur_flow = NcclDataFlow(cur_node, next_node, coll_op.data_size, name=f"all-reduced result")
-                        cur_flow_id = cur_flow.id
-                        data_flows[cur_flow_id] = cur_flow
-
-                        assert prev_flow_id is not None
-                        # need to wait for the previous flow to finish.
-                        if cur_flow_id not in dependencies:
-                            dependencies[cur_flow_id] = [prev_flow_id]
-                        else:
-                            dependencies[cur_flow_id].append(prev_flow_id)                        
-                        prev_flow_id = cur_flow_id
-
-                        cur_node = next_node
-                        next_node = ring.get_next_node(cur_node)
-                        j += 1
-
-        elif coll_op.func == "AllGather":
-            # Based on NCCL implementation in src/device/all_gather.h:runRing()
-            # TODO: Naive understanding, need more reading on NCCL codes
-            nranks = self.size
-            for _, ring in self.rings.items():
-                shard_size = coll_op.data_size // nranks
-                for idx, rank in enumerate(ring.nodes):
-                    # 1. Push my piece of data to next GPU
-                    cur_node = rank
-                    next_node = ring.get_next_node(cur_node)
-                    prev_flow_id = None
-                    # 2. Pass around to other GPUs
-                    while next_node != rank:
-                        # Get flow
-                        cur_flow = NcclDataFlow(cur_node, next_node, shard_size, name=f"{rank}'s data shard")
-                        cur_flow_id = cur_flow.id
-                        data_flows[cur_flow_id] = cur_flow
-
-                        if prev_flow_id is not None:
+                        # add dependencies
+                        # flow from the root is the first flow, it has zero deps
+                        if cur_node != coll_op.root:
+                            if prev_flow_id is None:
+                                # should not enter here.
+                                assert False
                             # need to wait for the previous flow to finish.
                             if cur_flow_id not in dependencies:
                                 dependencies[cur_flow_id] = [prev_flow_id]
                             else:
                                 dependencies[cur_flow_id].append(prev_flow_id)
-
-                        # advance to the next pair in Ring
-                        cur_node = next_node
-                        next_node = ring.get_next_node(cur_node)
+                        # done cur data flow, move on to the next
                         prev_flow_id = cur_flow_id
 
-        elif coll_op.func == "Reduce":
-            pass
+                        cur_node = next_node
+                        next_node = ring.get_next_node(cur_node)
 
-        elif coll_op.func == "ReduceScatter":
-            pass
+                
+            elif coll_op.func == "AllReduce":
+                # Based on NCCL implementation in src/device/all_reduce.h:runRing()
+                # TODO: Naive understanding, need more reading on NCCL codes
+                nranks = self.size
+                for _, ring in self.rings.items():
+                    for idx, rank in enumerate(ring.nodes):
+                        # 1. reduce and copy to next GPU (nranks-1 steps)
+                        # my understanding: cur_node reduce on its own node, and transfer whatever it receives to the next GPU as is
+                        # push data to next GPU
+                        prev_flow_id = None
+                        j = 0
+                        cur_node = rank
+                        next_node = ring.get_next_node(cur_node)
+                        while j < (nranks-1):
+                            cur_flow = NcclDataFlow(self.rank_to_device(cur_node),
+                                                    self.rank_to_device(next_node),
+                                                    coll_op.data_size,
+                                                    name=f"{rank}'s data")
+                            cur_flow_id = cur_flow.id
+                            data_flows[cur_flow_id] = cur_flow
 
-        return data_flows, dependencies
+                            if prev_flow_id is None:
+                                # first flow, zero dependency
+                                pass
+                            else:
+                                # need to wait for the previous flow to finish.
+                                if cur_flow_id not in dependencies:
+                                    dependencies[cur_flow_id] = [prev_flow_id]
+                                else:
+                                    dependencies[cur_flow_id].append(prev_flow_id)                        
+                            prev_flow_id = cur_flow_id
+
+                            cur_node = next_node
+                            next_node = ring.get_next_node(cur_node)
+                            j += 1
+                        # 2. copy to next GPU (nranks-1 steps)
+                        # my understanding: now, broadcast the final reduced result to all nodes in the ring.
+                        while j < 2*(nranks-1):
+                            cur_flow = NcclDataFlow(self.rank_to_device(cur_node),
+                                                    self.rank_to_device(next_node),
+                                                    coll_op.data_size,
+                                                    name=f"all-reduced result")
+                            cur_flow_id = cur_flow.id
+                            data_flows[cur_flow_id] = cur_flow
+
+                            assert prev_flow_id is not None
+                            # need to wait for the previous flow to finish.
+                            if cur_flow_id not in dependencies:
+                                dependencies[cur_flow_id] = [prev_flow_id]
+                            else:
+                                dependencies[cur_flow_id].append(prev_flow_id)                        
+                            prev_flow_id = cur_flow_id
+
+                            cur_node = next_node
+                            next_node = ring.get_next_node(cur_node)
+                            j += 1
+
+            elif coll_op.func == "AllGather":
+                # Based on NCCL implementation in src/device/all_gather.h:runRing()
+                # TODO: Naive understanding, need more reading on NCCL codes
+                nranks = self.size
+                for _, ring in self.rings.items():
+                    shard_size = coll_op.data_size // nranks
+                    for idx, rank in enumerate(ring.nodes):
+                        # 1. Push my piece of data to next GPU
+                        cur_node = rank
+                        next_node = ring.get_next_node(cur_node)
+                        prev_flow_id = None
+                        # 2. Pass around to other GPUs
+                        while next_node != rank:
+                            # Get flow
+                            cur_flow = NcclDataFlow(self.rank_to_device(cur_node),
+                                                    self.rank_to_device(next_node),
+                                                    shard_size,
+                                                    name=f"{rank}'s data shard")
+                            cur_flow_id = cur_flow.id
+                            data_flows[cur_flow_id] = cur_flow
+
+                            if prev_flow_id is not None:
+                                # need to wait for the previous flow to finish.
+                                if cur_flow_id not in dependencies:
+                                    dependencies[cur_flow_id] = [prev_flow_id]
+                                else:
+                                    dependencies[cur_flow_id].append(prev_flow_id)
+
+                            # advance to the next pair in Ring
+                            cur_node = next_node
+                            next_node = ring.get_next_node(cur_node)
+                            prev_flow_id = cur_flow_id
+
+            elif coll_op.func == "Reduce":
+                pass
+
+            elif coll_op.func == "ReduceScatter":
+                pass
+
+        nccl_op = NcclCommunicationOperation(coll_op.func,
+                                             coll_op.data_type,
+                                             coll_op.data_num,
+                                             coll_op.data_size,
+                                             participating_devs,
+                                             data_flows,
+                                             dependencies)
+        return nccl_op
