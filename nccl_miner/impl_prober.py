@@ -28,7 +28,7 @@ class NcclCollectiveCall:
         return f"{self.func}: {self.data_size} bytes ({self.data_num} {self.data_type})"
 
 
-class NcclPtpCall:
+class NcclSendRecvCall:
     def __init__(self, coll_info):
         # self.host = coll_info['host_name']
         # self.pid = int(coll_info['pid'])
@@ -128,16 +128,16 @@ class NcclRing:
 
 
 class NcclAlgoRing:
-    def __init__(self, all_topo_info, rank_to_dev):
+    def __init__(self, partial_rings, rank_to_dev):
         incomplete_rings = {}
-        for topo in all_topo_info:
-            ring_id = '00'
-            prev = topo['prev']
-            cur = topo['cur']
-            next = topo['next']
-            if ring_id not in incomplete_rings:
-                incomplete_rings[ring_id] = NcclRing(ring_id)
-            incomplete_rings[ring_id].add_node(cur, next)
+        for partial in partial_rings:
+            for ring_id, topo in partial.items():
+                prev = topo['prev']
+                cur = topo['cur']
+                next = topo['next']
+                if ring_id not in incomplete_rings:
+                    incomplete_rings[ring_id] = NcclRing(ring_id)
+                incomplete_rings[ring_id].add_node(cur, next)
 
         self.rank_to_device_mapping = rank_to_dev
         self.devices = [dev for _, dev in self.rank_to_device_mapping.items()]
@@ -170,10 +170,10 @@ class NcclAlgoRing:
         participating_devs = []
 
         if coll_op.func == "Send":
-            participating_devs = [coll_op.device, coll_op.peer]
+            participating_devs = [coll_op.device]
 
         elif coll_op.func == "Recv":
-            participating_devs = [coll_op.device, coll_op.peer]
+            participating_devs = [coll_op.device]
 
         else:
             # Collective operations that involve all devices
