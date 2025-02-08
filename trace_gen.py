@@ -136,7 +136,7 @@ def main(log_files, out_json):
     print("Extracting flows from the logs...")
     comm_events = extract_flows_from_logs(log_files)
     print("Extracted.")
-    # print(coll_events)
+    # print(comm_events)
     # print(coll_flows)
 
     ## for visualization

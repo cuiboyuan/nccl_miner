@@ -14,7 +14,7 @@ class NcclCall:
         self.tid = int(log_info['tid'])
 
         self.device = int(log_info['cuda_device'])
-        self.nranks = int(log_info['nranks'])
+        self.nranks = int(log_info['nrank'])
         self.comm_obj = log_info['comm_obj_ptr']
     
     def associate_clique_id(self, clique_id):
@@ -24,7 +24,7 @@ class NcclCommInitRank(NcclCall):
     def __init__(self, log_info):
         super().__init__(log_info)
         self.comm_id = log_info['comm_id']
-        self.cur_rank = log_info['cur_rank']
+        self.cur_rank = int(log_info['cur_rank'])
         self.nvml_device = log_info['nvml_device']
         self.bus_id = log_info['bus_id']
 
@@ -56,7 +56,7 @@ class NcclCommInitRank(NcclCall):
         else:
             return None
 
-    def parse_end(log_line):
+    def parse_end(self, log_line):
         log_pattern = (
                 r"(?P<host_name>[^:]+):"                     # Host name
                 r"(?P<pid>\d+):(?P<tid>\d+)\s+"             # PID and TID
@@ -93,7 +93,11 @@ class NcclCommInitRank(NcclCall):
         if match:
             # Return the extracted information as a dictionary
             raw_info = match.groupdict()
-            self.partial_rings['00'] = raw_info
+            self.partial_rings['00'] = {
+                'prev': int(raw_info['prev']),
+                'cur': int(raw_info['cur']),
+                'next': int(raw_info['next']),
+            }
 
 
 class NcclCommSplit(NcclCommInitRank):
@@ -132,7 +136,7 @@ class NcclCommSplit(NcclCommInitRank):
         else:
             return None
 
-    def parse_end(log_line):
+    def parse_end(self, log_line):
         log_pattern = (
                 r"(?P<host_name>[^:]+):"                     # Host name
                 r"(?P<pid>\d+):(?P<tid>\d+)\s+"             # PID and TID
@@ -186,7 +190,7 @@ class NcclPtp(NcclCall):
                 r"op\s+(?P<operator>\w+)\s+"                # Operator
                 r"root\s+(?P<peer_rank>\d+)\s+"           # peer device
                 r"comm\s+(?P<comm_obj_ptr>0x[0-9a-f]+)\s+"  # Comm object pointer
-                r"\[nranks=(?P<nranks>\d+)\]\s+"       # Total ranks
+                r"\[nranks=(?P<nrank>\d+)\]\s+"       # Total ranks
                 r"stream\s+(?P<stream_obj_ptr>0x[0-9a-f]+)" # Stream object pointer
             )
 
@@ -198,6 +202,9 @@ class NcclPtp(NcclCall):
             return NcclPtp(raw_info)
         else:
             return None
+        
+    def __repr__(self):
+        return f"[{self.device}] {self.func} {self.comm_obj}"
 
 
 class NcclCollective(NcclCall):
@@ -227,7 +234,7 @@ class NcclCollective(NcclCall):
                 r"op\s+(?P<operator>\w+)\s+"                # Operator
                 r"root\s+(?P<root_rank>\d+)\s+"           # Root device
                 r"comm\s+(?P<comm_obj_ptr>0x[0-9a-f]+)\s+"  # Comm object pointer
-                r"\[nranks=(?P<nranks>\d+)\]\s+"       # Total ranks
+                r"\[nranks=(?P<nrank>\d+)\]\s+"       # Total ranks
                 r"stream\s+(?P<stream_obj_ptr>0x[0-9a-f]+)" # Stream object pointer
             )
 
@@ -239,11 +246,15 @@ class NcclCollective(NcclCall):
             return NcclCollective(raw_info)
         else:
             return None
+        
+    def __repr__(self):
+        return f"[{self.device}] {self.func} {self.comm_obj}"
 
 class NcclClique:
     def __init__(self, nccl_init_calls: List[NcclCommInitRank]):
         self.id = None
         self.rank_to_device = {}
+        self.device_to_rank = {}
 
         partial_rings = []
         for comm_init in nccl_init_calls:
@@ -252,11 +263,19 @@ class NcclClique:
             assert self.id == comm_init.comm_id
             # Map the rank in this clique to actual CUDA device.
             self.rank_to_device[comm_init.cur_rank] = comm_init.device
+            self.device_to_rank[comm_init.device] = comm_init.cur_rank
             # Construct the Ring.
-            partial_rings.append(nccl_init_calls.partial_rings)
+            partial_rings.append(comm_init.partial_rings)
             # TODO: Construct the Tree.
             # ...
+        print("Constructing Ring")
         self.ring_algo = NcclAlgoRing(partial_rings, self.rank_to_device)
+    
+    def get_device_rank(self, dev):
+        return self.device_to_rank[dev]
+    
+    def get_rank_device(self, rank):
+        return self.rank_to_device[rank]
 
 
 def parse_nccl_calls_from_logs(log_files):
@@ -283,7 +302,7 @@ def parse_nccl_calls_from_logs(log_files):
             for log_line in tqdm(f.readlines()):
                 if state == NO_INIT:
                     # Find Comm init call to group devices
-                    init_call = NcclCommInitRank.parse(log_line, is_start=True)
+                    init_call = NcclCommInitRank.parse(log_line)
                     if init_call is not None:
                         cur_nccl_comm_init = init_call
                         state = INIT_IN_PROGRESS
@@ -353,7 +372,7 @@ def parse_nccl_calls_from_logs(log_files):
 
     print("Constructing Communication Cliques...")
     nccl_cliques = {}
-    for clique_id, comm_init_calls in comm_id_to_comm_init_calls:
+    for clique_id, comm_init_calls in comm_id_to_comm_init_calls.items():
         nccl_cliques[clique_id] = NcclClique(comm_init_calls)
 
     return nccl_cliques, comm_calls_per_device
@@ -389,95 +408,114 @@ def extract_flows_from_logs(log_files):
     # TODO: Assume every operation blocks.
 
     all_comms = []
-    while are_all_logs_parsed() is False:
-        comm_id_to_pending_coll = {}
-        comm_id_to_pending_send = {}
-        comm_id_to_pending_recv = {}
-        for cur_dev, nccl_calls in comms_per_device.items():
-            do_advance_all_idx = False
 
-            cur_idx = cur_idx_per_device[cur_dev]
-            max_idx = max_idx_per_device[cur_dev]
+    pending_ptp_calls = []
+    pending_coll_calls = []
+    while are_all_logs_parsed() == False:
+        for dev, nccl_calls in comms_per_device.items():
+            cur_idx = cur_idx_per_device[dev]
+            max_idx = max_idx_per_device[dev]
             if cur_idx >= max_idx:
                 continue
 
             cur_nccl_call = nccl_calls[cur_idx]
-            cur_call_comm_id = comm_obj_to_comm_id[cur_nccl_call['comm_obj_ptr']]
-            # print(cur_nccl_call)
-            if 'coll_op' in cur_nccl_call:
-                if cur_call_comm_id not in comm_id_to_pending_coll:
-                    comm_id_to_pending_coll[cur_call_comm_id] = [cur_nccl_call]
-                else:
-                    pending_coll = comm_id_to_pending_coll[cur_call_comm_id]
-                    assert cur_nccl_call['coll_op'] == pending_coll[-1]['coll_op']
-                    pending_coll.append(cur_nccl_call)
-                # Check if all devices reach this collectice call.
-                this_comm_obj_nranks = len(comm_id_to_rank_dev_mappings[cur_call_comm_id])
-                if len(comm_id_to_pending_coll[cur_call_comm_id]) == this_comm_obj_nranks:
-                    all_comms.append(NcclCollectiveCall(cur_nccl_call))
+            if isinstance(cur_nccl_call, NcclPtp):
+                cur_cliq_id = cur_nccl_call.clique_id
+                clique = comm_cliques[cur_cliq_id]
 
-                    # Advance the indices
-                    for coll in comm_id_to_pending_coll[cur_call_comm_id]:
-                        pending_dev = coll['cuda_device']
-                        cur_idx_per_device[pending_dev] += 1
-                        cur_iter += 1
-                        print(f"{cur_iter/total_iter*100}%", end="\r")
+                unblocked = False
+                for _ in range(len(pending_ptp_calls)):
+                    pending_ptp = pending_ptp_calls.pop(0)
 
-            elif 'ptp_op' in cur_nccl_call:
-                if cur_nccl_call['ptp_op'] == "Send":
-                    src = cur_nccl_call['cuda_device']
-                    if cur_call_comm_id in comm_id_to_pending_recv \
-                         and src in comm_id_to_pending_recv[cur_call_comm_id]:
-                        # Complete the Send-Receive Data flow
-                        send_recv_call = comm_id_to_pending_recv[cur_call_comm_id][src]
-                        nccl_ptp_op = NcclSendRecvCall(send_recv_call)
-                        print(send_recv_call)
-                        all_comms.append(nccl_ptp_op)
-                        # Advance the index
-                        cur_idx_per_device[send_recv_call['cuda_device']] += 1
-                        cur_idx_per_device[cur_dev] += 1
-                        # For progress tracking only
-                        cur_iter += 2
-                        print(f"{cur_iter/total_iter*100}%", end="\r")
+                    pending_cliq_id = pending_ptp.clique_id
+                    if cur_cliq_id == pending_cliq_id:
+                        cur_func = cur_nccl_call.func
+                        cur_device = cur_nccl_call.device
+                        cur_peer = clique.get_rank_device(cur_nccl_call.peer_rank)
+
+                        pending_func = pending_ptp.func
+                        pending_device = pending_ptp.device
+                        pending_peer = clique.get_rank_device(pending_ptp.peer_rank)
+                        if (cur_func == 'Send' and pending_func == "Recv") \
+                            or (cur_func == 'Recv' and pending_func == "Send"):
+                            if ((cur_device == pending_peer) \
+                                or (cur_peer == pending_device)):
+                                # Unblocked
+                                if (cur_nccl_call.data_num == pending_ptp.data_num \
+                                    and cur_nccl_call.data_type == pending_ptp.data_type \
+                                    and cur_nccl_call.data_size == pending_ptp.data_size):
+                                    # Unblocked, add this to final comm operations
+                                    if cur_func == 'Send':
+                                        src_dev = cur_device
+                                        dst_dev = pending_device
+                                    else:
+                                        src_dev = pending_device
+                                        dst_dev = cur_device
+
+                                    flow = NcclDataFlow(src_dev, dst_dev, cur_nccl_call.data_size)
+                                    sendrecv_op = NcclCommunicationOperation(
+                                        "SendRecv",
+                                        cur_nccl_call.data_type,
+                                        cur_nccl_call.data_num,
+                                        cur_nccl_call.data_size,
+                                        [src_dev, dst_dev],
+                                        {flow.id: flow},
+                                        {})
+                                    all_comms.append(sendrecv_op)
+                                    unblocked = True
+                                    break
+                    # Not unblocked, continue waiting in pending queue
+                    pending_ptp_calls.append(pending_ptp)
+
+                if not unblocked:
+                    pending_ptp_calls.append(cur_nccl_call)
+
+            elif isinstance(cur_nccl_call, NcclCollective):
+                cur_cliq_id = cur_nccl_call.clique_id
+                clique = comm_cliques[cur_cliq_id]
+
+                unblocked = False
+                matched = False
+                for _ in range(len(pending_coll_calls)):
+                    # print(">>>")
+                    pending_coll, num_matched = pending_coll_calls.pop(0)
+                    # print(pending_coll_calls)
+
+                    pending_cliq_id = pending_coll.clique_id
+                    cur_func = cur_nccl_call.func
+                    pending_func = pending_coll.func
+                    if cur_cliq_id == pending_cliq_id \
+                        and cur_func == pending_func:
+                        # Matched.
+                        if (cur_nccl_call.data_num == pending_coll.data_num \
+                            and cur_nccl_call.data_type == pending_coll.data_type \
+                            and cur_nccl_call.data_size == pending_coll.data_size):
+                            # Matched.
+                            matched = True
+                            num_matched += 1
+                            if num_matched == len(clique.rank_to_device):
+                                unblocked = True
+                                coll_op = clique.ring_algo.probe_coll_op(cur_nccl_call)
+                                all_comms.append(coll_op)
+                                break
+                    # not unblocked, continue waiting in pending queue
+                    pending_coll_calls.append((pending_coll, num_matched))
+                    # print(pending_coll_calls)
+                    # print("<<<")
+                    
+                if not unblocked and not matched:
+                    if len(clique.rank_to_device) > 1:
+                        pending_coll_calls.append((cur_nccl_call, 1))
                     else:
-                        # Need to wait for Receive call
-                        dst = cur_nccl_call['peer_device']
-                        if cur_call_comm_id not in comm_id_to_pending_send:
-                            comm_id_to_pending_send[cur_call_comm_id] = {dst: cur_nccl_call}
-                        else:
-                            comm_id_to_pending_send[cur_call_comm_id].update({dst: cur_nccl_call})
+                        coll_op = clique.ring_algo.probe_coll_op(cur_nccl_call)
+                        all_comms.append(coll_op)
 
-                elif cur_nccl_call['ptp_op'] == "Recv":
-                    # print(cur_nccl_call)
-                    dst = cur_nccl_call['cuda_device']
-                    if cur_call_comm_id in comm_id_to_pending_send \
-                         and dst in comm_id_to_pending_send[cur_call_comm_id]:
-                        # Complete the Send-Receive Data flow
-                        send_recv_call = comm_id_to_pending_send[cur_call_comm_id][dst]
-                        nccl_ptp_op = NcclSendRecvCall(send_recv_call)
-                        print(send_recv_call)
-                        all_comms.append(nccl_ptp_op)
-                        # Advance the index
-                        cur_idx_per_device[send_recv_call['cuda_device']] += 1
-                        cur_idx_per_device[cur_dev] += 1
-                        # For progress tracking only
-                        cur_iter += 2
-                        print(f"{cur_iter/total_iter*100}%", end="\r")
-                    else:
-                        # Need to wait for Send call
-                        src = cur_nccl_call['peer_device']
-                        if cur_call_comm_id not in comm_id_to_pending_recv:
-                            comm_id_to_pending_recv[cur_call_comm_id] = {src: cur_nccl_call}
-                        else:
-                            comm_id_to_pending_recv[cur_call_comm_id].update({src: cur_nccl_call})
-        
+
+            cur_idx_per_device[dev] += 1
+
+            print(cur_idx_per_device)
+
+    assert len(pending_ptp_calls) == 0
+    assert len(pending_coll_calls) == 0
     
-    comm_flows = []
-    print("Probe all communication...")
-    for comm in tqdm(all_comms):
-        cur_comm_id = comm_obj_to_comm_id[comm.comm_obj]
-        nccl_ring = comm_obj_to_ring_algo[cur_comm_id]
-        nccl_operation = nccl_ring.probe_coll_op(comm)
-        comm_flows.append(nccl_operation)
-    
-    return comm_flows
+    return all_comms

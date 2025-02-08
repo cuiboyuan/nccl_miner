@@ -3,55 +3,6 @@ Reflect the meaning of values in the NCCL debugging logs. This information comes
 '''
 from .utils import *
 
-class NcclCollectiveCall:
-    def __init__(self, coll_info):
-        # self.host = coll_info['host_name']
-        # self.pid = int(coll_info['pid'])
-        # self.tid = int(coll_info['tid'])
-
-        self.device = int(coll_info['cuda_device'])
-        
-        self.func = coll_info['coll_op']
-        
-        self.data_num = int(coll_info['num_elem'])
-        self.data_type = NcclDataType(coll_info['data_type'])
-        self.data_size = self.data_type.bytes * self.data_num
-
-        self.root = int(coll_info['root_device'])
-        self.nranks = int(coll_info['nranks'])
-        self.comm_obj = coll_info['comm_obj_ptr']
-
-        # self.src_buf = coll_info['src_buf_addr']
-        # self.dst_buf = coll_info['dst_buf_addr']
-    
-    def __repr__(self):
-        return f"{self.func}: {self.data_size} bytes ({self.data_num} {self.data_type})"
-
-
-class NcclSendRecvCall:
-    def __init__(self, coll_info):
-        # self.host = coll_info['host_name']
-        # self.pid = int(coll_info['pid'])
-        # self.tid = int(coll_info['tid'])
-
-        self.device = int(coll_info['cuda_device'])
-        
-        self.func = coll_info['ptp_op']
-        
-        self.data_num = int(coll_info['num_elem'])
-        self.data_type = NcclDataType(coll_info['data_type'])
-        self.data_size = self.data_type.bytes * self.data_num
-
-        self.peer = int(coll_info['peer_device'])
-        self.comm_obj = coll_info['comm_obj_ptr']
-
-        # self.src_buf = coll_info['src_buf_addr']
-        # self.dst_buf = coll_info['dst_buf_addr']
-    
-    def __repr__(self):
-        return f"{self.func}: {self.data_size} bytes ({self.data_num} {self.data_type})"
-
-
 class NcclDataFlow:
     # counter used to generate flow id.
     global_flow_counter = 0
@@ -78,6 +29,9 @@ class NcclCommunicationOperation:
         self.data_flows = flows
         self.dependencies = deps
         self.devices = devs
+        
+    def __repr__(self):
+        return f"{self.name}: {self.data_size} bytes ({self.data_num} {self.data_type})"
 
 
 class NcclRing:
@@ -90,7 +44,7 @@ class NcclRing:
     def add_node(self, cur, next):
         if self.complete:
             return
-        self.incomplete_ring[int(cur)] = int(next)
+        self.incomplete_ring[cur] = next
     
     def finalize_ring(self):
         # Find a random starting point
@@ -132,6 +86,7 @@ class NcclAlgoRing:
         incomplete_rings = {}
         for partial in partial_rings:
             for ring_id, topo in partial.items():
+                print(topo)
                 prev = topo['prev']
                 cur = topo['cur']
                 next = topo['next']
@@ -183,21 +138,21 @@ class NcclAlgoRing:
                 # Based on NCCL implementation in src/device/broadcast.h:runRing()
                 # TODO: Naive understanding for now, need more details
                 for _, ring in self.rings.items():
-                    cur_node = coll_op.root
+                    cur_node = coll_op.root_rank
                     next_node = ring.get_next_node(cur_node)
 
                     prev_flow_id = None
-                    while next_node != coll_op.root:
+                    while next_node != coll_op.root_rank:
                         # send data to next GPU
                         cur_flow = NcclDataFlow(self.rank_to_device(cur_node),
                                                 self.rank_to_device(next_node),
                                                 coll_op.data_size,
-                                                name=f"{coll_op.root}'s Data")
+                                                name=f"{coll_op.root_rank}'s Data")
                         cur_flow_id = cur_flow.id
                         data_flows[cur_flow_id] = cur_flow
                         # add dependencies
                         # flow from the root is the first flow, it has zero deps
-                        if cur_node != coll_op.root:
+                        if cur_node != coll_op.root_rank:
                             if prev_flow_id is None:
                                 # should not enter here.
                                 assert False
