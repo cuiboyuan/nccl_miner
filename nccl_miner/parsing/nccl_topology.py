@@ -1,30 +1,8 @@
 class Ring:
-    def __init__(self, ring_id):
-        self.complete = False
+    def __init__(self, nodes, ring_id):
         self.id = ring_id
-        self.nodes = []
-        self.incomplete_ring = {}
-    
-    def add_node(self, cur, next):
-        if self.complete:
-            return
-        self.incomplete_ring[cur] = next
-    
-    def finalize_ring(self):
-        # Find a random starting point
-        entry_node = None
-        for n in self.incomplete_ring:
-            entry_node = n
-            break
-        # Sort the nodes in order to reflect ring structure
-        cur_node = None
-        while cur_node != entry_node:
-            if cur_node is None:
-                cur_node = entry_node
-            self.nodes.append(cur_node)
-            cur_node = self.incomplete_ring[cur_node]
-        self.size = len(self.nodes)
-        self.complete = True
+        self.nodes = nodes
+        self.size = len(nodes)
 
     def __len__(self):
         return len(self.nodes)
@@ -46,26 +24,13 @@ class Ring:
 
 
 class NcclRing:
-    def __init__(self, partial_rings, rank_to_dev):
-        incomplete_rings = {}
-        for partial in partial_rings:
-            for ring_id, topo in partial.items():
-                prev = topo['prev']
-                cur = topo['cur']
-                next = topo['next']
-                if ring_id not in incomplete_rings:
-                    incomplete_rings[ring_id] = Ring(ring_id)
-                incomplete_rings[ring_id].add_node(cur, next)
-
+    def __init__(self, all_rings, rank_to_dev):
         self.rank_to_device_mapping = rank_to_dev
         self.devices = [dev for _, dev in self.rank_to_device_mapping.items()]
 
-        self.rings = {}
-        for ring_id, ring in incomplete_rings.items():
-            ring.finalize_ring()
-            self.rings[ring_id] = ring
-        
+        self.rings = all_rings
         self.size = None
+        # check if all rings have equal sizes
         for id, ring in self.rings.items():
             if self.size is None:
                 self.size = len(ring)

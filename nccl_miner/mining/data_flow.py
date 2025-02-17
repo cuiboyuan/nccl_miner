@@ -1,6 +1,4 @@
 
-from nccl_miner.common.data_type import *
-
 class NcclDataFlow:
     # counter used to generate flow id.
     global_flow_counter = 0

@@ -1,7 +1,8 @@
 import re
 from typing import *
 
-from nccl_miner.common.data_type import *
+from .data_type import *
+from .nccl_topology import *
 
 
 class NcclCall:
@@ -158,6 +159,71 @@ class NcclCommSplit(NcclCommInitRank):
             return True
         else:
             return False
+
+
+class NcclClique:
+    def __init__(self, nccl_init_calls: List[NcclCommInitRank]):
+        self.id = None
+        self.rank_to_device = {}
+        self.device_to_rank = {}
+
+        partial_rings = []
+        partial_trees = []
+        for comm_init in nccl_init_calls:
+            if self.id is None:
+                self.id = comm_init.comm_id
+            assert self.id == comm_init.comm_id
+            # Map the rank in this clique to actual CUDA device.
+            self.rank_to_device[comm_init.cur_rank] = comm_init.device
+            self.device_to_rank[comm_init.device] = comm_init.cur_rank
+            # Construct the Ring.
+            partial_rings.append(comm_init.partial_rings)
+            # TODO: Construct the Tree.
+            # ...
+
+        print("Constructing Ring...")
+        # Complete full ring from partial rings
+        incomplete_rings = {}
+        for partial in partial_rings:
+            for ring_id, topo in partial.items():
+                prev = topo['prev']
+                cur = topo['cur']
+                next = topo['next']
+                if ring_id not in incomplete_rings:
+                    incomplete_rings[ring_id] = {}
+                incomplete_rings[ring_id][cur] = next
+
+        all_rings = {}
+        for ring_id, ring_dict in incomplete_rings.items():
+            # finalize the ring
+            # Find a random starting point
+            entry_node = None
+            for n in ring_dict:
+                entry_node = n
+                break
+            # Sort the nodes in order to reflect ring structure
+            ring_nodes = []
+            cur_node = None
+            while cur_node != entry_node:
+                if cur_node is None:
+                    cur_node = entry_node
+                ring_nodes.append(cur_node)
+                print(cur_node)
+                cur_node = ring_dict[cur_node]
+
+            ring = Ring(ring_nodes, ring_id)
+            all_rings[ring_id] = ring
+        self.ring_algo = NcclRing(all_rings, self.rank_to_device)
+        
+        # Complete full tree from partial trees
+        # TODO: ...
+    
+    def get_device_rank(self, dev):
+        return self.device_to_rank[dev]
+    
+    def get_rank_device(self, rank):
+        return self.rank_to_device[rank]
+
 
 
 class NcclPtp(NcclCall):

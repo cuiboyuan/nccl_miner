@@ -5,34 +5,7 @@ from tqdm import tqdm
 from typing import *
 
 from .parsing.nccl_call_type import *
-from .parsing.nccl_topology import *
-
-class NcclClique:
-    def __init__(self, nccl_init_calls: List[NcclCommInitRank]):
-        self.id = None
-        self.rank_to_device = {}
-        self.device_to_rank = {}
-
-        partial_rings = []
-        for comm_init in nccl_init_calls:
-            if self.id is None:
-                self.id = comm_init.comm_id
-            assert self.id == comm_init.comm_id
-            # Map the rank in this clique to actual CUDA device.
-            self.rank_to_device[comm_init.cur_rank] = comm_init.device
-            self.device_to_rank[comm_init.device] = comm_init.cur_rank
-            # Construct the Ring.
-            partial_rings.append(comm_init.partial_rings)
-            # TODO: Construct the Tree.
-            # ...
-        print("Constructing Ring")
-        self.ring_algo = NcclRing(partial_rings, self.rank_to_device)
-    
-    def get_device_rank(self, dev):
-        return self.device_to_rank[dev]
-    
-    def get_rank_device(self, rank):
-        return self.rank_to_device[rank]
+# from .parsing.nccl_topology import *
 
 
 def parse_nccl_calls_from_logs(log_files):
