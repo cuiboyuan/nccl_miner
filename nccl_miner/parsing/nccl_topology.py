@@ -23,7 +23,7 @@ class Ring:
         return ring_str
 
 
-class NcclRing:
+class MultiRing:
     def __init__(self, all_rings, rank_to_dev):
         self.rank_to_device_mapping = rank_to_dev
         self.devices = [dev for _, dev in self.rank_to_device_mapping.items()]

@@ -2,7 +2,11 @@ import json
 from copy import deepcopy
 from tqdm import tqdm
 
-from .miner import *
+from .flow_extractor import *
+
+DEVICE_OP_TID = 100
+DATA_FLOW_TID = 200
+global_arrow_id = 0
 
 def flow_tid(src_id, dst_id):
     return 100*src_id + dst_id
@@ -15,25 +19,60 @@ def data_flow_events(flow, ts_offset):
     Given a NcclDataFlow, create events that represent sending and receiving data in Chrome Trace.
     The events will start at ts_offset.
     '''
+    global global_arrow_id
+
     events = []
     # Start
     events.append({
-        "cat": "trace",
-        'name': f"{flow.src} sends {flow.data_name} ({flow.size} bytes) to {flow.dst}",
-        'ph':'B',
-        'pid':2,
-        'tid':flow_tid(flow.src, flow.dst),
-        'ts':ts_offset
+        'ph':'X',
+        "cat": "data_flow",
+        'name': f"Send to {flow.dst}",
+        'pid':flow.src,
+        'tid':DATA_FLOW_TID+flow.dst,
+        'ts':ts_offset,
+        'dur':flow.duration/2-1,
+        'args': {
+            "bytes": flow.size,
+            "name": flow.data_name
+        },
+        'id': flow.id
     })
     # End
     events.append({
-        "cat": "trace",
-        'name': f"{flow.src} sends {flow.data_name} ({flow.size} bytes) to {flow.dst}",
-        'ph':'E',
-        'pid':2,
-        'tid':flow_tid(flow.src, flow.dst),
-        'ts':ts_offset+flow.duration
+        'ph':'X',
+        "cat": "data_flow",
+        'name': f"Recv from {flow.src}",
+        'pid':flow.dst,
+        'tid':DATA_FLOW_TID+flow.src,
+        'ts':ts_offset+flow.duration/2,
+        'dur':flow.duration/2-1,
+        'args': {
+            "bytes": flow.size,
+            "name": flow.data_name
+        },
+        'id': flow.id
     })
+
+    # flow start
+    events.append({
+        'ph':'s',
+        "cat": "communication",
+        'id': global_arrow_id,
+        'pid':flow.src,
+        'tid':DATA_FLOW_TID+flow.dst,
+        'ts':ts_offset+flow.duration/2-1,
+    })
+    # flow end
+    events.append({
+        'ph':'f',
+        "cat": "communication",
+        'id': global_arrow_id,
+        'pid':flow.dst,
+        'tid':DATA_FLOW_TID+flow.src,
+        'ts':ts_offset+flow.duration/2,
+        'bp':'e'
+    })
+    global_arrow_id += 1
     return events
 
 
@@ -53,6 +92,8 @@ def gen_trace_events_from_flows(cur_data_flows, dependencies, ts_offset, all_dat
     Return: a tuple of trace_events (List of Dict) and an ending timestamp (int).
         trace_events contain all flows in cur_data_flows, as well as all flows triggered through dependencies.
     '''
+    global global_arrow_id
+
     trace_events = []
     if len(dependencies) == 0:
         # Base case:
@@ -87,27 +128,24 @@ def gen_trace_events_from_flows(cur_data_flows, dependencies, ts_offset, all_dat
                 if cur_flow.id in deps:
                     new_dependencies[next_flow_id].remove(cur_flow.id)
                     # Add an arrow in the trace to represent dependency
-                    # TODO: arrow display will be a problem is one triggers multi or vice versa.
-                    # TODO: probably easier if just add arrows separately based on deps.
                     trace_events.append({
-                        "cat": "trace",
-                        "name": "flow",
-                        "id": arrow_id(cur_flow.id,next_flow.id),
                         "ph": "s",
-                        "ts": ts_offset+7,
-                        "pid": 2,
-                        "tid": flow_tid(cur_flow.src,cur_flow.dst)
+                        "cat": "flow_dependency",
+                        "id": global_arrow_id,
+                        "ts": end_ts-1,
+                        "pid": cur_flow.dst,
+                        "tid": DATA_FLOW_TID+cur_flow.src
                     })
                     trace_events.append({
-                        "cat": "trace",
-                        "name": "flow",
-                        "id": arrow_id(cur_flow.id,next_flow.id),
                         "ph": "f",
-                        "bp": "e",
-                        "ts": ts_offset+13,
-                        "pid": 2,
-                        "tid": flow_tid(next_flow.src,next_flow.dst)
+                        "cat": "flow_dependency",
+                        "id": global_arrow_id,
+                        "ts": end_ts,
+                        "pid": next_flow.src,
+                        "tid": DATA_FLOW_TID+next_flow.dst,
+                        'bp':'e'
                     })
+                    global_arrow_id += 1
 
                 # Check if all deps are fulfilled for next_flow
                 if len(new_dependencies[next_flow_id]) == 0:
@@ -140,16 +178,6 @@ def generate_chrome_trace(log_files, out_json):
     print("Generating trace visualizations...")
     ts_offset = 0
     for idx, coll in tqdm(enumerate(comm_events)):
-        # Start of a NCCL op for each participating device
-        for device in coll.devices:
-            events.append({
-                "cat": "trace",
-                'name': f"{coll.name}: {coll.data_num} {coll.data_type}",
-                'ph':'B',
-                'pid':1,
-                'tid':device,
-                'ts':ts_offset
-            })
         data_flows = coll.data_flows
         data_deps = coll.dependencies
         # First, find flows with zero-deps
@@ -166,12 +194,17 @@ def generate_chrome_trace(log_files, out_json):
         # End of the NCCL op for each participating device
         for device in coll.devices:
             events.append({
-                "cat": "trace",
-                'name': f"{coll.name}: {coll.data_num} {coll.data_type}",
-                'ph':'E',
-                'pid':1,
-                'tid':device,
-                'ts':end_ts
+                "ph": "X",
+                "cat": "coll_op",
+                'name': f"{coll.name} (device: {coll.devices})",
+                'pid': device,
+                'tid': DEVICE_OP_TID,
+                'ts': ts_offset,
+                'dur': end_ts - ts_offset,
+                'args': {
+                    "data_type": str(coll.data_type),
+                    "num": coll.data_num,
+                }
             })
         ts_offset = end_ts+2
 

@@ -1,11 +1,9 @@
+from .core import probe_coll_op
+from .data_flow import *
+from ..parsing.nccl_call_type import *
 
-from .nccl_parser import *
-from .mining.core import probe_coll_op
-from .mining.data_flow import *
 
-def extract_flows_from_logs(log_files):
-
-    comm_cliques, comms_per_device = parse_nccl_calls_from_logs(log_files)
+def group_nccl_colls(comm_cliques, comms_per_device):
     
     '''Step 2.
     Based on Clique and Func Calls Per Device info, group Func Calls into Operations.
@@ -77,8 +75,8 @@ def extract_flows_from_logs(log_files):
                                         src_dev = pending_device
                                         dst_dev = cur_device
 
-                                    flow = NcclDataFlow(src_dev, dst_dev, cur_nccl_call.data_size)
-                                    sendrecv_op = NcclCommunicationOperation(
+                                    flow = DataFlow(src_dev, dst_dev, cur_nccl_call.data_size)
+                                    sendrecv_op = CommunicationOperation(
                                         "SendRecv",
                                         cur_nccl_call.data_type,
                                         cur_nccl_call.data_num,
@@ -142,3 +140,6 @@ def extract_flows_from_logs(log_files):
     assert len(pending_coll_calls) == 0
     
     return all_comms
+
+def probe_data_flows():
+    pass

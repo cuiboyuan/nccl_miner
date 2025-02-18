@@ -6,7 +6,7 @@ from typing import *
 from .data_flow import *
 
 
-def probe_coll_op(ring_topology, coll_op):
+def probe_coll_op(multi_ring, coll_op):
     data_flows = {}
     dependencies = {}
 
@@ -20,20 +20,20 @@ def probe_coll_op(ring_topology, coll_op):
 
     else:
         # Collective operations that involve all devices
-        participating_devs = ring_topology.devices
+        participating_devs = multi_ring.devices
 
         if coll_op.func == "Broadcast":
             # Based on NCCL implementation in src/device/broadcast.h:runRing()
             # TODO: Naive understanding for now, need more details
-            for _, ring in ring_topology.rings.items():
+            for _, ring in multi_ring.rings.items():
                 cur_node = coll_op.root_rank
                 next_node = ring.get_next_node(cur_node)
 
                 prev_flow_id = None
                 while next_node != coll_op.root_rank:
                     # send data to next GPU
-                    cur_flow = NcclDataFlow(ring_topology.rank_to_device(cur_node),
-                                            ring_topology.rank_to_device(next_node),
+                    cur_flow = DataFlow(multi_ring.rank_to_device(cur_node),
+                                            multi_ring.rank_to_device(next_node),
                                             coll_op.data_size,
                                             name=f"{coll_op.root_rank}'s Data")
                     cur_flow_id = cur_flow.id
@@ -59,8 +59,8 @@ def probe_coll_op(ring_topology, coll_op):
         elif coll_op.func == "AllReduce":
             # Based on NCCL implementation in src/device/all_reduce.h:runRing()
             # TODO: Naive understanding, need more reading on NCCL codes
-            nranks = ring_topology.size
-            for _, ring in ring_topology.rings.items():
+            nranks = multi_ring.size
+            for _, ring in multi_ring.rings.items():
                 for idx, rank in enumerate(ring.nodes):
                     # 1. reduce and copy to next GPU (nranks-1 steps)
                     # my understanding: cur_node reduce on its own node, and transfer whatever it receives to the next GPU as is
@@ -70,8 +70,8 @@ def probe_coll_op(ring_topology, coll_op):
                     cur_node = rank
                     next_node = ring.get_next_node(cur_node)
                     while j < (nranks-1):
-                        cur_flow = NcclDataFlow(ring_topology.rank_to_device(cur_node),
-                                                ring_topology.rank_to_device(next_node),
+                        cur_flow = DataFlow(multi_ring.rank_to_device(cur_node),
+                                                multi_ring.rank_to_device(next_node),
                                                 coll_op.data_size,
                                                 name=f"{rank}'s data")
                         cur_flow_id = cur_flow.id
@@ -94,8 +94,8 @@ def probe_coll_op(ring_topology, coll_op):
                     # 2. copy to next GPU (nranks-1 steps)
                     # my understanding: now, broadcast the final reduced result to all nodes in the ring.
                     while j < 2*(nranks-1):
-                        cur_flow = NcclDataFlow(ring_topology.rank_to_device(cur_node),
-                                                ring_topology.rank_to_device(next_node),
+                        cur_flow = DataFlow(multi_ring.rank_to_device(cur_node),
+                                                multi_ring.rank_to_device(next_node),
                                                 coll_op.data_size,
                                                 name=f"all-reduced result")
                         cur_flow_id = cur_flow.id
@@ -116,8 +116,8 @@ def probe_coll_op(ring_topology, coll_op):
         elif coll_op.func == "AllGather":
             # Based on NCCL implementation in src/device/all_gather.h:runRing()
             # TODO: Naive understanding, need more reading on NCCL codes
-            nranks = ring_topology.size
-            for _, ring in ring_topology.rings.items():
+            nranks = multi_ring.size
+            for _, ring in multi_ring.rings.items():
                 shard_size = coll_op.data_size // nranks
                 for idx, rank in enumerate(ring.nodes):
                     # 1. Push my piece of data to next GPU
@@ -127,8 +127,8 @@ def probe_coll_op(ring_topology, coll_op):
                     # 2. Pass around to other GPUs
                     while next_node != rank:
                         # Get flow
-                        cur_flow = NcclDataFlow(ring_topology.rank_to_device(cur_node),
-                                                ring_topology.rank_to_device(next_node),
+                        cur_flow = DataFlow(multi_ring.rank_to_device(cur_node),
+                                                multi_ring.rank_to_device(next_node),
                                                 shard_size,
                                                 name=f"{rank}'s data shard")
                         cur_flow_id = cur_flow.id
@@ -152,7 +152,7 @@ def probe_coll_op(ring_topology, coll_op):
         elif coll_op.func == "ReduceScatter":
             pass
 
-    nccl_op = NcclCommunicationOperation(coll_op.func,
+    nccl_op = CommunicationOperation(coll_op.func,
                                             coll_op.data_type,
                                             coll_op.data_num,
                                             coll_op.data_size,

@@ -4,11 +4,11 @@ Parse relevant NCCL function calls on each devices from the NCCL log files.
 from tqdm import tqdm
 from typing import *
 
-from .parsing.nccl_call_type import *
+from .nccl_call_type import *
 # from .parsing.nccl_topology import *
 
 
-def parse_nccl_calls_from_logs(log_files):
+def parse_nccl_logs(log_files):
     
     '''Step 1.
     I. Identify each Communication Clique based on ncclCommInitRank & ncclCommSplit.

@@ -1,5 +1,5 @@
 
-class NcclDataFlow:
+class DataFlow:
     # counter used to generate flow id.
     global_flow_counter = 0
 
@@ -9,14 +9,14 @@ class NcclDataFlow:
         self.size = size
         self.data_name = name
         self.duration = dur
-        self.id = NcclDataFlow.global_flow_counter
-        NcclDataFlow.global_flow_counter += 1
+        self.id = DataFlow.global_flow_counter
+        DataFlow.global_flow_counter += 1
 
     def __repr__(self):
         return f"Flow {self.id}:{self.src}->{self.dst}[{self.size} bytes]"
 
 
-class NcclCommunicationOperation:
+class CommunicationOperation:
     def __init__(self, op_name, data_type, data_num, data_size, devs, flows, deps):
         self.name = op_name
         self.data_type = data_type

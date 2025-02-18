@@ -208,12 +208,11 @@ class NcclClique:
                 if cur_node is None:
                     cur_node = entry_node
                 ring_nodes.append(cur_node)
-                print(cur_node)
                 cur_node = ring_dict[cur_node]
 
             ring = Ring(ring_nodes, ring_id)
             all_rings[ring_id] = ring
-        self.ring_algo = NcclRing(all_rings, self.rank_to_device)
+        self.ring_algo = MultiRing(all_rings, self.rank_to_device)
         
         # Complete full tree from partial trees
         # TODO: ...
@@ -312,3 +311,8 @@ class NcclCollective(NcclCall):
         
     def __repr__(self):
         return f"[{self.device}] {self.func} {self.comm_obj}"
+
+
+class NcclLocal():
+    def __init__(self):
+        pass
