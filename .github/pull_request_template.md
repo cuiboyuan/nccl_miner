@@ -4,9 +4,6 @@
 ## Related Issue
 <!-- If applicable, reference the issue it fixes: Fixes #issue_number -->
 
-## Reasons for New Feature
-<!-- Ignore this section for Bug fixes -->
-
 ## Changes Made
 - [ ] Feature implementation
 - [ ] Bug fix
