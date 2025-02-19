@@ -22,21 +22,7 @@ NCCL Data Types: https://docs.nvidia.com/deeplearning/nccl/user-guide/docs/api/t
 
 # Example Usage: Picotron
 
-Data Parallelism:
-```
-rm -rf experiments/picotron/dp/dp_logs
-mkdir experiments/picotron/dp/dp_logs
-
-NCCL_SHM_DISABLE=1 NCCL_P2P_DISABLE=1 NCCL_DEBUG=TRACE NCCL_DEBUG_SUBSYS=ALL NCCL_DEBUG_FILE=experiments/picotron/dp/dp_logs/picotron_nccl_logs.%h.%p torchrun --nproc_per_node 3 train_picotron.py --config experiments/picotron/dp/config.json
-```
-
-Context Parallelism:
-```
-rm -rf experiments/picotron/cp/cp_logs
-mkdir experiments/picotron/cp/cp_logs
-
-NCCL_SHM_DISABLE=1 NCCL_P2P_DISABLE=1 NCCL_DEBUG=TRACE NCCL_DEBUG_SUBSYS=ALL NCCL_DEBUG_FILE=experiments/picotron/cp/cp_logs/picotron_nccl_logs.%h.%p torchrun --nproc_per_node 3 train_picotron.py --config experiments/picotron/cp/config.json
-```
+See https://github.com/cuiboyuan/nccl_miner/pull/12 for details.
 
 # Example Usage: GPT2
 
