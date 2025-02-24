@@ -1,7 +1,9 @@
-
+'''
+Contain a simple data structure representing a data flow.
+'''
 class DataFlow:
     # counter used to generate flow id.
-    global_flow_counter = 0
+    global_id_counter = 0
 
     def __init__(self, src, dst, size, name=None, dur=10):
         self.src = src
@@ -9,8 +11,8 @@ class DataFlow:
         self.size = size
         self.data_name = name
         self.duration = dur
-        self.id = DataFlow.global_flow_counter
-        DataFlow.global_flow_counter += 1
+        self.id = DataFlow.global_id_counter
+        DataFlow.global_id_counter += 1
 
     def __repr__(self):
         return f"Flow {self.id}:{self.src}->{self.dst}[{self.size} bytes]"

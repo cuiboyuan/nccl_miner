@@ -1,26 +1,27 @@
 '''
-Reflect the meaning of values in the NCCL debugging logs. This information comes from the NCCL database.
+Extract data flows and their dependencies from NCCL operations.
+Here, I'm deducing the data flow and depdencies from the collective operations based on my understanding of the NCCL codebase.
+NCCL codebase: https://github.com/NVIDIA/nccl
 '''
 from typing import *
 
 from .data_flow import *
+from ..common.nccl_function_group import NcclCollectiveFunctionGroup, NcclPtpFunctionGroup
 
 
-def probe_coll_op(multi_ring, coll_op):
+def probe_coll_op(coll_group):
     data_flows = {}
     dependencies = {}
 
-    participating_devs = []
 
-    if coll_op.func == "Send":
-        participating_devs = [coll_op.device]
+    if isinstance(coll_group, NcclPtpFunctionGroup):
+        flow = DataFlow(coll_group.src, coll_group.dst, coll_group.data_size)
+        data_flows[flow.id] = flow
 
-    elif coll_op.func == "Recv":
-        participating_devs = [coll_op.device]
-
-    else:
-        # Collective operations that involve all devices
-        participating_devs = multi_ring.devices
+    elif isinstance(coll_group, NcclCollectiveFunctionGroup):
+        # Collective operations
+        coll_op = coll_group.main_operation
+        multi_ring = coll_group.get_algo()
 
         if coll_op.func == "Broadcast":
             # Based on NCCL implementation in src/device/broadcast.h:runRing()
@@ -152,11 +153,4 @@ def probe_coll_op(multi_ring, coll_op):
         elif coll_op.func == "ReduceScatter":
             pass
 
-    nccl_op = CommunicationOperation(coll_op.func,
-                                            coll_op.data_type,
-                                            coll_op.data_num,
-                                            coll_op.data_size,
-                                            participating_devs,
-                                            data_flows,
-                                            dependencies)
-    return nccl_op
+    return data_flows, dependencies

@@ -1,11 +1,11 @@
 '''
-Parse relevant NCCL function calls on each devices from the NCCL log files.
+Parse relevant NCCL API function calls on each device from the NCCL log files.
 '''
 from tqdm import tqdm
 from typing import *
 
-from .nccl_call_type import *
-# from .parsing.nccl_topology import *
+from ..common.nccl_function import *
+from ..common.nccl_function_group import NcclCommClique
 
 
 def parse_nccl_logs(log_files):
@@ -32,7 +32,7 @@ def parse_nccl_logs(log_files):
             for log_line in tqdm(f.readlines()):
                 if state == NO_INIT:
                     # Find Comm init call to group devices
-                    init_call = NcclCommInitRank.parse(log_line)
+                    init_call = NcclCommInitRankFunction.parse(log_line)
                     if init_call is not None:
                         cur_nccl_comm_init = init_call
                         state = INIT_IN_PROGRESS
@@ -63,7 +63,7 @@ def parse_nccl_logs(log_files):
 
                 elif state == NORMAL:
                     # Continue looking for Comm init call to group devices
-                    init_call = NcclCommInitRank.parse(log_line)
+                    init_call = NcclCommInitRankFunction.parse(log_line)
                     if init_call is not None:
                         cur_nccl_comm_init = init_call
                         state = INIT_IN_PROGRESS
@@ -72,7 +72,7 @@ def parse_nccl_logs(log_files):
                     # TODO: For ncclCommSplit calls, we just treat the Comm obj the same as
                     # their parents for now, which may not be correct.
                     # TODO: Update this to be correct later
-                    split_call = NcclCommSplit.parse(log_line)
+                    split_call = NcclCommSplitFunction.parse(log_line)
                     if split_call is not None:
                         cur_nccl_comm_init = split_call
                         state = INIT_IN_PROGRESS
@@ -81,11 +81,11 @@ def parse_nccl_logs(log_files):
                     # Parse NCCL communication calls
                     nccl_comm_call = None
                     # Extract Point-to-point communications
-                    nccl_ptp_call = NcclPtp.parse(log_line)
+                    nccl_ptp_call = NcclPtpFunction.parse(log_line)
                     if nccl_ptp_call is not None:
                         nccl_comm_call = nccl_ptp_call
                     # Extract Collective communications
-                    nccl_coll_call = NcclCollective.parse(log_line)
+                    nccl_coll_call = NcclCollectiveFunction.parse(log_line)
                     if nccl_coll_call is not None:
                         nccl_comm_call = nccl_coll_call
                     # Add that communication operation to its rank
@@ -103,6 +103,6 @@ def parse_nccl_logs(log_files):
     print("Constructing Communication Cliques...")
     nccl_cliques = {}
     for clique_id, comm_init_calls in comm_id_to_comm_init_calls.items():
-        nccl_cliques[clique_id] = NcclClique(comm_init_calls)
+        nccl_cliques[clique_id] = NcclCommClique(comm_init_calls)
 
     return nccl_cliques, comm_calls_per_device

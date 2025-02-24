@@ -1,10 +1,16 @@
+'''
+Generate Perfetto JSON traces to visualize data flows.
+'''
 import json
 from copy import deepcopy
 from tqdm import tqdm
 
-from .flow_extractor import *
+from .parsing.parser_pipeline import *
+from .miner_pipeline import mine_torch_nccl_pipeline
+from .common.nccl_function import NcclPtpFunction, NcclCollectiveFunction
 
-DEVICE_OP_TID = 100
+CPU_OP_TID = 0
+GPU_OP_TID = 100
 DATA_FLOW_TID = 200
 global_arrow_id = 0
 
@@ -168,18 +174,17 @@ def gen_trace_events_from_flows(cur_data_flows, dependencies, ts_offset, all_dat
 def generate_chrome_trace(log_files, out_json):
 
     print("Extracting flows from the logs...")
-    comm_events = extract_flows_from_logs(log_files)
+    cpu_ops, gpu_ops, data_flow_groups = mine_torch_nccl_pipeline(log_files, None)
     print("Extracted.")
-    # print(comm_events)
-    # print(coll_flows)
 
     ## for visualization
     events = []
     print("Generating trace visualizations...")
+    flow_group_ts = {}
     ts_offset = 0
-    for idx, coll in tqdm(enumerate(comm_events)):
-        data_flows = coll.data_flows
-        data_deps = coll.dependencies
+    for group_id, flow_group in data_flow_groups.items():
+        data_flows = flow_group.data_flows
+        data_deps = flow_group.dependencies
         # First, find flows with zero-deps
         entry_flows = []
         for flow_id, flow in data_flows.items():
@@ -191,22 +196,29 @@ def generate_chrome_trace(log_files, out_json):
             events.extend(flow_events)
         else:
             end_ts += 10
-        # End of the NCCL op for each participating device
-        for device in coll.devices:
+        flow_group_ts[group_id] = (ts_offset, end_ts)
+        ts_offset = end_ts+2
+        
+    # End of the NCCL op for each participating device
+    for device, all_gpu_op in gpu_ops.items():
+        for gpu_op in all_gpu_op:
+            assert isinstance(gpu_op, NcclPtpFunction) or isinstance(gpu_op, NcclCollectiveFunction)
+
+            flow_group = data_flow_groups[gpu_op.group_id]
+            group_start, group_end = flow_group_ts[gpu_op.group_id]
             events.append({
                 "ph": "X",
                 "cat": "coll_op",
-                'name': f"{coll.name} (device: {coll.devices})",
+                'name': f"{gpu_op.func} (devices: {flow_group.all_devices})",
                 'pid': device,
-                'tid': DEVICE_OP_TID,
-                'ts': ts_offset,
-                'dur': end_ts - ts_offset,
+                'tid': GPU_OP_TID,
+                'ts': group_start,
+                'dur': group_end - group_start,
                 'args': {
-                    "data_type": str(coll.data_type),
-                    "num": coll.data_num,
+                    "data_type": str(gpu_op.data_type),
+                    "num": gpu_op.data_num,
                 }
             })
-        ts_offset = end_ts+2
 
     chrome_trace = {
         "traceEvents": events

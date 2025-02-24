@@ -1,3 +1,6 @@
+'''
+GPU topologies which is used by NCCL for communication.
+'''
 class Ring:
     def __init__(self, nodes, ring_id):
         self.id = ring_id

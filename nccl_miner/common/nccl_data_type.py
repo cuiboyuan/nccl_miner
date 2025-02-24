@@ -1,4 +1,7 @@
-
+'''
+NCCL Data Type definitions as outlined here:
+https://docs.nvidia.com/deeplearning/nccl/archives/nccl_2134/user-guide/docs/api/types.html#nccldatatype-t
+'''
 
 class NcclDataType:
     def __init__(self, dtype_id):
