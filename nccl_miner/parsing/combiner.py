@@ -162,4 +162,7 @@ def probe_data_flows():
 
 def link_nccl_torch_calls(nccl_calls_per_device, torch_calls_per_device):
     # TODO: implement this
-    return nccl_calls_per_device
+    gpu_ops = {}
+    for dev, info in nccl_calls_per_device.items():
+        gpu_ops[dev] = info['operations']
+    return gpu_ops

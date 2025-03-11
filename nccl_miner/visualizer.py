@@ -171,10 +171,10 @@ def gen_trace_events_from_flows(cur_data_flows, dependencies, ts_offset, all_dat
         return trace_events, max_end_ts
 
 
-def generate_chrome_trace(log_files, out_json):
+def generate_chrome_trace(nccl_log_files, torch_prof_files, out_json):
 
     print("Extracting flows from the logs...")
-    cpu_ops, gpu_ops, data_flow_groups = mine_torch_nccl_pipeline(log_files, None)
+    cpu_ops, gpu_ops, data_flow_groups = mine_torch_nccl_pipeline(nccl_log_files, torch_prof_files)
     print("Extracted.")
 
     ## for visualization

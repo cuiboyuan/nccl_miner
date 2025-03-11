@@ -7,6 +7,13 @@ from typing import *
 from ..common.nccl_function import *
 from ..common.nccl_function_group import NcclCommClique
 
+def get_host_pid(filename):
+    filename_pattern = r"(?P<host>[a-z0-9]+)_(?P<pid>\d+).(?P<garbage>\d+).pt.trace.json"
+    match = re.match(filename_pattern, filename)
+    if match:
+        return match['host'], int(match['pid'])
+    else:
+        return None, None
 
 def parse_nccl_logs(log_files):
     
@@ -24,9 +31,10 @@ def parse_nccl_logs(log_files):
     comm_calls_per_device = {}
     comm_obj_to_clique_id = {}
 
-    for log in log_files:
-        print(f"Parsing log file {log}..")
-        with open(log, "r") as f:
+    for log_file in log_files:
+        print(f"Parsing log file {log_file}..")
+        host, pid = get_host_pid(log_file)
+        with open(log_file, "r") as f:
             state = NO_INIT
             cur_nccl_comm_init = None
             for log_line in tqdm(f.readlines()):
@@ -96,9 +104,13 @@ def parse_nccl_logs(log_files):
 
                         op_device = nccl_comm_call.device
                         if op_device not in comm_calls_per_device:
-                            comm_calls_per_device[op_device] = [nccl_comm_call]
+                            comm_calls_per_device[op_device] = {
+                                'host': host,
+                                'pid': pid,
+                                'operations': [nccl_comm_call]
+                            }
                         else:
-                            comm_calls_per_device[op_device].append(nccl_comm_call)
+                            comm_calls_per_device[op_device]['operations'].append(nccl_comm_call)
 
     print("Constructing Communication Cliques...")
     nccl_cliques = {}

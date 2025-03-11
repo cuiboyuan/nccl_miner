@@ -256,8 +256,3 @@ class NcclCollectiveFunction(NcclFunction):
         
     def __repr__(self):
         return f"[{self.device}] {self.func} {self.comm_obj}"
-
-
-class NcclLocal():
-    def __init__(self):
-        pass

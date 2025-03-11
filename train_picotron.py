@@ -59,6 +59,7 @@ def train_step(model, data_loader, device):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", type=str, default="", help="Path to config file")
+    parser.add_argument("--torch_profiler_path", type=str, default="", help="Path to torch profiler output")
     args = parser.parse_args()
 
     with open(args.config, "r") as f:
@@ -95,7 +96,7 @@ if __name__ == "__main__":
 
     activities = [ProfilerActivity.CPU, ProfilerActivity.CUDA]
     with profile(activities=activities,
-                 on_trace_ready=torch.profiler.tensorboard_trace_handler("./torch_profiler")) as prof:
+                 on_trace_ready=torch.profiler.tensorboard_trace_handler(args.torch_profiler_path)) as prof:
 
         dist.init_process_group(rank=global_rank, world_size=world_size, backend=backend, init_method=f"env://", timeout=datetime.timedelta(minutes=3))
         setup_process_group_manager(
