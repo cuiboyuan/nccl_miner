@@ -3,7 +3,7 @@ Scripts that combine or correlate operations from different logs/devices.
 '''
 from ..common.nccl_function import NcclPtpFunction, NcclCollectiveFunction
 from ..common.nccl_function_group import NcclCommClique, NcclPtpFunctionGroup, NcclCollectiveFunctionGroup
-
+from ..common.torch_event import *
 
 def group_nccl_colls(comm_cliques, comms_per_device):
     
