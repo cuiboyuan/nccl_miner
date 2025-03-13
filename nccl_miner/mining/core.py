@@ -15,7 +15,8 @@ def probe_coll_op(coll_group):
 
 
     if isinstance(coll_group, NcclPtpFunctionGroup):
-        flow = DataFlow(coll_group.src, coll_group.dst, coll_group.data_size)
+        flow = DataFlow(coll_group.src, coll_group.dst, coll_group.data_size,
+                        start_time=coll_group.start_time, end_time=coll_group.end_time)
         data_flows[flow.id] = flow
 
     elif isinstance(coll_group, NcclCollectiveFunctionGroup):
@@ -30,13 +31,25 @@ def probe_coll_op(coll_group):
                 cur_node = coll_op.root_rank
                 next_node = ring.get_next_node(cur_node)
 
+                # Determine data flow's timestamps
+                # TODO: right now, I'm assuming that the data flow duration is 
+                # evenly distributed across the collective operation's duration
+                # This is a naive assumption, need to refine this.
+                flow_ts_offset = coll_group.start_time
+                flow_duration = coll_group.end_time - coll_group.start_time
+                flow_duration /= (ring.size - 1)
+
                 prev_flow_id = None
                 while next_node != coll_op.root_rank:
                     # send data to next GPU
                     cur_flow = DataFlow(multi_ring.rank_to_device(cur_node),
                                             multi_ring.rank_to_device(next_node),
                                             coll_op.data_size,
-                                            name=f"{coll_op.root_rank}'s Data")
+                                            name=f"{coll_op.root_rank}'s Data",
+                                            start_time=flow_ts_offset,
+                                            end_time=flow_ts_offset + flow_duration - 1)# leave a gap for visualization purposes
+                    flow_ts_offset += flow_duration
+
                     cur_flow_id = cur_flow.id
                     data_flows[cur_flow_id] = cur_flow
                     # add dependencies
@@ -62,6 +75,14 @@ def probe_coll_op(coll_group):
             # TODO: Naive understanding, need more reading on NCCL codes
             nranks = multi_ring.size
             for _, ring in multi_ring.rings.items():
+                
+                # Determine data flow's timestamps
+                # TODO: 
+                # This is a naive assumption, need to refine this.
+                flow_ts_offset = coll_group.start_time
+                flow_duration = coll_group.end_time - coll_group.start_time
+                flow_duration /= (ring.size - 1)*2
+    
                 for idx, rank in enumerate(ring.nodes):
                     # 1. reduce and copy to next GPU (nranks-1 steps)
                     # my understanding: cur_node reduce on its own node, and transfer whatever it receives to the next GPU as is
@@ -74,7 +95,9 @@ def probe_coll_op(coll_group):
                         cur_flow = DataFlow(multi_ring.rank_to_device(cur_node),
                                                 multi_ring.rank_to_device(next_node),
                                                 coll_op.data_size,
-                                                name=f"{rank}'s data")
+                                                name=f"{rank}'s data",
+                                                start_time=flow_ts_offset,
+                                                end_time=flow_ts_offset + flow_duration - 1)
                         cur_flow_id = cur_flow.id
                         data_flows[cur_flow_id] = cur_flow
 
@@ -98,7 +121,9 @@ def probe_coll_op(coll_group):
                         cur_flow = DataFlow(multi_ring.rank_to_device(cur_node),
                                                 multi_ring.rank_to_device(next_node),
                                                 coll_op.data_size,
-                                                name=f"all-reduced result")
+                                                name=f"all-reduced result",
+                                                start_time=flow_ts_offset,
+                                                end_time=flow_ts_offset + flow_duration - 1)
                         cur_flow_id = cur_flow.id
                         data_flows[cur_flow_id] = cur_flow
 
@@ -118,7 +143,14 @@ def probe_coll_op(coll_group):
             # Based on NCCL implementation in src/device/all_gather.h:runRing()
             # TODO: Naive understanding, need more reading on NCCL codes
             nranks = multi_ring.size
-            for _, ring in multi_ring.rings.items():
+            for _, ring in multi_ring.rings.items():                
+                # Determine data flow's timestamps
+                # TODO:
+                # This is a naive assumption, need to refine this.
+                flow_ts_offset = coll_group.start_time
+                flow_duration = coll_group.end_time - coll_group.start_time
+                flow_duration /= (ring.size - 1)
+
                 shard_size = coll_op.data_size // nranks
                 for idx, rank in enumerate(ring.nodes):
                     # 1. Push my piece of data to next GPU
@@ -131,7 +163,9 @@ def probe_coll_op(coll_group):
                         cur_flow = DataFlow(multi_ring.rank_to_device(cur_node),
                                                 multi_ring.rank_to_device(next_node),
                                                 shard_size,
-                                                name=f"{rank}'s data shard")
+                                                name=f"{rank}'s data shard",
+                                                start_time=flow_ts_offset,
+                                                end_time=flow_ts_offset + flow_duration - 1)
                         cur_flow_id = cur_flow.id
                         data_flows[cur_flow_id] = cur_flow
 

@@ -6,10 +6,11 @@ import argparse
 import os
 import re
 
-from nccl_miner.common.torch_event import CudaComm
+from nccl_miner.common.torch_event import *
+
 
 def get_host_pid(filename):
-    filename_pattern = r"(?P<host>[a-z0-9]+)_(?P<pid>\d+).(?P<garbage>\d+).pt.trace.json"
+    filename_pattern = r"(?P<host>[a-z0-9]+)_(?P<pid>\d+)\.(?P<garbage>\d+)\.pt\.trace\.json"
     match = re.match(filename_pattern, filename)
     if match:
         return match['host'], int(match['pid'])
@@ -45,10 +46,16 @@ def parse_torch_logs(log_files):
                             assert cur_device == event['pid']
                         
                         if event['cat'] == "kernel":
-                            cuda_comm = CudaComm.parse(event)
-                            if cuda_comm is not None:
+                            cuda_coll = CudaCollective.parse(event)
+                            if cuda_coll is not None:
                                 # TODO: add cpu info to cuda ops
-                                torch_ops_per_device[cur_device]['operations'].append(cuda_comm)
+                                torch_ops_per_device[cur_device]['operations'].append(cuda_coll)
+                            cuda_ptp = CudaPtp.parse(event)
+                            if cuda_ptp is not None:
+                                # TODO: add cpu info
+                                torch_ops_per_device[cur_device]['operations'].append(cuda_ptp)
+        print("Sorting operations..")
+        torch_ops_per_device[cur_device]['operations'].sort(key=lambda x: x.start_time)
     return {}, torch_ops_per_device
 
 # Local testing

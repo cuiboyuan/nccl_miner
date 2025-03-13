@@ -1,7 +1,7 @@
 '''
 Scripts that combine or correlate operations from different logs/devices.
 '''
-from ..common.nccl_function import NcclPtpFunction, NcclCollectiveFunction
+from ..common.nccl_function import NcclPtpFunction, NcclCollectiveFunction, NcclFunction
 from ..common.nccl_function_group import NcclCommClique, NcclPtpFunctionGroup, NcclCollectiveFunctionGroup
 from ..common.torch_event import *
 
@@ -146,6 +146,9 @@ def group_nccl_colls(comm_cliques, comms_per_device):
                     
                     if not unblocked and not matched:
                         pending_coll_calls.append([cur_nccl_call])
+            else:
+                # TODO: implement for local CUDA ops
+                pass
 
 
             cur_idx_per_device[dev] += 1
@@ -161,8 +164,61 @@ def probe_data_flows():
 
 
 def link_nccl_torch_calls(nccl_calls_per_device, torch_calls_per_device):
-    # TODO: implement this
     gpu_ops = {}
-    for dev, info in nccl_calls_per_device.items():
-        gpu_ops[dev] = info['operations']
+    for device in nccl_calls_per_device:
+        # Sanity check
+        try:
+            assert torch_calls_per_device[device]['host'] == nccl_calls_per_device[device]['host']
+            assert torch_calls_per_device[device]['pid'] == nccl_calls_per_device[device]['pid']
+        except AssertionError:
+            print("[ERROR] Sanity check failed, below should be equal:")
+            print(f"torch device {device}: {torch_calls_per_device[device]['host']}:{torch_calls_per_device[device]['pid']}")
+            print(f"nccl device  {device}: {nccl_calls_per_device[device]['host']}:{nccl_calls_per_device[device]['pid']}")
+            raise AssertionError
+        print(f"Host: {torch_calls_per_device[device]['host']}, PID: {torch_calls_per_device[device]['pid']}")
+       
+        torch_ops = torch_calls_per_device[device]['operations']
+        nccl_ops = nccl_calls_per_device[device]['operations']
+        print(f"number of torch ops: {len(torch_ops)}")
+        print(f"number of nccl ops: {len(nccl_ops)}")
+
+        torch_idx = 0
+        for nccl_op in nccl_ops:
+            assert isinstance(nccl_op, NcclPtpFunction) or \
+                  isinstance(nccl_op, NcclCollectiveFunction)
+            # Find the corresponding torch operation
+            torch_op = torch_ops[torch_idx]
+            if isinstance(torch_op, CudaCollective) and \
+                isinstance(nccl_op, NcclCollectiveFunction):
+                # Ensure it's the same comm call
+                try:
+                    assert torch_op.func == nccl_op.func
+                except AssertionError:
+                    print("[ERROR] Sanity check failed, below should be equal:")
+                    print(f"torch event: {torch_op.func}")
+                    print(f"nccl event: {nccl_op.func}")
+                    raise AssertionError
+                # link info from torch to nccl
+                nccl_op.associate_algo(torch_op.algo)
+                nccl_op.associate_protocol(torch_op.protocol)
+                nccl_op.associate_time(torch_op.start_time, torch_op.end_time)
+                torch_idx += 1
+            elif isinstance(torch_op, CudaPtp) and \
+                isinstance(nccl_op, NcclPtpFunction):
+                # Ensure it's the same comm call
+                try:
+                    assert nccl_op.func == "Send" or nccl_op.func == "Recv"
+                except AssertionError:
+                    print("[ERROR] Sanity check failed, below should be Send or Recv:")
+                    print(f"nccl op: {nccl_op.func}")
+                    raise AssertionError
+                # link info from torch to nccl
+                nccl_op.associate_time(torch_op.start_time, torch_op.end_time)
+                torch_idx += 1
+            
+            if device in gpu_ops:
+                gpu_ops[device].append(nccl_op)
+            else:
+                gpu_ops[device] = [nccl_op]
+
     return gpu_ops

@@ -20,12 +20,22 @@ class NcclFunction:
         self.nranks = int(log_info['nrank'])
         self.comm_obj = log_info['comm_obj_ptr']
 
-    
     def associate_clique_id(self, clique_id):
         self.clique_id = clique_id
 
     def associate_group_id(self, group_id):
         self.group_id = group_id
+
+    def associate_time(self, start_time, end_time):
+        self.start_time = start_time
+        self.end_time = end_time
+
+    def associate_algo(self, algo):
+        self.algo = algo
+    
+    def associate_protocol(self, proto):
+        self.protocol = proto
+
 
 class NcclCommInitRankFunction(NcclFunction):
     def __init__(self, log_info):

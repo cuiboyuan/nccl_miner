@@ -5,12 +5,15 @@ class DataFlow:
     # counter used to generate flow id.
     global_id_counter = 0
 
-    def __init__(self, src, dst, size, name=None, dur=10):
+    def __init__(self, src, dst, size, name=None, start_time=None, end_time=None):
         self.src = src
         self.dst = dst
         self.size = size
         self.data_name = name
-        self.duration = dur
+        if start_time is not None and end_time is not None:
+            self.start_time = start_time
+            self.end_time = end_time
+            self.duration = end_time - start_time
         self.id = DataFlow.global_id_counter
         DataFlow.global_id_counter += 1
 
