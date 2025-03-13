@@ -75,15 +75,16 @@ def probe_coll_op(coll_group):
             # TODO: Naive understanding, need more reading on NCCL codes
             nranks = multi_ring.size
             for _, ring in multi_ring.rings.items():
-                
                 # Determine data flow's timestamps
                 # TODO: 
                 # This is a naive assumption, need to refine this.
-                flow_ts_offset = coll_group.start_time
-                flow_duration = coll_group.end_time - coll_group.start_time
-                flow_duration /= (ring.size - 1)*2
+                coll_group_offset = coll_group.start_time
+                coll_group_duration = coll_group.end_time - coll_group.start_time
+                flow_duration = coll_group_duration / ((ring.size - 1)*2)
     
                 for idx, rank in enumerate(ring.nodes):
+                    # reset flow_ts_offset at beginning of each rank
+                    flow_ts_offset = coll_group_offset
                     # 1. reduce and copy to next GPU (nranks-1 steps)
                     # my understanding: cur_node reduce on its own node, and transfer whatever it receives to the next GPU as is
                     # push data to next GPU
@@ -101,15 +102,16 @@ def probe_coll_op(coll_group):
                         cur_flow_id = cur_flow.id
                         data_flows[cur_flow_id] = cur_flow
 
+                        flow_ts_offset += flow_duration  
                         if prev_flow_id is None:
                             # first flow, zero dependency
                             pass
                         else:
-                            # need to wait for the previous flow to finish.
+                            # need to wait for the previous flow to finish.                    
                             if cur_flow_id not in dependencies:
                                 dependencies[cur_flow_id] = [prev_flow_id]
                             else:
-                                dependencies[cur_flow_id].append(prev_flow_id)                        
+                                dependencies[cur_flow_id].append(prev_flow_id)
                         prev_flow_id = cur_flow_id
 
                         cur_node = next_node
@@ -127,6 +129,7 @@ def probe_coll_op(coll_group):
                         cur_flow_id = cur_flow.id
                         data_flows[cur_flow_id] = cur_flow
 
+                        flow_ts_offset += flow_duration
                         assert prev_flow_id is not None
                         # need to wait for the previous flow to finish.
                         if cur_flow_id not in dependencies:
@@ -147,12 +150,14 @@ def probe_coll_op(coll_group):
                 # Determine data flow's timestamps
                 # TODO:
                 # This is a naive assumption, need to refine this.
-                flow_ts_offset = coll_group.start_time
-                flow_duration = coll_group.end_time - coll_group.start_time
-                flow_duration /= (ring.size - 1)
+                coll_group_offset = coll_group.start_time
+                coll_group_duration = coll_group.end_time - coll_group.start_time
+                flow_duration = coll_group_duration / ((ring.size - 1)*2)
 
                 shard_size = coll_op.data_size // nranks
                 for idx, rank in enumerate(ring.nodes):
+                    # reset flow_ts_offset at the beginning of each rank
+                    flow_ts_offset = coll_group_offset
                     # 1. Push my piece of data to next GPU
                     cur_node = rank
                     next_node = ring.get_next_node(cur_node)
@@ -169,6 +174,7 @@ def probe_coll_op(coll_group):
                         cur_flow_id = cur_flow.id
                         data_flows[cur_flow_id] = cur_flow
 
+                        flow_ts_offset += flow_duration
                         if prev_flow_id is not None:
                             # need to wait for the previous flow to finish.
                             if cur_flow_id not in dependencies:

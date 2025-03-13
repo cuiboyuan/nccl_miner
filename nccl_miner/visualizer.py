@@ -20,13 +20,13 @@ def flow_tid(src_id, dst_id):
 def arrow_id(src_id, dst_id):
     return int(f"{src_id}{dst_id}")
 
-def data_flow_events(flow, ts_offset):
+def data_flow_events(flow):
     '''
     Given a NcclDataFlow, create events that represent sending and receiving data in Chrome Trace.
-    The events will start at ts_offset.
     '''
     global global_arrow_id
 
+    ts_offset = flow.start_time
     events = []
     # Start
     events.append({
@@ -82,15 +82,13 @@ def data_flow_events(flow, ts_offset):
     return events
 
 
-def gen_trace_events_from_flows(cur_data_flows, dependencies, ts_offset, all_data_flow):
+def gen_trace_events_from_flows(cur_data_flows, dependencies, all_data_flow):
     '''
     cur_data_flows: 
         A list of NcclDataFlow to be added to the trace.
         Represents data flows whose dependencies are fulfilled or with zero dependency.
     dependencies: 
         Available flow dependencies that can be triggered by cur_data_flows
-    ts_offset: 
-        Assigned starting timestamp of all flows in cur_data_flows. Used to create traces.
     all_data_flow: 
         All data flows globally, regardless of whether it is already added to the trace.
         Used to find the next set of data flows that are triggered by cur_data_flows through dependencies.
@@ -103,27 +101,19 @@ def gen_trace_events_from_flows(cur_data_flows, dependencies, ts_offset, all_dat
     trace_events = []
     if len(dependencies) == 0:
         # Base case:
-        max_end_ts = ts_offset
         # No flow dependencies that can be triggered, so just add all current flows to trace.
         for cur_flow in cur_data_flows:
-            flow_events = data_flow_events(cur_flow, ts_offset)
+            flow_events = data_flow_events(cur_flow)
             trace_events.extend(flow_events)
-            # Add flow duration to ts_offset
-            end_ts = ts_offset + cur_flow.duration
             # no deps to trigger
             # ...
-            if end_ts > max_end_ts:
-                max_end_ts = end_ts
-        return trace_events, max_end_ts
+        return trace_events
     else:
-        max_end_ts = ts_offset
         # Recursive case
         for cur_flow in cur_data_flows:
             # First, add all current flows to trace, like in the base case.
-            flow_events = data_flow_events(cur_flow, ts_offset)
+            flow_events = data_flow_events(cur_flow)
             trace_events.extend(flow_events)
-            # Add flow duration to ts_offset
-            end_ts = ts_offset + cur_flow.duration
 
             # Now, we need to check whether current flows fulfilled some dependencies.
             new_data_flows = [] # Next set of flows whose deps are fulfilled
@@ -138,7 +128,7 @@ def gen_trace_events_from_flows(cur_data_flows, dependencies, ts_offset, all_dat
                         "ph": "s",
                         "cat": "flow_dependency",
                         "id": global_arrow_id,
-                        "ts": end_ts-1,
+                        "ts": cur_flow.end_time-1,
                         "pid": cur_flow.dst,
                         "tid": DATA_FLOW_TID+cur_flow.src
                     })
@@ -146,7 +136,7 @@ def gen_trace_events_from_flows(cur_data_flows, dependencies, ts_offset, all_dat
                         "ph": "f",
                         "cat": "flow_dependency",
                         "id": global_arrow_id,
-                        "ts": end_ts,
+                        "ts": next_flow.start_time,
                         "pid": next_flow.src,
                         "tid": DATA_FLOW_TID+next_flow.dst,
                         'bp':'e'
@@ -162,13 +152,10 @@ def gen_trace_events_from_flows(cur_data_flows, dependencies, ts_offset, all_dat
             # Now, we have a new set of flows whose deps are all fulfilled
             if len(new_data_flows) > 0:
                 # Recursively get flows triggered by new_data_flows and new_deps
-                new_events, end_ts = gen_trace_events_from_flows(new_data_flows, new_dependencies, end_ts, all_data_flow)
+                new_events = gen_trace_events_from_flows(new_data_flows, new_dependencies, all_data_flow)
                 trace_events.extend(new_events)
-                # The ending ts of this function is the end of the last event
-            if end_ts > max_end_ts:
-                max_end_ts = end_ts
 
-        return trace_events, max_end_ts
+        return trace_events
 
 
 def generate_chrome_trace(nccl_log_files, torch_prof_files, out_json):
@@ -181,7 +168,6 @@ def generate_chrome_trace(nccl_log_files, torch_prof_files, out_json):
     events = []
     print("Generating trace visualizations...")
     flow_group_ts = {}
-    ts_offset = 0
     for group_id, flow_group in data_flow_groups.items():
         data_flows = flow_group.data_flows
         data_deps = flow_group.dependencies
@@ -191,13 +177,18 @@ def generate_chrome_trace(nccl_log_files, torch_prof_files, out_json):
             if flow_id not in data_deps or len(data_deps[flow_id])==0:
                 entry_flows.append(flow)
         # Get all flow events
-        flow_events, end_ts = gen_trace_events_from_flows(entry_flows, data_deps, ts_offset, data_flows)
+        flow_events = gen_trace_events_from_flows(entry_flows, data_deps, data_flows)
         if len(flow_events) > 0:
             events.extend(flow_events)
-        else:
-            end_ts += 10
+        # Find the start and end timestamp of the flow group
+        ts_offset = None
+        end_ts = None
+        for flow_id, flow in data_flows.items():
+            if ts_offset is None or flow.start_time < ts_offset:
+                ts_offset = flow.start_time
+            if end_ts is None or flow.end_time > end_ts:
+                end_ts = flow.end_time
         flow_group_ts[group_id] = (ts_offset, end_ts)
-        ts_offset = end_ts+2
         
     # End of the NCCL op for each participating device
     for device, all_gpu_op in gpu_ops.items():

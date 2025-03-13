@@ -97,9 +97,10 @@ class NcclFunctionGroup:
             # Find all devices
             self.all_devices.append(device)
             # Find overlapped start/end time
-            if self.start_time is None or op.start_time > self.start_time:
+            # TODO: may need separate start/end time for each flow
+            if self.start_time is None or op.start_time < self.start_time:
                 self.start_time = op.start_time
-            if self.end_time is None or op.end_time < self.end_time:
+            if self.end_time is None or op.end_time > self.end_time:
                 self.end_time = op.end_time
 
     def associate_data_flows(self, data_flow, deps):
