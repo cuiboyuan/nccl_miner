@@ -36,7 +36,7 @@ def data_flow_events(flow):
         'pid':flow.src,
         'tid':DATA_FLOW_TID+flow.dst,
         'ts':ts_offset,
-        'dur':flow.duration/2-1,
+        'dur':flow.duration/2,
         'args': {
             "bytes": flow.size,
             "name": flow.data_name
@@ -51,7 +51,7 @@ def data_flow_events(flow):
         'pid':flow.dst,
         'tid':DATA_FLOW_TID+flow.src,
         'ts':ts_offset+flow.duration/2,
-        'dur':flow.duration/2-1,
+        'dur':flow.duration/2,
         'args': {
             "bytes": flow.size,
             "name": flow.data_name
@@ -66,7 +66,7 @@ def data_flow_events(flow):
         'id': global_arrow_id,
         'pid':flow.src,
         'tid':DATA_FLOW_TID+flow.dst,
-        'ts':ts_offset+flow.duration/2-1,
+        'ts':ts_offset+flow.duration/2,
     })
     # flow end
     events.append({
@@ -75,7 +75,7 @@ def data_flow_events(flow):
         'id': global_arrow_id,
         'pid':flow.dst,
         'tid':DATA_FLOW_TID+flow.src,
-        'ts':ts_offset+flow.duration/2,
+        'ts':ts_offset+flow.duration/2+1,
         'bp':'e'
     })
     global_arrow_id += 1
@@ -128,7 +128,7 @@ def gen_trace_events_from_flows(cur_data_flows, dependencies, all_data_flow):
                         "ph": "s",
                         "cat": "flow_dependency",
                         "id": global_arrow_id,
-                        "ts": cur_flow.end_time-1,
+                        "ts": cur_flow.end_time,
                         "pid": cur_flow.dst,
                         "tid": DATA_FLOW_TID+cur_flow.src
                     })
