@@ -17,6 +17,11 @@ class DataFlow:
         self.id = DataFlow.global_id_counter
         DataFlow.global_id_counter += 1
 
+    def associate_time(self, start_time, end_time):
+        self.start_time = start_time
+        self.end_time = end_time
+        self.duration = end_time - start_time
+
     def __repr__(self):
         return f"Flow {self.id}:{self.src}->{self.dst}[{self.size} bytes]"
 

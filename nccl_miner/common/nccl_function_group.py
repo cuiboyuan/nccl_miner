@@ -89,8 +89,8 @@ class NcclFunctionGroup:
         self.id = NcclFunctionGroup.global_id_counter
         NcclFunctionGroup.global_id_counter += 1
 
-        self.start_time = None
-        self.end_time = None
+        self.common_overlap_start_time = None
+        self.common_overlap_end_time = None
         self.time_per_device = {}
         self.all_devices = []
         for device, op in ops_per_device.items():
@@ -99,11 +99,13 @@ class NcclFunctionGroup:
             self.all_devices.append(device)
             # Get separate start/end time for each device
             self.time_per_device[device] = (op.start_time, op.end_time)
-            # Find overlapped start/end time
-            if self.start_time is None or op.start_time > self.start_time:
-                self.start_time = op.start_time
-            if self.end_time is None or op.end_time < self.end_time:
-                self.end_time = op.end_time
+            # Find common overlapped start/end time
+            if self.common_overlap_start_time is None or \
+                op.start_time > self.common_overlap_start_time:
+                self.common_overlap_start_time = op.start_time
+            if self.common_overlap_end_time is None or \
+                op.end_time < self.common_overlap_end_time:
+                self.common_overlap_end_time = op.end_time
 
     def associate_data_flows(self, data_flow, deps):
         self.data_flows = data_flow

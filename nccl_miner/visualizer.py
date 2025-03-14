@@ -167,7 +167,6 @@ def generate_chrome_trace(nccl_log_files, torch_prof_files, out_json):
     ## for visualization
     events = []
     print("Generating trace visualizations...")
-    flow_group_ts = {}
     for group_id, flow_group in data_flow_groups.items():
         data_flows = flow_group.data_flows
         data_deps = flow_group.dependencies
@@ -180,15 +179,6 @@ def generate_chrome_trace(nccl_log_files, torch_prof_files, out_json):
         flow_events = gen_trace_events_from_flows(entry_flows, data_deps, data_flows)
         if len(flow_events) > 0:
             events.extend(flow_events)
-        # Find the start and end timestamp of the flow group
-        ts_offset = None
-        end_ts = None
-        for flow_id, flow in data_flows.items():
-            if ts_offset is None or flow.start_time < ts_offset:
-                ts_offset = flow.start_time
-            if end_ts is None or flow.end_time > end_ts:
-                end_ts = flow.end_time
-        flow_group_ts[group_id] = (ts_offset, end_ts)
         
     # End of the NCCL op for each participating device
     for device, all_gpu_op in gpu_ops.items():
@@ -196,15 +186,14 @@ def generate_chrome_trace(nccl_log_files, torch_prof_files, out_json):
             assert isinstance(gpu_op, NcclPtpFunction) or isinstance(gpu_op, NcclCollectiveFunction)
 
             flow_group = data_flow_groups[gpu_op.group_id]
-            group_start, group_end = flow_group_ts[gpu_op.group_id]
             events.append({
                 "ph": "X",
                 "cat": "coll_op",
-                'name': f"{gpu_op.func} (devices: {flow_group.all_devices})",
+                'name': f"{gpu_op.func} ({gpu_op.group_id})",
                 'pid': device,
                 'tid': GPU_OP_TID,
-                'ts': group_start,
-                'dur': group_end - group_start,
+                'ts': gpu_op.start_time,
+                'dur': gpu_op.end_time - gpu_op.start_time,
                 'args': {
                     "data_type": str(gpu_op.data_type),
                     "num": gpu_op.data_num,
