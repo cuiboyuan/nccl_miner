@@ -101,11 +101,11 @@ def parse_nccl_logs(log_files):
                     nccl_coll_call = NcclCollectiveFunction.parse(log_line)
                     if nccl_coll_call is not None:
                         nccl_comm_call = nccl_coll_call
-                    # TODO: check why will we have nranks=1
-                    # this type of NCCL call will not show up in torch profiler
-                    if nccl_comm_call is not None and \
-                        nccl_comm_call.nranks == 1:
-                        nccl_comm_call = None
+                    # # TODO: check why will we have nranks=1
+                    # # this type of NCCL call will not show up in torch profiler
+                    # if nccl_comm_call is not None and \
+                    #     nccl_comm_call.nranks == 1:
+                    #     nccl_comm_call = None
                     # Add that communication operation to its rank
                     if nccl_comm_call is not None:
                         call_comm_obj = nccl_comm_call.comm_obj

@@ -188,6 +188,11 @@ def link_nccl_torch_calls(nccl_calls_per_device, torch_calls_per_device):
                   isinstance(nccl_op, NcclCollectiveFunction)
             # Find the corresponding torch operation
             torch_op = torch_ops[torch_idx]
+
+            if torch_op.kernel_id is None:
+                torch_idx += 1
+                continue
+
             if isinstance(torch_op, CudaCollective) and \
                 isinstance(nccl_op, NcclCollectiveFunction):
                 # Ensure it's the same comm call
