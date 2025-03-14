@@ -5,7 +5,6 @@ import json
 from copy import deepcopy
 from tqdm import tqdm
 
-from .parsing.parser_pipeline import *
 from .miner_pipeline import mine_torch_nccl_pipeline
 from .common.nccl_function import NcclPtpFunction, NcclCollectiveFunction
 
