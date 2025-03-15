@@ -11,8 +11,8 @@ def deduce_flow_timestamps(coll_group):
 
     if isinstance(coll_group, NcclPtpFunctionGroup):
         for flow in data_flows.values():
-            flow.associate_time(coll_group.common_overlap_start_time, coll_group.common_overlap_end_time)
-            
+            flow.associate_time(coll_group.get_src_operation().start_time, coll_group.get_src_operation().end_time,
+                                coll_group.get_dst_operation().start_time, coll_group.get_dst_operation().end_time)
 
     elif isinstance(coll_group, NcclCollectiveFunctionGroup):
         # Collective operations
@@ -25,8 +25,8 @@ def deduce_flow_timestamps(coll_group):
                 # TODO: right now, I'm assuming that the data flow duration is 
                 # evenly distributed across the collective operation's duration
                 # This is a naive assumption, need to refine this.
-                flow_ts_offset = coll_group.common_overlap_start_time
-                flow_duration = coll_group.common_overlap_end_time - coll_group.common_overlap_start_time
+                flow_ts_offset = coll_group.overlap_period_start_time
+                flow_duration = coll_group.overlap_period_end_time - coll_group.overlap_period_start_time
                 flow_duration /= (ring.size - 1)
 
                 assigned_flows = set()
@@ -37,7 +37,8 @@ def deduce_flow_timestamps(coll_group):
                             continue
                         if flow_id not in dependencies or \
                             all(dep in assigned_flows for dep in dependencies[flow_id]):
-                            flow.associate_time(flow_ts_offset, flow_ts_offset + flow_duration - 1)
+                            flow.associate_time(flow_ts_offset, flow_ts_offset + flow_duration/2 - 1,
+                                                flow_ts_offset + flow_duration/2, flow_ts_offset + flow_duration - 1)
                             assigned_flows_this_pass.add(flow_id)
                     assigned_flows.update(assigned_flows_this_pass)
                     flow_ts_offset += flow_duration
@@ -48,8 +49,8 @@ def deduce_flow_timestamps(coll_group):
                 # TODO: right now, I'm assuming that the data flow duration is 
                 # evenly distributed across the collective operation's duration
                 # This is a naive assumption, need to refine this.
-                flow_ts_offset = coll_group.common_overlap_start_time
-                flow_duration = coll_group.common_overlap_end_time - coll_group.common_overlap_start_time
+                flow_ts_offset = coll_group.overlap_period_start_time
+                flow_duration = coll_group.overlap_period_end_time - coll_group.overlap_period_start_time
                 flow_duration /= ((ring.size - 1) * 2)
 
                 assigned_flows = set()
@@ -60,7 +61,8 @@ def deduce_flow_timestamps(coll_group):
                             continue
                         if flow_id not in dependencies or \
                             all(dep in assigned_flows for dep in dependencies[flow_id]):
-                            flow.associate_time(flow_ts_offset, flow_ts_offset + flow_duration - 1)
+                            flow.associate_time(flow_ts_offset, flow_ts_offset + flow_duration/2 - 1,
+                                                flow_ts_offset + flow_duration/2, flow_ts_offset + flow_duration - 1)
                             assigned_flows_this_pass.add(flow_id)
                     assigned_flows.update(assigned_flows_this_pass)
                     flow_ts_offset += flow_duration

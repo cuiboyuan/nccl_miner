@@ -25,7 +25,6 @@ def data_flow_events(flow):
     '''
     global global_arrow_id
 
-    ts_offset = flow.start_time
     events = []
     # Start
     events.append({
@@ -34,8 +33,8 @@ def data_flow_events(flow):
         'name': f"Send to {flow.dst}",
         'pid':flow.src,
         'tid':DATA_FLOW_TID+flow.dst,
-        'ts':ts_offset,
-        'dur':flow.duration/2,
+        'ts':flow.src_start_time,
+        'dur':flow.src_duration,
         'args': {
             "bytes": flow.size,
             "name": flow.data_name
@@ -49,8 +48,8 @@ def data_flow_events(flow):
         'name': f"Recv from {flow.src}",
         'pid':flow.dst,
         'tid':DATA_FLOW_TID+flow.src,
-        'ts':ts_offset+flow.duration/2,
-        'dur':flow.duration/2,
+        'ts':flow.dst_start_time,
+        'dur':flow.dst_duration,
         'args': {
             "bytes": flow.size,
             "name": flow.data_name
@@ -65,7 +64,7 @@ def data_flow_events(flow):
         'id': global_arrow_id,
         'pid':flow.src,
         'tid':DATA_FLOW_TID+flow.dst,
-        'ts':ts_offset+flow.duration/2,
+        'ts':flow.src_end_time,
     })
     # flow end
     events.append({
@@ -74,7 +73,7 @@ def data_flow_events(flow):
         'id': global_arrow_id,
         'pid':flow.dst,
         'tid':DATA_FLOW_TID+flow.src,
-        'ts':ts_offset+flow.duration/2+1,
+        'ts':flow.dst_start_time,
         'bp':'e'
     })
     global_arrow_id += 1
@@ -127,7 +126,7 @@ def gen_trace_events_from_flows(cur_data_flows, dependencies, all_data_flow):
                         "ph": "s",
                         "cat": "flow_dependency",
                         "id": global_arrow_id,
-                        "ts": cur_flow.end_time,
+                        "ts": cur_flow.flow_end_time,
                         "pid": cur_flow.dst,
                         "tid": DATA_FLOW_TID+cur_flow.src
                     })
@@ -135,7 +134,7 @@ def gen_trace_events_from_flows(cur_data_flows, dependencies, all_data_flow):
                         "ph": "f",
                         "cat": "flow_dependency",
                         "id": global_arrow_id,
-                        "ts": next_flow.start_time,
+                        "ts": next_flow.flow_start_time,
                         "pid": next_flow.src,
                         "tid": DATA_FLOW_TID+next_flow.dst,
                         'bp':'e'
@@ -188,7 +187,7 @@ def generate_chrome_trace(nccl_log_files, torch_prof_files, out_json):
             events.append({
                 "ph": "X",
                 "cat": "coll_op",
-                'name': f"{gpu_op.func} ({gpu_op.group_id})",
+                'name': f"nccl:{gpu_op.func} ({gpu_op.group_id})",
                 'pid': device,
                 'tid': GPU_OP_TID,
                 'ts': gpu_op.start_time,

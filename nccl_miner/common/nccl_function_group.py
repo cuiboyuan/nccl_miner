@@ -89,8 +89,13 @@ class NcclFunctionGroup:
         self.id = NcclFunctionGroup.global_id_counter
         NcclFunctionGroup.global_id_counter += 1
 
-        self.common_overlap_start_time = None
-        self.common_overlap_end_time = None
+        # longest period containing all operations
+        self.overlap_period_start_time = None
+        self.overlap_period_end_time = None
+        # shortest period containing at least one operation
+        self.span_period_start_time = None
+        self.span_period_end_time = None
+
         self.time_per_device = {}
         self.all_devices = []
         for device, op in ops_per_device.items():
@@ -99,13 +104,20 @@ class NcclFunctionGroup:
             self.all_devices.append(device)
             # Get separate start/end time for each device
             self.time_per_device[device] = (op.start_time, op.end_time)
-            # Find common overlapped start/end time
-            if self.common_overlap_start_time is None or \
-                op.start_time > self.common_overlap_start_time:
-                self.common_overlap_start_time = op.start_time
-            if self.common_overlap_end_time is None or \
-                op.end_time < self.common_overlap_end_time:
-                self.common_overlap_end_time = op.end_time
+            # Find overlapped start/end time
+            if self.overlap_period_start_time is None or \
+                op.start_time > self.overlap_period_start_time:
+                self.overlap_period_start_time = op.start_time
+            if self.overlap_period_end_time is None or \
+                op.end_time < self.overlap_period_end_time:
+                self.overlap_period_end_time = op.end_time
+            # Find span start/end time
+            if self.span_period_start_time is None or \
+                op.start_time < self.span_period_start_time:
+                self.span_period_start_time = op.start_time
+            if self.span_period_end_time is None or \
+                op.end_time > self.span_period_end_time:
+                self.span_period_end_time = op.end_time
 
     def associate_data_flows(self, data_flow, deps):
         self.data_flows = data_flow
@@ -142,3 +154,9 @@ class NcclPtpFunctionGroup(NcclFunctionGroup):
                 self.data_size = op.data_size
             elif op.func == "Recv":
                 self.dst = device
+
+    def get_src_operation(self):
+        return self.device_operations[self.src]
+
+    def get_dst_operation(self):
+        return self.device_operations[self.dst]
