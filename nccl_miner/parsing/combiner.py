@@ -5,162 +5,83 @@ from ..common.nccl_function import NcclPtpFunction, NcclCollectiveFunction, Nccl
 from ..common.nccl_function_group import NcclCommClique, NcclPtpFunctionGroup, NcclCollectiveFunctionGroup
 from ..common.torch_event import *
 
-def group_nccl_colls(comm_cliques, comms_per_device):
-    
-    '''Step 2.
-    Based on Clique and Func Calls Per Device info, group Func Calls.
-    A Collective Function Group is at the Clique-level, involving all devices within that Clique.
-    A PTP (SendRecv) Function Group only involves src & dst devices.
-    '''
-    cur_idx_per_device = {}
-    max_idx_per_device = {}
-    for cur_dev in comms_per_device:
-        cur_idx_per_device[cur_dev] = 0
-        max_idx_per_device[cur_dev] = len(comms_per_device[cur_dev])
+def group_nccl_calls_across_devices(comm_cliques, calls_per_device):
+    all_func_groups = {}  # map between group id and function group
+    assigned_calls = set()  # Keep track of operations that have been assigned a group ID
 
-    def are_all_logs_parsed():
-        for dev, idx in cur_idx_per_device.items():
-            if idx < max_idx_per_device[dev]:
-                return False
-        return True
-    
-    # For progress tracking only
-    total_iter = sum([max_idx for dev, max_idx in max_idx_per_device.items()])
-    cur_iter = 0
+    for device, calls in calls_per_device.items():
+        for call in calls:
+            if call in assigned_calls:
+                continue  # Skip if the operation is already assigned to a group
 
-    # TODO: Assume every operation blocks.
+            clique = comm_cliques[call.clique_id]
+            if clique is None:
+                raise ValueError(f"No clique found for clique_id {call.clique_id}")
+            # Attempt to find matching operations on other devices
+            matched_calls = {device: call}
+            if isinstance(call, NcclPtpFunction):
+                for other_device, other_calls in calls_per_device.items():
+                    if other_device == device:
+                        continue
+                    for other_call in other_calls:
+                        if other_call in assigned_calls:
+                            continue
+                        if isinstance(other_call, NcclPtpFunction):
+                            # Implement the logic to determine if `call` matches `other_call` for PTP functions
+                            if (call.clique_id == other_call.clique_id and
+                                ((call.func == "Send" and other_call.func == "Recv") or
+                                 (call.func == "Recv" and other_call.func == "Send")) and
+                                call.device == clique.get_rank_device(other_call.peer_rank) and
+                                other_call.device == clique.get_rank_device(call.peer_rank) and
+                                call.data_num == other_call.data_num and
+                                call.data_type == other_call.data_type and
+                                call.data_size == other_call.data_size):
+                                matched_calls[other_device] = other_call
+                                break
 
-    all_coll_groups = {}
+            elif isinstance(call, NcclCollectiveFunction):
+                if len(clique.rank_to_device) == 1:  # Special case: nrank is 1
+                    func_group = NcclCollectiveFunctionGroup({device: call}, clique)
+                    all_func_groups[func_group.id] = func_group
+                    assigned_calls.add(call)
+                    continue
 
-    pending_ptp_calls = []
-    pending_coll_calls = []
-    while are_all_logs_parsed() == False:
-        for dev, nccl_calls in comms_per_device.items():
-            cur_idx = cur_idx_per_device[dev]
-            max_idx = max_idx_per_device[dev]
-            if cur_idx >= max_idx:
-                continue
-
-            cur_nccl_call = nccl_calls[cur_idx]
-            cur_cliq_id = cur_nccl_call.clique_id
-            clique = comm_cliques[cur_cliq_id]
-            assert isinstance(clique, NcclCommClique)
-
-            if isinstance(cur_nccl_call, NcclPtpFunction):
-                unblocked = False
-                for _ in range(len(pending_ptp_calls)):
-                    pending_ptp = pending_ptp_calls.pop(0)
-                    assert isinstance(pending_ptp, NcclPtpFunction)
-
-                    pending_cliq_id = pending_ptp.clique_id
-                    if cur_cliq_id == pending_cliq_id:
-                        cur_func = cur_nccl_call.func
-                        cur_device = cur_nccl_call.device
-                        cur_peer = clique.get_rank_device(cur_nccl_call.peer_rank)
-
-                        pending_func = pending_ptp.func
-                        pending_device = pending_ptp.device
-                        pending_peer = clique.get_rank_device(pending_ptp.peer_rank)
-                        if (cur_func == 'Send' and pending_func == "Recv") \
-                            or (cur_func == 'Recv' and pending_func == "Send"):
-                            if ((cur_device == pending_peer) \
-                                or (cur_peer == pending_device)):
-                                # Unblocked
-                                if (cur_nccl_call.data_num == pending_ptp.data_num \
-                                    and cur_nccl_call.data_type == pending_ptp.data_type \
-                                    and cur_nccl_call.data_size == pending_ptp.data_size):
-                                    # Unblocked, add this to final comm operations
-                                    unblocked = True
-                                    # if cur_func == 'Send':
-                                    #     src_dev = cur_device
-                                    #     dst_dev = pending_device
-                                    # else:
-                                    #     src_dev = pending_device
-                                    #     dst_dev = cur_device
-                                    
-                                    ptp_group = NcclPtpFunctionGroup({cur_device:cur_nccl_call,
-                                                              pending_device: pending_ptp},
-                                                             clique)
-                                    all_coll_groups[ptp_group.id] = ptp_group
-                                    # flow = DataFlow(src_dev, dst_dev, cur_nccl_call.data_size)
-                                    # sendrecv_op = CommunicationOperation(
-                                    #     "SendRecv",
-                                    #     cur_nccl_call.data_type,
-                                    #     cur_nccl_call.data_num,
-                                    #     cur_nccl_call.data_size,
-                                    #     [src_dev, dst_dev],
-                                    #     {flow.id: flow},
-                                    #     {})
-                                    # all_comms.append(sendrecv_op)
+                if len(clique.rank_to_device) > 1:  # Ensure it's a multi-device clique
+                    for other_device, other_calls in calls_per_device.items():
+                        if other_device == device:
+                            continue
+                        for other_call in other_calls:
+                            if other_call in assigned_calls:
+                                continue
+                            if isinstance(other_call, NcclCollectiveFunction):
+                                # Implement the logic to determine if `call` matches `other_call` for Collective functions
+                                if (call.clique_id == other_call.clique_id and
+                                    call.func == other_call.func and
+                                    call.data_num == other_call.data_num and
+                                    call.data_type == other_call.data_type and
+                                    call.data_size == other_call.data_size):
+                                    matched_calls[other_device] = other_call
                                     break
-                    # Not unblocked, continue waiting in pending queue
-                    pending_ptp_calls.append(pending_ptp)
 
-                if not unblocked:
-                    pending_ptp_calls.append(cur_nccl_call)
+                    # Ensure all devices in the clique have a matched call
+                    if len(matched_calls) != len(clique.rank_to_device):
+                        matched_calls = {device: call}  # Reset to only include the original call
 
-            elif isinstance(cur_nccl_call, NcclCollectiveFunction):
-                cur_device = cur_nccl_call.device
-                if len(clique.rank_to_device) == 1:
-                    # A collective performing on only one device, rare but still possible
-                    coll_group = NcclCollectiveFunctionGroup({cur_device: cur_nccl_call},
-                                                     clique)
-                    all_coll_groups[coll_group.id] = coll_group
-                    # coll_op = probe_coll_op(clique.ring_algo, cur_nccl_call)
-                    # all_comms.append(coll_op)
-                    pass
-                else:
-                    unblocked = False
-                    matched = False
-                    for _ in range(len(pending_coll_calls)):
-                        # print(">>>")
-                        all_pending_coll = pending_coll_calls.pop(0)
-                        pending_coll = all_pending_coll[0]
-                        num_matched = len(all_pending_coll)
-                        # print(pending_coll_calls)
-
-                        pending_cliq_id = pending_coll.clique_id
-                        cur_func = cur_nccl_call.func
-                        pending_func = pending_coll.func
-                        if cur_cliq_id == pending_cliq_id \
-                            and cur_func == pending_func:
-                            # Matched.
-                            if (cur_nccl_call.data_num == pending_coll.data_num \
-                                and cur_nccl_call.data_type == pending_coll.data_type \
-                                and cur_nccl_call.data_size == pending_coll.data_size):
-                                # Matched.
-                                matched = True
-                                all_pending_coll.append(cur_nccl_call)
-                                if len(all_pending_coll) == len(clique.rank_to_device):
-                                    unblocked = True
-                                    coll_group = NcclCollectiveFunctionGroup({func.device: func for func in all_pending_coll},
-                                                                     clique)
-                                    all_coll_groups[coll_group.id] = coll_group
-                                    # coll_op = probe_coll_op(clique.ring_algo, cur_nccl_call)
-                                    # all_comms.append(coll_op)
-                                    break
-                                # not unblocked, continue waiting in pending queue
-                                pending_coll_calls.append(all_pending_coll)
-                        # print(pending_coll_calls)
-                        # print("<<<")
-                    
-                    if not unblocked and not matched:
-                        pending_coll_calls.append([cur_nccl_call])
+            # If a match is found, create a function group and assign a group ID
+            if len(matched_calls) > 1:
+                if isinstance(call, NcclPtpFunction):
+                    func_group = NcclPtpFunctionGroup(matched_calls, clique)
+                elif isinstance(call, NcclCollectiveFunction):
+                    func_group = NcclCollectiveFunctionGroup(matched_calls, clique)
+                func_group_id = func_group.id
+                all_func_groups[func_group_id] = func_group
+                for matched_device, matched_call in matched_calls.items():
+                    assigned_calls.add(matched_call)
             else:
-                # TODO: implement for local CUDA ops
-                pass
+                # If no match is found, raise an error
+                raise ValueError(f"No matching operations found for call {call} on device {device}")
 
-
-            cur_idx_per_device[dev] += 1
-
-    assert len(pending_ptp_calls) == 0
-    assert len(pending_coll_calls) == 0
-    
-    return all_coll_groups
-
-
-def probe_data_flows():
-    pass
+    return all_func_groups
 
 
 def link_nccl_torch_calls(nccl_calls_per_device, torch_calls_per_device):
@@ -190,6 +111,7 @@ def link_nccl_torch_calls(nccl_calls_per_device, torch_calls_per_device):
             torch_op = torch_ops[torch_idx]
 
             if torch_op.kernel_id is None:
+                print(f"Skipping torch op {torch_op} due to no associated kernel calls.")
                 torch_idx += 1
                 continue
 
