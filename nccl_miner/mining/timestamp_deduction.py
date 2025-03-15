@@ -11,8 +11,27 @@ def deduce_flow_timestamps(coll_group):
 
     if isinstance(coll_group, NcclPtpFunctionGroup):
         for flow in data_flows.values():
-            flow.associate_time(coll_group.get_src_operation().start_time, coll_group.get_src_operation().end_time,
-                                coll_group.get_dst_operation().start_time, coll_group.get_dst_operation().end_time)
+            src_op_start_ts = coll_group.get_src_operation().start_time
+            src_op_end_ts = coll_group.get_src_operation().end_time
+            dst_op_start_ts = coll_group.get_dst_operation().start_time
+            dst_op_end_ts = coll_group.get_dst_operation().end_time
+
+            # Calculate the duration for src and dst flows
+            # TODO: naive assumption, need better estimation.
+            total_duration = (dst_op_end_ts - src_op_start_ts) // 2
+            src_flow_start = src_op_start_ts
+            src_flow_end = min(src_op_end_ts, src_op_start_ts + total_duration)
+
+            dst_flow_start = max(src_flow_end + 1, dst_op_start_ts)
+            dst_flow_end = dst_op_end_ts
+
+            # Ensure the calculated times meet the constraints
+            if dst_flow_start >= dst_flow_end:
+                raise ValueError("Destination flow start time exceeds or equals destination operation end time.")
+            if src_flow_end > src_op_end_ts:
+                raise ValueError("Source flow end time exceeds source operation end time.")
+
+            flow.associate_time(src_flow_start, src_flow_end, dst_flow_start, dst_flow_end)
 
     elif isinstance(coll_group, NcclCollectiveFunctionGroup):
         # Collective operations
