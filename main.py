@@ -1,12 +1,13 @@
 import os
 import argparse
 
-from nccl_miner.visualizer import generate_chrome_trace
+from nccl_miner.miner_pipeline import mine_torch_nccl_pipeline
+from nccl_miner.trace_generator import generate_perfetto_trace
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("nccl_log_path", type=str, help="The directory which contains NCCL logs.")
-    parser.add_argument("-t", "--torch_profiler_path", default=None, type=str, help="The directory which contains torch profiler output.")
+    parser.add_argument("torch_profiler_path", type=str, help="The directory which contains torch profiler output.")
     parser.add_argument("-o", "--output_path", default="nccl_trace.json", type=str, help="The path of the output trace JSON file.")
     args = parser.parse_args()
 
@@ -17,11 +18,16 @@ if __name__ == "__main__":
             nccl_log_files.append(log_path)
 
     torch_files = []
-    if args.torch_profiler_path is not None:
-        for log_file in os.listdir(args.torch_profiler_path):
-            log_path = os.path.join(args.torch_profiler_path, log_file)
-            if os.path.isfile(log_path):
-                torch_files.append(log_path)
+    for log_file in os.listdir(args.torch_profiler_path):
+        log_path = os.path.join(args.torch_profiler_path, log_file)
+        if os.path.isfile(log_path):
+            torch_files.append(log_path)
+    
+    print("Running Nccl Miner Pipeline...")
+    cpu_ops, gpu_ops, data_flow_groups = mine_torch_nccl_pipeline(nccl_log_files, torch_files)
+    print("Done.")
 
-    generate_chrome_trace(nccl_log_files, torch_files, args.output_path)
+    print("Generating trace visualizations...")
+    generate_perfetto_trace(cpu_ops, gpu_ops, data_flow_groups, args.output_path)
+    print("Done.")
 

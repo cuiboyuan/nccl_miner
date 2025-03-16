@@ -13,11 +13,6 @@ GPU_OP_TID = 100
 DATA_FLOW_TID = 200
 global_arrow_id = 0
 
-def flow_tid(src_id, dst_id):
-    return 100*src_id + dst_id
-
-def arrow_id(src_id, dst_id):
-    return int(f"{src_id}{dst_id}")
 
 def data_flow_events(flow):
     '''
@@ -65,6 +60,7 @@ def data_flow_events(flow):
         'pid':flow.src,
         'tid':DATA_FLOW_TID+flow.dst,
         'ts':flow.src_end_time,
+        'bind_id': flow.id
     })
     # flow end
     events.append({
@@ -74,6 +70,7 @@ def data_flow_events(flow):
         'pid':flow.dst,
         'tid':DATA_FLOW_TID+flow.src,
         'ts':flow.dst_start_time,
+        'bind_id': flow.id,
         'bp':'e'
     })
     global_arrow_id += 1
@@ -128,7 +125,8 @@ def gen_trace_events_from_flows(cur_data_flows, dependencies, all_data_flow):
                         "id": global_arrow_id,
                         "ts": cur_flow.flow_end_time,
                         "pid": cur_flow.dst,
-                        "tid": DATA_FLOW_TID+cur_flow.src
+                        "tid": DATA_FLOW_TID+cur_flow.src,
+                        "bind_id": cur_flow.id
                     })
                     trace_events.append({
                         "ph": "f",
@@ -137,6 +135,7 @@ def gen_trace_events_from_flows(cur_data_flows, dependencies, all_data_flow):
                         "ts": next_flow.flow_start_time,
                         "pid": next_flow.src,
                         "tid": DATA_FLOW_TID+next_flow.dst,
+                        "bind_id": next_flow.id,
                         'bp':'e'
                     })
                     global_arrow_id += 1
