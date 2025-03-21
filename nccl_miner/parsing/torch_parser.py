@@ -7,6 +7,44 @@ import re
 
 from nccl_miner.common.torch_event import *
 
+def create_cuda_local_op(context_events):
+    """
+    Create a CUDA local operation from a list of context events.
+    """
+    # TODO: Naive implementation for now, need to deduce the semantics of the data
+    op_name = context_events[-1]['name']
+    return CudaLocal(op_name)
+
+def create_all_gpu_local_ops(cpu_events):
+    """
+    Get overarching events of every event in the list using a sweep line algorithm.
+    """
+    events = []
+    for event in cpu_events:
+        start = event['ts']
+        end = event['ts'] + event['dur']
+        events.append((start, 1, event))  # Event start
+        events.append((end, -1, event))  # Event end
+
+    # Sort events by time, breaking ties by type (-1 before 1 for same timestamp)
+    events.sort(key=lambda x: (x[0], x[1]))
+
+    all_gpu_local_ops = []
+    active_events = []
+
+    for time, event_type, event in events:
+        if event_type == 1:  # Event start
+            active_events.append(event)
+        elif event_type == -1:  # Event end
+            active_events.remove(event)
+            # Only care about events with Cuda
+            if event['name'] == "cudaLaunchKernel" or \
+                event['name'] == "cuLaunchKernel":
+                cuda_local = create_cuda_local_op(active_events)
+                cuda_local.associate_cpu_event(event)
+                all_gpu_local_ops.append(cuda_local)
+
+    return all_gpu_local_ops
 
 def get_host_pid(filename):
     filename_pattern = r"(?P<host>[a-z0-9]+)_(?P<pid>\d+)\.(?P<garbage>\d+)\.pt\.trace\.json"
@@ -17,7 +55,8 @@ def get_host_pid(filename):
         return None, None
 
 def parse_torch_logs(log_files):
-    torch_ops_per_device = {}
+    gpu_comm_ops_per_device = {}
+    gpu_local_ops_per_device = {}
     for log_file in log_files:
         file_name = os.path.basename(log_file)
         print(f"Parsing log file {file_name}..")
@@ -27,6 +66,7 @@ def parse_torch_logs(log_files):
         cur_device = None
         cpu_events = []
         nccl_kernel_events = []
+        local_kernel_events = []
         with open(log_file, "r") as f:
             trace = json.load(f)
             events = trace['traceEvents']
@@ -39,7 +79,7 @@ def parse_torch_logs(log_files):
                         if cur_device is None:
                             cur_device = event['pid']
                             print(f"GPU {cur_device}")
-                            torch_ops_per_device[cur_device] = {'host':host,
+                            gpu_comm_ops_per_device[cur_device] = {'host':host,
                                                                 'pid':pid,
                                                                 'operations':[]}
                         else:
@@ -47,12 +87,15 @@ def parse_torch_logs(log_files):
                         if event['cat'] == "kernel":
                             if re.match(r"ncclDevKernel_.*", event['name']):
                                 nccl_kernel_events.append(event)
-                            
-        cpu_events.sort(key=lambda x: x['ts'] + x['dur'] if 'dur' in x else x['ts'])
-        nccl_kernel_events.sort(key=lambda x: x['ts'] + x['dur'] if 'dur' in x else x['ts'])
+                            else:
+                                local_kernel_events.append(event)
 
+        cpu_events.sort(key=lambda x: x['ts'] + x['dur'] if 'dur' in x else x['ts'])
+        nccl_kernel_events.sort(key=lambda x: x['ts'])
+
+        # For NCCL kernel ops
         context_events = []
-        torch_gpu_ops = []
+        device_gpu_comm_ops = []
         cur_kernel_id = 0
         for event in cpu_events:
             is_context = True
@@ -78,7 +121,7 @@ def parse_torch_logs(log_files):
                             if context_event['name'] in ['c10d::send', 'c10d::recv_']:
                                 cuda_ptp = CudaPtp("SendRecv", device=cur_device)
                                 cuda_ptp.associate_kernel_id(sendrecv_kernel_id)
-                                torch_gpu_ops.append(cuda_ptp)
+                                device_gpu_comm_ops.append(cuda_ptp)
                         # clear context
                         context_events = []
                     else:
@@ -103,22 +146,45 @@ def parse_torch_logs(log_files):
                         if kernel_exists:
                             cuda_coll.associate_kernel_id(cur_kernel_id)
                             cur_kernel_id += 1
-                        torch_gpu_ops.append(cuda_coll)
+                        device_gpu_comm_ops.append(cuda_coll)
                         # clear context
                         context_events = []
 
             if is_context:
                 context_events.append(event)
 
-        for op in torch_gpu_ops:
+        for op in device_gpu_comm_ops:
             if op.kernel_id is not None:
                 kernel_op = nccl_kernel_events[op.kernel_id]
                 op.associate_kernel(kernel_op)
 
-        torch_ops_per_device[cur_device]['operations'] = torch_gpu_ops
-        # print("Sorting operations..")
-        # torch_ops_per_device[cur_device]['operations'].sort(key=lambda x: x.start_time)
-    return {}, torch_ops_per_device
+        gpu_comm_ops_per_device[cur_device]['operations'] = device_gpu_comm_ops
+
+        # For CUDA local kernel ops
+        gpu_local_ops_per_device[cur_device] = []
+
+        events_per_tid = {}
+        for event in cpu_events:
+            if event['tid'] not in events_per_tid:
+                events_per_tid[event['tid']] = []
+            events_per_tid[event['tid']].append(event)
+        
+        device_gpu_local_ops = []
+        for tid, events in events_per_tid.items():
+            # CPU ops that can be used to deduce semantics of data
+            device_gpu_local_ops.extend(create_all_gpu_local_ops(events))
+        device_gpu_local_ops.sort(key=lambda x: x.cpu_start_time)
+       
+        local_kernel_events.sort(key=lambda x: x['ts'])
+
+        assert len(local_kernel_events) == len(device_gpu_local_ops)
+        for i in range(len(local_kernel_events)):
+            local_op = device_gpu_local_ops[i]
+            assert isinstance(local_op, CudaLocal)
+            local_op.associate_kernel(local_kernel_events[i])
+            gpu_local_ops_per_device[cur_device].append(local_op)
+
+    return gpu_local_ops_per_device, gpu_comm_ops_per_device
 
 
 # Local testing

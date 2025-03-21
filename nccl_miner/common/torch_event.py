@@ -73,10 +73,18 @@ class CudaPtp(CudaComm):
 
 
 class CudaLocal():
-    def __init__(self):
-        pass
+    def __init__(self, name=None, device=None):
+        self.name = name
+        self.device = device
 
+    def associate_cpu_event(self, event):
+        self.cpu_start_time = event['ts']
+        self.cpu_end_time = event['ts'] + event['dur']
 
-class CpuLocal():
-    def __init__(self):
-        pass
+    def associate_kernel_id(self, kernel_id):
+        self.kernel_id = kernel_id
+
+    def associate_kernel(self, event):
+        self.start_time = event['ts']
+        self.duration = event['dur']
+        self.end_time = self.start_time + self.duration

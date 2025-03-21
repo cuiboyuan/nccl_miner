@@ -4,6 +4,7 @@ Generate Perfetto JSON traces to visualize data flows.
 import json
 
 from .common.nccl_function import NcclPtpFunction, NcclCollectiveFunction
+from .common.torch_event import CudaLocal
 
 CPU_OP_TID = 0
 GPU_OP_TID = 100
@@ -90,7 +91,7 @@ def gen_events_from_data_flows(data_flows):
         # Flow start
         events.append({
             'ph': 's',
-            "cat": "communication",
+            "cat": "data_flow",
             'id': global_arrow_id,
             'pid': flow.src,
             'tid': DATA_FLOW_TID + send_tid,
@@ -100,7 +101,7 @@ def gen_events_from_data_flows(data_flows):
         # Flow end
         events.append({
             'ph': 'f',
-            "cat": "communication",
+            "cat": "data_flow",
             'id': global_arrow_id,
             'pid': flow.dst,
             'tid': DATA_FLOW_TID + recv_tid,
@@ -131,7 +132,7 @@ def gen_arrows_from_dependencies(dependencies, data_flows, flow_tid_map):
             # Start arrow for dependency
             arrows.append({
                 'ph': 's',
-                "cat": "flow_dependency",
+                "cat": "data_flow",
                 'id': global_arrow_id,
                 'pid': dep_flow.dst,
                 'tid': dep_tids["recv_tid"],
@@ -141,7 +142,7 @@ def gen_arrows_from_dependencies(dependencies, data_flows, flow_tid_map):
             # End arrow for dependency
             arrows.append({
                 'ph': 'f',
-                "cat": "flow_dependency",
+                "cat": "data_flow",
                 'id': global_arrow_id,
                 'pid': current_flow.src,
                 'tid': current_tids["send_tid"],
@@ -189,6 +190,22 @@ def generate_perfetto_trace(cpu_ops, gpu_ops, data_flow_groups, out_json):
                 'args': {
                     "data_type": str(gpu_op.data_type),
                     "num": gpu_op.data_num,
+                }
+            })
+
+    for device, all_cpu_op in cpu_ops.items():
+        for cpu_op in all_cpu_op:
+            assert isinstance(cpu_op, CudaLocal)
+
+            events.append({
+                "ph": "X",
+                "cat": "local_op",
+                'name': f"cuda:{cpu_op.name}",
+                'pid': device,
+                'tid': CPU_OP_TID,
+                'ts': cpu_op.start_time,
+                'dur': cpu_op.end_time - cpu_op.start_time,
+                'args': {
                 }
             })
 

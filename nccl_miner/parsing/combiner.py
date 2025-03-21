@@ -142,6 +142,8 @@ def link_nccl_torch_calls(nccl_calls_per_device, torch_calls_per_device):
                 # link info from torch to nccl
                 nccl_op.associate_time(torch_op.start_time, torch_op.end_time)
                 torch_idx += 1
+            elif isinstance(torch_op, CudaLocal):
+                pass
             
             if device in gpu_ops:
                 gpu_ops[device].append(nccl_op)
