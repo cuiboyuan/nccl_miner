@@ -6,6 +6,7 @@ import os
 import re
 
 from nccl_miner.common.torch_event import *
+from .torch_utils import *
 
 def create_cuda_local_op(context_events):
     """
@@ -47,65 +48,38 @@ def create_all_gpu_local_ops(cpu_events):
     return all_gpu_local_ops
 
 def deduce_high_level_semantics(cuda_local_ops):
-    semantical_ops = []
-    # identify backward pass.
-    backward_start_ts = None
-    backward_end_ts = None
-    for op in cuda_local_ops:
-        if backward_start_ts is None and \
-            ("Backward" in op.name or \
-             "autograd" in op.name):
-            backward_start_ts = op.start_time
-        elif backward_start_ts is not None and \
-            "Backward" not in op.name and \
-            "autograd" not in op.name:
-            backward_end_ts = op.start_time
-            sem = CudaLocal("Backward Pass", op.device)
-            sem.associate_timestamps(backward_start_ts, backward_end_ts)
-            semantical_ops.append(sem)
-
-            backward_start_ts = None
-            backward_end_ts = None
+    sorted_cuda_local_ops = sorted(cuda_local_ops, key=lambda x: x.start_time)
+    high_level_op = []
+    for op in sorted_cuda_local_ops:
+        if is_forward_pass(op):
+            high_level_op.append(("Forward Pass", op.start_time, op.end_time))
+        elif is_backward_pass(op):
+            high_level_op.append(("Backward Pass", op.start_time, op.end_time))
+        elif is_optimizer_step(op):
+            high_level_op.append(("Optimizer Step", op.start_time, op.end_time))
+        elif is_c10d_communication(op):
+            high_level_op.append(("C10D Communication", op.start_time, op.end_time))
+        else:
+            high_level_op.append(("Misc Operations", op.start_time, op.end_time))
     
-    # identify forward pass. TODO: naive implementation for now, need to improve
-    forward_start_ts = None
-    forward_end_ts = None
-    for op in cuda_local_ops:
-        if forward_start_ts is None and \
-            "Backward" not in op.name and \
-            "autograd" not in op.name and \
-            "c10d" not in op.name and \
-            "Optimizer" not in op.name:
-            forward_start_ts = op.start_time
-        elif forward_start_ts is not None and \
-            ("Backward" in op.name or \
-             "autograd" in op.name or \
-             "c10d" in op.name or \
-             "Optimizer" in op.name):
-            forward_end_ts = op.start_time
-            sem = CudaLocal("Forward Pass", op.device)
-            sem.associate_timestamps(forward_start_ts, forward_end_ts)
-            semantical_ops.append(sem)
-
-            forward_start_ts = None
-            forward_end_ts = None
-
-    # identify optimizer step
-    optimizer_start_ts = None
-    optimizer_end_ts = None
-    for op in cuda_local_ops:
-        if optimizer_start_ts is None and \
-            "Optimizer" in op.name:
-            optimizer_start_ts = op.start_time
-        elif optimizer_start_ts is not None and \
-            "Optimizer" not in op.name:
-            optimizer_end_ts = op.start_time
-            sem = CudaLocal("Optimizer Step", op.device)
-            sem.associate_timestamps(optimizer_start_ts, optimizer_end_ts)
-            semantical_ops.append(sem)
-
-            optimizer_start_ts = None
-            optimizer_end_ts = None
+    combined_high_level_op = []
+    cur_op_type, cur_start_ts, cur_end_ts = high_level_op[0]
+    for op_type, start_time, end_time in high_level_op[1:]:
+        if op_type == cur_op_type:
+            cur_end_ts = end_time
+        else:
+            combined_high_level_op.append((cur_op_type, cur_start_ts, cur_end_ts))
+            cur_op_type = op_type
+            cur_start_ts = start_time
+            cur_end_ts = end_time
+    # complete last events
+    combined_high_level_op.append((cur_op_type, cur_start_ts, cur_end_ts))
+    
+    semantical_ops = []
+    for op_type, start_time, end_time in combined_high_level_op:
+        high_level_sem = CudaLocal(op_type)
+        high_level_sem.associate_timestamps(start_time, end_time)
+        semantical_ops.append(high_level_sem)
     
     return semantical_ops
 
