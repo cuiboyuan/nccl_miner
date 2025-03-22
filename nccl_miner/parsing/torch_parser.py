@@ -74,12 +74,14 @@ def deduce_high_level_semantics(cuda_local_ops):
         if forward_start_ts is None and \
             "Backward" not in op.name and \
             "autograd" not in op.name and \
-            "c10d" not in op.name:
+            "c10d" not in op.name and \
+            "Optimizer" not in op.name:
             forward_start_ts = op.start_time
         elif forward_start_ts is not None and \
             ("Backward" in op.name or \
              "autograd" in op.name or \
-             "c10d" in op.name):
+             "c10d" in op.name or \
+             "Optimizer" in op.name):
             forward_end_ts = op.start_time
             sem = CudaLocal("Forward Pass", op.device)
             sem.associate_timestamps(forward_start_ts, forward_end_ts)
@@ -87,6 +89,23 @@ def deduce_high_level_semantics(cuda_local_ops):
 
             forward_start_ts = None
             forward_end_ts = None
+
+    # identify optimizer step
+    optimizer_start_ts = None
+    optimizer_end_ts = None
+    for op in cuda_local_ops:
+        if optimizer_start_ts is None and \
+            "Optimizer" in op.name:
+            optimizer_start_ts = op.start_time
+        elif optimizer_start_ts is not None and \
+            "Optimizer" not in op.name:
+            optimizer_end_ts = op.start_time
+            sem = CudaLocal("Optimizer Step", op.device)
+            sem.associate_timestamps(optimizer_start_ts, optimizer_end_ts)
+            semantical_ops.append(sem)
+
+            optimizer_start_ts = None
+            optimizer_end_ts = None
     
     return semantical_ops
 
