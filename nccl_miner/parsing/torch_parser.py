@@ -11,9 +11,9 @@ def create_cuda_local_op(context_events):
     """
     Create a CUDA local operation from a list of context events.
     """
-    # TODO: Naive implementation for now, need to deduce the semantics of the data
-    op_name = context_events[-1]['name']
-    return CudaLocal(op_name)
+    local_op = CudaLocal()
+    local_op.associate_context_events(context_events)
+    return local_op
 
 def create_all_gpu_local_ops(cpu_events):
     """
@@ -45,6 +45,50 @@ def create_all_gpu_local_ops(cpu_events):
                 all_gpu_local_ops.append(cuda_local)
 
     return all_gpu_local_ops
+
+def deduce_high_level_semantics(cuda_local_ops):
+    semantical_ops = []
+    # identify backward pass.
+    backward_start_ts = None
+    backward_end_ts = None
+    for op in cuda_local_ops:
+        if backward_start_ts is None and \
+            ("Backward" in op.name or \
+             "autograd" in op.name):
+            backward_start_ts = op.start_time
+        elif backward_start_ts is not None and \
+            "Backward" not in op.name and \
+            "autograd" not in op.name:
+            backward_end_ts = op.start_time
+            sem = CudaLocal("Backward Pass", op.device)
+            sem.associate_timestamps(backward_start_ts, backward_end_ts)
+            semantical_ops.append(sem)
+
+            backward_start_ts = None
+            backward_end_ts = None
+    
+    # identify forward pass. TODO: naive implementation for now, need to improve
+    forward_start_ts = None
+    forward_end_ts = None
+    for op in cuda_local_ops:
+        if forward_start_ts is None and \
+            "Backward" not in op.name and \
+            "autograd" not in op.name and \
+            "c10d" not in op.name:
+            forward_start_ts = op.start_time
+        elif forward_start_ts is not None and \
+            ("Backward" in op.name or \
+             "autograd" in op.name or \
+             "c10d" in op.name):
+            forward_end_ts = op.start_time
+            sem = CudaLocal("Forward Pass", op.device)
+            sem.associate_timestamps(forward_start_ts, forward_end_ts)
+            semantical_ops.append(sem)
+
+            forward_start_ts = None
+            forward_end_ts = None
+    
+    return semantical_ops
 
 def get_host_pid(filename):
     filename_pattern = r"(?P<host>[a-z0-9]+)_(?P<pid>\d+)\.(?P<garbage>\d+)\.pt\.trace\.json"
@@ -90,10 +134,10 @@ def parse_torch_logs(log_files):
                             else:
                                 local_kernel_events.append(event)
 
+        # For NCCL kernel ops
         cpu_events.sort(key=lambda x: x['ts'] + x['dur'] if 'dur' in x else x['ts'])
         nccl_kernel_events.sort(key=lambda x: x['ts'])
 
-        # For NCCL kernel ops
         context_events = []
         device_gpu_comm_ops = []
         cur_kernel_id = 0
@@ -183,6 +227,10 @@ def parse_torch_logs(log_files):
             assert isinstance(local_op, CudaLocal)
             local_op.associate_kernel(local_kernel_events[i])
             gpu_local_ops_per_device[cur_device].append(local_op)
+
+        # deduce high-level semantics
+        semantics_ops = deduce_high_level_semantics(gpu_local_ops_per_device[cur_device])
+        gpu_local_ops_per_device[cur_device].extend(semantics_ops)
 
     return gpu_local_ops_per_device, gpu_comm_ops_per_device
 

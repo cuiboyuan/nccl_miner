@@ -76,6 +76,14 @@ class CudaLocal():
     def __init__(self, name=None, device=None):
         self.name = name
         self.device = device
+        self.start_time = None
+        self.duration = None
+    
+    def associate_context_events(self, context_events):
+        # TODO: Naive implementation for now, need to deduce the semantics of the data
+        sorted_context_events = sorted(context_events, key=lambda event: event['ts'])
+        self.context = [event['name'] for event in sorted_context_events]
+        self.name = self.context[0]
 
     def associate_cpu_event(self, event):
         self.cpu_start_time = event['ts']
@@ -85,6 +93,12 @@ class CudaLocal():
         self.kernel_id = kernel_id
 
     def associate_kernel(self, event):
+        # TODO: need to obtain more info than just timestamps, like kernel
         self.start_time = event['ts']
         self.duration = event['dur']
         self.end_time = self.start_time + self.duration
+    
+    def associate_timestamps(self, start_time, end_time):
+        self.start_time = start_time
+        self.end_time = end_time
+        self.duration = self.end_time - self.start_time

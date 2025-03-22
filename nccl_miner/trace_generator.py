@@ -200,7 +200,7 @@ def generate_perfetto_trace(cpu_ops, gpu_ops, data_flow_groups, out_json):
             events.append({
                 "ph": "X",
                 "cat": "local_op",
-                'name': f"cuda:{cpu_op.name}",
+                'name': f"{cpu_op.name}",
                 'pid': device,
                 'tid': CPU_OP_TID,
                 'ts': cpu_op.start_time,
