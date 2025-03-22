@@ -3,14 +3,14 @@ NCCL Miner "Nickel Miner" is a tool for extracting data flow information from NC
 
 ## File Structure
 - `example_nccl_logs/`: NCCL logs gathered in real training scenarios for example usage
-- `example_nccl_topo/`: Hardware topology detected by NCCL for example usage
+- `example_topo/`: Hardware topology detected by NCCL for example usage
+- `experiments/picotron`: Configs to run 4-D parallelism techniques to gather example logs with Picotron
 - `mingpt/`: From https://github.com/karpathy/minGPT, a clean, simple PyTorch implementation of GPT-2 model
 - `nccl_miner/`: Main folder containing scripts extracting flow-level information from NCCL logs
-- `nvbit_path`: Archived. Previous exploration of using NVBit to extact flow-level info
-- `DataParallel.py`: Example training GPT-2 with single-process PyTorch DataParallel module
-- `GPT2Dist.py`: Example training GPT-2 with multi-process PyTorch DistributedDataParallel module
-- `MPI_GPT2Dist.py`: Example training GPT-2 with OpenMPI PyTorch, untested.
-- `TraceGen.py`: Generate Chrome traces from data flow extracted by NCCL Miner
+- `picotron/`: From https://github.com/huggingface/picotron, a simple educational project helping people quickly get familiar with all techniques in distributed training.
+- `main.py`: Generate Chrome traces from data flow extracted by NCCL Miner
+- `train_gpt2.py`: Example training GPT-2 with torchrun
+- `train_picotron.py`: From https://github.com/huggingface/picotron, slightly modified scripts to train distributedly with 4-D parallelism techniques.
 
 ## NCCL Material
 
@@ -19,6 +19,10 @@ NCCL Environment Variables: https://docs.nvidia.com/deeplearning/nccl/user-guide
 NCCL API: https://docs.nvidia.com/deeplearning/nccl/user-guide/docs/api/colls.html 
 
 NCCL Data Types: https://docs.nvidia.com/deeplearning/nccl/user-guide/docs/api/types.html#c.ncclDataType_t
+
+# Example Usage: Picotron
+
+See https://github.com/cuiboyuan/nccl_miner/pull/12 for details.
 
 # Example Usage: GPT2
 
@@ -44,7 +48,7 @@ The output trace is called `nccl_trace.json`.
 
 You can also use existing logs as an example:
 ```
-python TraceGen.py example_nccl_logs/four_gpu_p2p_shm_disabled/
+python main.py example_nccl_logs/four_gpu_p2p_shm_disabled/
 ```
 
 ## Step 3: View Trace
