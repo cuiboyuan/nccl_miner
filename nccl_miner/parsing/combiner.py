@@ -97,7 +97,7 @@ def link_nccl_torch_calls(nccl_calls_per_device, torch_calls_per_device):
             print(f"nccl device  {device}: {nccl_calls_per_device[device]['host']}:{nccl_calls_per_device[device]['pid']}")
             raise AssertionError
         print(f"Host: {torch_calls_per_device[device]['host']}, PID: {torch_calls_per_device[device]['pid']}")
-       
+
         torch_ops = torch_calls_per_device[device]['operations']
         nccl_ops = nccl_calls_per_device[device]['operations']
         print(f"number of torch ops: {len(torch_ops)}")
@@ -110,7 +110,7 @@ def link_nccl_torch_calls(nccl_calls_per_device, torch_calls_per_device):
             # Find the corresponding torch operation
             torch_op = torch_ops[torch_idx]
 
-            if torch_op.kernel_id is None:
+            if not torch_op.has_kernel:
                 print(f"Skipping torch op {torch_op} due to no associated kernel calls.")
                 torch_idx += 1
                 continue
@@ -119,10 +119,10 @@ def link_nccl_torch_calls(nccl_calls_per_device, torch_calls_per_device):
                 isinstance(nccl_op, NcclCollectiveFunction):
                 # Ensure it's the same comm call
                 try:
-                    assert torch_op.func == nccl_op.func
+                    assert torch_op.name == nccl_op.func
                 except AssertionError:
                     print("[ERROR] Sanity check failed, below should be equal:")
-                    print(f"torch event: {torch_op.func}")
+                    print(f"torch event: {torch_op.name}")
                     print(f"nccl event: {nccl_op.func}")
                     raise AssertionError
                 # link info from torch to nccl
@@ -144,7 +144,7 @@ def link_nccl_torch_calls(nccl_calls_per_device, torch_calls_per_device):
                 torch_idx += 1
             elif isinstance(torch_op, CudaLocal):
                 pass
-            
+
             if device in gpu_ops:
                 gpu_ops[device].append(nccl_op)
             else:

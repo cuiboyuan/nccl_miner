@@ -3,30 +3,59 @@ PyTorch operations to be parsed in Torch Profiler data.
 '''
 import re
 
-class CudaComm():
-    def __init__(self, func=None, device=None):
+class CudaOp():
+    def __init__(self, name=None, device=None):
+        self.name = name
         self.device = device
-        self.data_type = None
-        self.func = func
-
         self.start_time = None
         self.duration = None
         self.end_time = None
 
-        self.kernel_id = None
-
         self.cpu_start_time = None
         self.cpu_end_time = None
-
-    def associate_kernel_id(self, kernel_id):
-        self.kernel_id = kernel_id
 
     def associate_cpu_event(self, event):
         self.cpu_start_time = event['ts']
         self.cpu_end_time = event['ts'] + event['dur']
 
+    def associate_timestamps(self, start_time, end_time):
+        self.start_time = start_time
+        self.end_time = end_time
+        self.duration = self.end_time - self.start_time
+
     def __repr__(self):
-        return f"{self.func} at {self.start_time} for {self.duration} ms"
+        return f"{self.name} on device {self.device} at {self.start_time} for {self.duration} ms"
+
+
+class CudaLocal(CudaOp):
+    def __init__(self, name=None, device=None):
+        super().__init__(name, device)
+        self.context = []
+
+    def associate_context_events(self, active_events, past_relevant_events):
+        # TODO: Naive implementation for now, need to deduce the semantics of the data
+        sorted_context_events = sorted(active_events, key=lambda event: event['ts'])
+        self.context = [event['name'] for event in sorted_context_events]
+        self.name = self.context[0]
+
+    def associate_kernel(self, event):
+        # TODO: need to obtain more info than just timestamps, like kernel
+        self.associate_timestamps(event['ts'], event['ts'] + event['dur'])
+
+
+class CudaComm(CudaOp):
+    def __init__(self, func=None, device=None):
+        super().__init__(func, device)
+        self.data_type = None
+        self.has_kernel = False
+
+        self.context = []
+
+    def associate_context_events(self, active_events, past_relevant_events):
+        pass
+
+    def __repr__(self):
+        return f"{self.name} at {self.start_time} for {self.duration} ms"
 
 
 class CudaCollective(CudaComm):
@@ -41,36 +70,27 @@ class CudaCollective(CudaComm):
         reduce_match = re.match(reduce_pattern, event['name'])
         broadcast_pattern = r"ncclDevKernel_(\w+)_(\w+)_(\w+)\(ncclDevComm\*, unsigned long, ncclWork\*\)"
         broadcast_match = re.match(broadcast_pattern, event['name'])
+
+        func_name, op, dtype, algo, protocol = None, None, None, None, None
         if reduce_match:
             func_name, op, dtype, algo, protocol = reduce_match.groups()
-            try:
-                assert self.func is None or func_name == self.func
-            except AssertionError:
-                print(f"AssertionError: {self.func} != {func_name}")
-            self.device = event['pid']
-            self.func = func_name
-            self.op = op
-            # TODO: change this to NcclDataType
-            self.data_type = dtype
-            self.algo = algo
-            self.protocol = protocol
-            self.start_time = event['ts']
-            self.duration = event['dur']
-            self.end_time = self.start_time + self.duration
         elif broadcast_match:
             func_name, algo, protocol = broadcast_match.groups()
-            try:
-                assert self.func is None or func_name == self.func
-            except AssertionError:
-                print(f"AssertionError: {self.func} != {func_name}")
-            self.device = event['pid']
-            self.func = func_name
-            self.algo = algo
-            self.protocol = protocol
-            self.start_time = event['ts']
-            self.duration = event['dur']
-            self.end_time = self.start_time + self.duration
+        else:
+            return
 
+        try:
+            assert self.name is None or func_name == self.name
+        except AssertionError:
+            print(f"AssertionError: {self.name} != {func_name}")
+
+        self.associate_timestamps(event['ts'], event['ts'] + event['dur'])
+        self.device = event['pid']
+        self.name = func_name
+        self.op = op
+        self.data_type = dtype # TODO: change this to NcclDataType
+        self.algo = algo
+        self.protocol = protocol
 
 class CudaPtp(CudaComm):
     def __init__(self, func=None, device=None):
@@ -81,49 +101,4 @@ class CudaPtp(CudaComm):
         ptp_match = re.match(ptp_pattern, event['name'])
         if ptp_match:
             self.device = event['pid']
-            self.func = "SendRecv"
-            self.start_time = event['ts']
-            self.duration = event['dur']
-            self.end_time = self.start_time + self.duration
-
-
-class CudaCoalesced(CudaComm):
-    def __init__(self, func=None, device=None):
-        super().__init__(func, device)
-        self.op_list = []
-
-    def add_cuda_op(self, cuda_op):
-        assert isinstance(cuda_op, CudaComm)
-        self.op_list.append(cuda_op)
-
-
-class CudaLocal():
-    def __init__(self, name=None, device=None):
-        self.name = name
-        self.device = device
-        self.start_time = None
-        self.duration = None
-
-    def associate_context_events(self, context_events):
-        # TODO: Naive implementation for now, need to deduce the semantics of the data
-        sorted_context_events = sorted(context_events, key=lambda event: event['ts'])
-        self.context = [event['name'] for event in sorted_context_events]
-        self.name = self.context[0]
-
-    def associate_cpu_event(self, event):
-        self.cpu_start_time = event['ts']
-        self.cpu_end_time = event['ts'] + event['dur']
-
-    def associate_kernel_id(self, kernel_id):
-        self.kernel_id = kernel_id
-
-    def associate_kernel(self, event):
-        # TODO: need to obtain more info than just timestamps, like kernel
-        self.start_time = event['ts']
-        self.duration = event['dur']
-        self.end_time = self.start_time + self.duration
-
-    def associate_timestamps(self, start_time, end_time):
-        self.start_time = start_time
-        self.end_time = end_time
-        self.duration = self.end_time - self.start_time
+            self.associate_timestamps(event['ts'], event['ts'] + event['dur'])
