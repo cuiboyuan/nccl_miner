@@ -11,11 +11,12 @@ labels: enhancement
 ## Motivation
 <!-- Explain why this feature is needed and what problem it solves. -->
 
-## Proposed Solution
-<!-- Describe how the feature should work, including any details on implementation. -->
+## Requirements
+<!-- List in detail the capability this feature must fulfill to be considered complete -->
 
-## Alternatives Considered
-<!-- List any alternative solutions or workarounds you have thought about. -->
+## Proposed Solution(s) or Workaround(s)
+<!-- Describe how the feature should work, including any details on implementation. -->
+<!-- Also, list any alternative solutions or workarounds you have thought about. -->
 
 ## Additional Context
 <!-- Add any other information, screenshots, or references to related issues. -->
