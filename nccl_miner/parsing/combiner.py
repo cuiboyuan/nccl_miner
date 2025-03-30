@@ -129,6 +129,7 @@ def link_nccl_torch_calls(nccl_calls_per_device, torch_calls_per_device):
                 nccl_op.associate_algo(torch_op.algo)
                 nccl_op.associate_protocol(torch_op.protocol)
                 nccl_op.associate_time(torch_op.start_time, torch_op.end_time)
+                nccl_op.associate_semantics(torch_op.semantics)
                 torch_idx += 1
             elif isinstance(torch_op, CudaPtp) and \
                 isinstance(nccl_op, NcclPtpFunction):
@@ -141,6 +142,7 @@ def link_nccl_torch_calls(nccl_calls_per_device, torch_calls_per_device):
                     raise AssertionError
                 # link info from torch to nccl
                 nccl_op.associate_time(torch_op.start_time, torch_op.end_time)
+                nccl_op.associate_semantics(torch_op.semantics)
                 torch_idx += 1
             elif isinstance(torch_op, CudaLocal):
                 pass

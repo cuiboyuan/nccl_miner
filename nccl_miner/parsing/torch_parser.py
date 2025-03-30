@@ -6,19 +6,19 @@ import os
 import re
 
 from nccl_miner.common.torch_event import *
-from .torch_utils import *
+from ..common.torch_utils import *
 
 def deduce_high_level_semantics(cuda_local_ops):
     sorted_cuda_local_ops = sorted(cuda_local_ops, key=lambda x: x.start_time)
     high_level_op = []
     for op in sorted_cuda_local_ops:
-        if is_forward_pass(op):
+        if is_forward_pass(op.name):
             high_level_op.append(("Forward Pass", op.start_time, op.end_time))
-        elif is_backward_pass(op):
+        elif is_backward_pass(op.name):
             high_level_op.append(("Backward Pass", op.start_time, op.end_time))
-        elif is_optimizer_step(op):
+        elif is_optimizer_step(op.name):
             high_level_op.append(("Optimizer Step", op.start_time, op.end_time))
-        elif is_c10d_communication(op):
+        elif is_c10d_communication(op.name):
             high_level_op.append(("C10D Communication", op.start_time, op.end_time))
         else:
             high_level_op.append(("Misc Operations", op.start_time, op.end_time))
@@ -45,6 +45,14 @@ def deduce_high_level_semantics(cuda_local_ops):
     return semantical_ops
 
 def get_device_gpu_ops(cur_device, cpu_events, nccl_kernel_events, local_kernel_events):
+
+    ####
+    # Step 1. Find all CUDA and NCCL ops on CPU
+    # Based on CPU timestamps, find relevant contextual events that
+    # provide insights on the content of data in CUDA and NCCL ops
+    ####
+
+    # Group events by threads
     events_per_tid = {}
     for event in cpu_events:
         if event['tid'] not in events_per_tid:
@@ -54,9 +62,7 @@ def get_device_gpu_ops(cur_device, cpu_events, nccl_kernel_events, local_kernel_
     device_gpu_comm_ops = []
     device_gpu_local_ops = []
     for tid, thread_events in events_per_tid.items():
-        """
-        Get overarching events of every event in the list using a sweep line algorithm.
-        """
+        # Get overarching events of every event in the list using a sweep line algorithm.
         sorted_events = []
         for event in thread_events:
             start = event['ts']
@@ -69,6 +75,8 @@ def get_device_gpu_ops(cur_device, cpu_events, nccl_kernel_events, local_kernel_
 
         active_events = []
         past_relevant_events = []
+
+        past_relevant_local_cuda_ops = []
 
         thread_gpu_local_ops = []
         thread_gpu_comm_ops = []
@@ -85,6 +93,7 @@ def get_device_gpu_ops(cur_device, cpu_events, nccl_kernel_events, local_kernel_
                     cuda_local.associate_context_events(active_events, [])
                     cuda_local.associate_cpu_event(event)
                     thread_gpu_local_ops.append(cuda_local)
+                    past_relevant_local_cuda_ops.append(cuda_local)
 
                 elif "nccl:" in event['name'] and event['cat'] == "user_annotation":
                     ## NCCL kernel ops
@@ -108,7 +117,8 @@ def get_device_gpu_ops(cur_device, cpu_events, nccl_kernel_events, local_kernel_
                                 if context_event['name'] in ['c10d::send', 'c10d::recv_']:
                                     if context_event['name'] == 'c10d::send':
                                         cuda_ptp = CudaPtp("Send", device=cur_device)
-                                        cuda_ptp.associate_context_events([], past_relevant_events[:idx])
+                                        cuda_ptp.associate_context_events([], past_relevant_events[:idx],
+                                                                          past_local_ops=past_relevant_local_cuda_ops)
                                     else: # c10d::recv_
                                         cuda_ptp = CudaPtp("Recv", device=cur_device)
                                     cuda_ptp.associate_cpu_event(context_event)
@@ -118,6 +128,7 @@ def get_device_gpu_ops(cur_device, cpu_events, nccl_kernel_events, local_kernel_
                             thread_gpu_comm_ops.append(cuda_coalesced)
                             # clear context
                             past_relevant_events = []
+                            past_relevant_local_cuda_ops = []
                         else:
                             # print(event)
                             if func == "all_reduce":
@@ -130,17 +141,23 @@ def get_device_gpu_ops(cur_device, cpu_events, nccl_kernel_events, local_kernel_
                             # TODO: use context events to deduce meaning of the data
                             # ...
                             cuda_coll = CudaCollective(func_name, device=cur_device)
-                            cuda_coll.associate_context_events(active_events, past_relevant_events)
+                            cuda_coll.associate_context_events(active_events, past_relevant_events,
+                                                               past_local_ops=past_relevant_local_cuda_ops)
                             cuda_coll.associate_cpu_event(event)
                             if kernel_exists:
                                 cuda_coll.has_kernel = True
                             thread_gpu_comm_ops.append([cuda_coll])
                             # clear context
                             past_relevant_events = []
+                            past_relevant_local_cuda_ops = []
 
         device_gpu_local_ops.extend(thread_gpu_local_ops)
         device_gpu_comm_ops.extend(thread_gpu_comm_ops)
 
+    ####
+    # Step 2. Associate CUDA and NCCL ops with their corresponding kernel ops
+    # Kernel provides more information, like actual time of execution.
+    ####
     # sort NCCL kernels by start time, it shouldn't matter whether to sort by start or end time since there's no overlap btw NCCL kernels
     nccl_kernel_events.sort(key=lambda x: x['ts'])
     cur_nccl_kernel_id = 0
@@ -168,6 +185,9 @@ def get_device_gpu_ops(cur_device, cpu_events, nccl_kernel_events, local_kernel_
         assert isinstance(local_op, CudaLocal)
         local_op.associate_kernel(local_kernel_events[idx])
 
+    ####
+    # Step 3. Deduce high-level semantics information from Local CUDA and NCCL ops
+    ####
     # deduce high-level semantics for local ops
     semantics_ops = deduce_high_level_semantics(device_gpu_local_ops)
     device_gpu_local_ops.extend(semantics_ops)

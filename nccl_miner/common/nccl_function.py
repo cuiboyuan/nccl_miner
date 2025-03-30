@@ -32,9 +32,12 @@ class NcclFunction:
 
     def associate_algo(self, algo):
         self.algo = algo
-    
+
     def associate_protocol(self, proto):
         self.protocol = proto
+
+    def associate_semantics(self, semantics):
+        self.semantics = semantics
 
 
 class NcclCommInitRankFunction(NcclFunction):
@@ -219,7 +222,7 @@ class NcclPtpFunction(NcclFunction):
             return NcclPtpFunction(raw_info)
         else:
             return None
-        
+
     def __repr__(self):
         return f"[{self.device}] {self.func} {self.comm_obj}"
 
@@ -263,6 +266,6 @@ class NcclCollectiveFunction(NcclFunction):
             return NcclCollectiveFunction(raw_info)
         else:
             return None
-        
+
     def __repr__(self):
         return f"[{self.device}] {self.func} {self.comm_obj}"

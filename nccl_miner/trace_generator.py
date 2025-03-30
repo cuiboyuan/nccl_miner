@@ -189,7 +189,8 @@ def generate_perfetto_trace(cpu_ops, gpu_ops, data_flow_groups, out_json):
                 'dur': gpu_op.end_time - gpu_op.start_time,
                 'args': {
                     "data_type": str(gpu_op.data_type),
-                    "num": gpu_op.data_num,
+                    "data_num": gpu_op.data_num,
+                    "bytes": gpu_op.data_size,
                 }
             })
 
@@ -206,6 +207,7 @@ def generate_perfetto_trace(cpu_ops, gpu_ops, data_flow_groups, out_json):
                 'ts': cpu_op.start_time,
                 'dur': cpu_op.end_time - cpu_op.start_time,
                 'args': {
+                    "semantics": cpu_op.semantics.name
                 }
             })
 

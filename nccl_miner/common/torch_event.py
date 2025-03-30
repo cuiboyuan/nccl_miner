@@ -2,6 +2,11 @@
 PyTorch operations to be parsed in Torch Profiler data.
 '''
 import re
+from .torch_utils import *
+
+class Semantics():
+    def __init__(self, name=None):
+        self.name = name
 
 class CudaOp():
     def __init__(self, name=None, device=None):
@@ -30,13 +35,21 @@ class CudaOp():
 class CudaLocal(CudaOp):
     def __init__(self, name=None, device=None):
         super().__init__(name, device)
-        self.context = []
+        self.semantics = Semantics("Unknown")
 
-    def associate_context_events(self, active_events, past_relevant_events):
+    def associate_context_events(self, active_events, past_relevant_events, past_local_ops=None):
         # TODO: Naive implementation for now, need to deduce the semantics of the data
         sorted_context_events = sorted(active_events, key=lambda event: event['ts'])
-        self.context = [event['name'] for event in sorted_context_events]
-        self.name = self.context[0]
+        context = [event for event in sorted_context_events]
+        self.name = context[0]['name']
+        if is_forward_pass(self.name):
+            self.semantics.name = "Forward Pass"
+        elif is_backward_pass(self.name):
+            self.semantics.name = "Backward Pass"
+        elif is_optimizer_step(self.name):
+            self.semantics.name = "Optimizer Step"
+        elif is_c10d_communication(self.name):
+            self.semantics.name = "C10D Communication"
 
     def associate_kernel(self, event):
         # TODO: need to obtain more info than just timestamps, like kernel
@@ -49,10 +62,11 @@ class CudaComm(CudaOp):
         self.data_type = None
         self.has_kernel = False
 
-        self.context = []
+        self.semantics = Semantics("Unknown")
 
-    def associate_context_events(self, active_events, past_relevant_events):
+    def associate_context_events(self, active_events, past_relevant_events, past_local_ops=None):
         pass
+
 
     def __repr__(self):
         return f"{self.name} at {self.start_time} for {self.duration} ms"
