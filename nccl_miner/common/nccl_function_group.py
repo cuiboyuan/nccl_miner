@@ -64,13 +64,13 @@ class NcclCommClique:
             ring = Ring(ring_nodes, ring_id)
             all_rings[ring_id] = ring
         self.ring_algo = MultiRing(all_rings, self.rank_to_device)
-        
+
         # Complete full tree from partial trees
         # TODO: ...
-    
+
     def get_device_rank(self, dev):
         return self.device_to_rank[dev]
-    
+
     def get_rank_device(self, rank):
         return self.rank_to_device[rank]
 
@@ -88,6 +88,7 @@ class NcclFunctionGroup:
         self.clique = clique
         self.id = NcclFunctionGroup.global_id_counter
         NcclFunctionGroup.global_id_counter += 1
+        self.func = None
 
         # longest period containing all operations
         self.overlap_period_start_time = None
@@ -133,7 +134,9 @@ class NcclCollectiveFunctionGroup(NcclFunctionGroup):
             assert isinstance(op, NcclCollectiveFunction)
             if self.main_operation is None:
                 self.main_operation = op
-    
+
+        self.func = self.main_operation.func
+
     def get_algo(self):
         # TODO: support only ring algo for now,
         # change to support the correct algo
@@ -145,6 +148,7 @@ class NcclPtpFunctionGroup(NcclFunctionGroup):
         super().__init__(ops_per_device, clique)
         self.src = None
         self.dst = None
+        self.func = "SendRecv"
         for device, op in ops_per_device.items():
             assert isinstance(op, NcclPtpFunction)
             if op.func == "Send":

@@ -132,7 +132,7 @@ def gen_arrows_from_dependencies(dependencies, data_flows, flow_tid_map):
             # Start arrow for dependency
             arrows.append({
                 'ph': 's',
-                "cat": "data_flow",
+                "cat": "dependency",
                 'id': global_arrow_id,
                 'pid': dep_flow.dst,
                 'tid': dep_tids["recv_tid"],
@@ -142,7 +142,7 @@ def gen_arrows_from_dependencies(dependencies, data_flows, flow_tid_map):
             # End arrow for dependency
             arrows.append({
                 'ph': 'f',
-                "cat": "data_flow",
+                "cat": "dependency",
                 'id': global_arrow_id,
                 'pid': current_flow.src,
                 'tid': current_tids["send_tid"],
