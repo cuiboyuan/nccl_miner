@@ -2,21 +2,41 @@
 NCCL Miner "Nickel Miner" is a tool for extracting data flow information from NCCL logs in Distributed Machine Learning usecases. Flow information includes the size and type of the flow, the source and destination of the flow, and dependencies between the flows, etc.
 
 ## File Structure
+Core:
+- `nccl_miner/`: Main folder of the project.
+  - `common/`: Common data structures that are used by all components of the project
+    - `nccl_data_type.py`: Contains utility to calculate number of bytes of each NCCL data type
+    - `nccl_function.py`: Contains data structures that represent individual NCCL function calls happening on each GPU.
+    - `nccl_function_group.py`: Contains data structures that represent multiple NCCL functions performing the same task. For example, if an AllReduce operation on 3 GPUs occurs, then there'll be 1 ncclAllReduce function on each GPU. A "function group" represents all 3 of them, as they are performing the same task.
+    - `topology.py`: Contains data structures representing topologies used by NCCL, such as Ring and Tree.
+    - `torch_event.py`: Contains data structures representing each event from Torch profiler output.
+    - `torch_utils.py`: Contains utilities to interpret data from Torch profiler.
+  - `parsing/`: Parse raw data from NCCL logs and Torch profiler output.
+    - `nccl_parser.py`: Parse data from NCCL log files.
+    - `torch_parser.py`: Parse data form Torch profiler output.
+    - `combiner.py`: Pre-process and combines data across multiple files
+  - `mining/`: Core of this project. Contains operations on extracting flow-level information
+    - `data_flow.py`: Data structures representing a data flow
+    - `dependency_deduction.py`: Deduce how data flow works under the hood from NCCL collective operations.
+    - `timestamp_deduction.py`: Deduce the start time and duration of data flows based on existing info from Torch profiler and NCCL logs.
+- `main.py`: Entry-point scripts to extract flow-level information from log files.
+- `train_gpt2.py`: Example training GPT-2 with torchrun
+- `train_picotron.py`: Copied from https://github.com/huggingface/picotron, slightly modified scripts to train distributedly with 4-D parallelism techniques.
+
+External:
+- `mingpt/`: From https://github.com/karpathy/minGPT, a clean, simple PyTorch implementation of GPT-2 model
+- `picotron/`: From https://github.com/huggingface/picotron, a simple educational project helping people quickly get familiar with all techniques in distributed training.
+
+Experiment Data and Configs:
 - `example_nccl_logs/`: NCCL logs gathered in real training scenarios for example usage
 - `example_topo/`: Hardware topology detected by NCCL for example usage
 - `experiments/picotron`: Configs to run 4-D parallelism techniques to gather example logs with Picotron
-- `mingpt/`: From https://github.com/karpathy/minGPT, a clean, simple PyTorch implementation of GPT-2 model
-- `nccl_miner/`: Main folder containing scripts extracting flow-level information from NCCL logs
-- `picotron/`: From https://github.com/huggingface/picotron, a simple educational project helping people quickly get familiar with all techniques in distributed training.
-- `main.py`: Generate Chrome traces from data flow extracted by NCCL Miner
-- `train_gpt2.py`: Example training GPT-2 with torchrun
-- `train_picotron.py`: From https://github.com/huggingface/picotron, slightly modified scripts to train distributedly with 4-D parallelism techniques.
 
 ## NCCL Material
 
 NCCL Environment Variables: https://docs.nvidia.com/deeplearning/nccl/user-guide/docs/env.html
 
-NCCL API: https://docs.nvidia.com/deeplearning/nccl/user-guide/docs/api/colls.html 
+NCCL API: https://docs.nvidia.com/deeplearning/nccl/user-guide/docs/api/colls.html
 
 NCCL Data Types: https://docs.nvidia.com/deeplearning/nccl/user-guide/docs/api/types.html#c.ncclDataType_t
 

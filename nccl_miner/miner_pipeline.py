@@ -22,9 +22,8 @@ def mine_torch_nccl_pipeline(nccl_log_files, torch_log_files):
     gpu_ops = link_nccl_torch_calls(nccl_comms_per_device, torch_comms_per_device)
     # Identify groups of collective operations using cliques and GPU operations on each device
     coll_groups = group_nccl_calls_across_devices(nccl_cliques, gpu_ops)
-    
+
     # Extracting and deducing data flow information:
-    data_flow_groups = {}
     for group_id, coll_op in coll_groups.items():
         flows, deps = deduce_flow_dependencies(coll_op)
         coll_op.associate_data_flows(flows, deps)
