@@ -116,14 +116,20 @@ def deduce_flow_timestamps(coll_group):
             ts_deduction_problem += dst_dur - (flow_var["dst_end"] - flow_var["dst_start"]) <= dst_deviation
             dur_deviation_vars.append(dst_deviation)
             # LP Constraint:
-            # flow duration should be at least 1us
+            # the dst can only start receiving after src has started sending the data
+            ts_deduction_problem += flow_var["dst_start"] - flow_var["src_start"] >= 1
+
+            # LP Constraint:
+            # flow duration should be at least 1 microsecond
             # NOTE: mainly for visualization purpose, but it's also unlikely in real life
             # for the duration to be less than 1us.
             ts_deduction_problem += flow_var["src_end"] - flow_var["src_start"] >= 1
             ts_deduction_problem += flow_var["dst_end"] - flow_var["dst_start"] >= 1
             # LP Constraint:
-            # there should be a gap of 1us between the end and start of send/recv
-            # NOTE: mainly for visualization purpose.
+            # the dst should start receiving after the src has finished sending.
+            # NOTE: this is for visualization only. I want to draw an arrow from src sending
+            # to dst receiving to represent a data flow, but Perfetto UI doesn't support the start
+            # time of an arrow to be greater than its end time.
             ts_deduction_problem += flow_var["dst_start"] - flow_var["src_end"] >= 1
 
         # LP Objective: minimize the sum of all deviations
