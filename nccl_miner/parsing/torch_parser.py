@@ -87,21 +87,56 @@ def get_device_gpu_ops(cur_device, cpu_events, nccl_kernel_events, local_kernel_
             elif event_type == -1:  # Event end
                 active_events.remove(event)
                 past_relevant_events.append(event)
+
+                ## CUDA local kernel ops
                 if event['name'] == "cudaLaunchKernel" or \
                     event['name'] == "cuLaunchKernel":
-                    ## CUDA local kernel ops
                     cuda_local = CudaLocal(device=cur_device)
                     cuda_local.associate_context_events(active_events, [])
                     cuda_local.associate_cpu_event(event)
                     thread_gpu_local_ops.append(cuda_local)
                     past_relevant_local_cuda_ops.append(cuda_local)
 
-                elif "nccl:" in event['name'] and event['cat'] == "user_annotation":
-                    ## NCCL kernel ops
+                elif event['name'] == "cudaLaunchKernelExC":
+                    is_coalesced = False
+                    for ctx_event in reversed(active_events):
+                        if ctx_event['name'] == "nccl:coalesced":
+                            is_coalesced = True
+                            break
+                    if is_coalesced:
+                        # TODO: use context events to deduce meaning of the data
+                        # ...
+                        cuda_coalesced = []
+                        for idx, context_event in enumerate(past_relevant_events):
+                            if context_event['name'] in ['c10d::send', 'c10d::recv_']:
+                                if context_event['name'] == 'c10d::send':
+                                    cuda_ptp = CudaPtp("Send", device=cur_device)
+                                    cuda_ptp.associate_context_events([], past_relevant_events[:idx],
+                                                                        past_local_ops=past_relevant_local_cuda_ops)
+                                else: # c10d::recv_
+                                    cuda_ptp = CudaPtp("Recv", device=cur_device)
+                                cuda_ptp.associate_cpu_event(context_event)
+                                cuda_ptp.has_kernel = True
+                                cuda_coalesced.append(cuda_ptp)
+                        if cuda_coalesced == []:
+                            assert False, f"ERROR: nccl::coalesced at time {event['ts']} does not contain send/recv ops."
+                        thread_gpu_comm_ops.append(cuda_coalesced)
+                        # clear context
+                        past_relevant_events = []
+                        # TODO: check if this clear makes sense.
+                        past_relevant_local_cuda_ops = []
+                    else:
+                        # Will handle this case in the next if statement.
+                        continue
+
+                ## NCCL ops
+                elif "nccl:" in event['name'] and \
+                    event['cat'] == "user_annotation":
                     nccl_pattern = r"nccl:(\w+)"
                     match = re.match(nccl_pattern, event['name'])
                     if match:
                         # Check if this NCCL call has a corresponding CUDA kernel op.
+                        # TODO: investigate why will a NCCL call not have CUDA kernel.
                         kernel_exists = False
                         for context_event in reversed(past_relevant_events):
                             if context_event['name'] == "cudaLaunchKernelExC" and \
@@ -111,25 +146,8 @@ def get_device_gpu_ops(cur_device, cpu_events, nccl_kernel_events, local_kernel_
 
                         func = match.groups()[0]
                         if func == "coalesced":
-                            # TODO: use context events to deduce meaning of the data
-                            # ...
-                            cuda_coalesced = []
-                            for idx, context_event in enumerate(past_relevant_events):
-                                if context_event['name'] in ['c10d::send', 'c10d::recv_']:
-                                    if context_event['name'] == 'c10d::send':
-                                        cuda_ptp = CudaPtp("Send", device=cur_device)
-                                        cuda_ptp.associate_context_events([], past_relevant_events[:idx],
-                                                                          past_local_ops=past_relevant_local_cuda_ops)
-                                    else: # c10d::recv_
-                                        cuda_ptp = CudaPtp("Recv", device=cur_device)
-                                    cuda_ptp.associate_cpu_event(context_event)
-                                    if kernel_exists:
-                                        cuda_ptp.has_kernel = True
-                                    cuda_coalesced.append(cuda_ptp)
-                            thread_gpu_comm_ops.append(cuda_coalesced)
-                            # clear context
-                            past_relevant_events = []
-                            past_relevant_local_cuda_ops = []
+                            # Already handled in previous if statement.
+                            continue
                         else:
                             # print(event)
                             if func == "all_reduce":
