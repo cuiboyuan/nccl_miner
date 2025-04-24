@@ -5,6 +5,7 @@ import os
 from tqdm import tqdm
 from typing import *
 
+from ..misc.logger import *
 from ..common.nccl_function import *
 from ..common.nccl_function_group import NcclCommClique
 
@@ -17,7 +18,7 @@ def get_host_pid(filename):
         return None, None
 
 def parse_nccl_logs(log_files):
-    
+
     '''Step 1.
     I. Identify each Communication Clique based on ncclCommInitRank & ncclCommSplit.
         i. Extract the Topology of GPUs for each Clique.
@@ -37,7 +38,7 @@ def parse_nccl_logs(log_files):
 
     for log_file in log_files:
         file_name = os.path.basename(log_file)
-        print(f"Parsing log file {file_name}..")
+        logi(f"Parsing log file {file_name}..")
         host, pid = get_host_pid(file_name)
         with open(log_file, "r") as f:
             state = NO_INIT
@@ -122,7 +123,7 @@ def parse_nccl_logs(log_files):
                         else:
                             comm_calls_per_device[op_device]['operations'].append(nccl_comm_call)
 
-    print("Constructing Communication Cliques...")
+    logd("Constructing Communication Cliques...")
     nccl_cliques = {}
     for clique_id, comm_init_calls in comm_id_to_comm_init_calls.items():
         nccl_cliques[clique_id] = NcclCommClique(comm_init_calls)

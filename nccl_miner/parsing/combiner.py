@@ -1,6 +1,7 @@
 '''
 Scripts that combine or correlate operations from different logs/devices.
 '''
+from ..misc.logger import *
 from ..common.nccl_function import NcclPtpFunction, NcclCollectiveFunction, NcclFunction
 from ..common.nccl_function_group import NcclCommClique, NcclPtpFunctionGroup, NcclCollectiveFunctionGroup
 from ..common.torch_event import *
@@ -92,16 +93,16 @@ def link_nccl_torch_calls(nccl_calls_per_device, torch_calls_per_device):
             assert torch_calls_per_device[device]['host'] == nccl_calls_per_device[device]['host']
             assert torch_calls_per_device[device]['pid'] == nccl_calls_per_device[device]['pid']
         except AssertionError:
-            print("[ERROR] Sanity check failed, below should be equal:")
-            print(f"torch device {device}: {torch_calls_per_device[device]['host']}:{torch_calls_per_device[device]['pid']}")
-            print(f"nccl device  {device}: {nccl_calls_per_device[device]['host']}:{nccl_calls_per_device[device]['pid']}")
+            loge("[ERROR] Sanity check failed, below should be equal:")
+            loge(f"torch device {device}: {torch_calls_per_device[device]['host']}:{torch_calls_per_device[device]['pid']}")
+            loge(f"nccl device  {device}: {nccl_calls_per_device[device]['host']}:{nccl_calls_per_device[device]['pid']}")
             raise AssertionError
-        print(f"Host: {torch_calls_per_device[device]['host']}, PID: {torch_calls_per_device[device]['pid']}")
+        logd(f"Host: {torch_calls_per_device[device]['host']}, PID: {torch_calls_per_device[device]['pid']}")
 
         torch_ops = torch_calls_per_device[device]['operations']
         nccl_ops = nccl_calls_per_device[device]['operations']
-        print(f"number of torch ops: {len(torch_ops)}")
-        print(f"number of nccl ops: {len(nccl_ops)}")
+        logd(f"number of torch ops: {len(torch_ops)}")
+        logd(f"number of nccl ops: {len(nccl_ops)}")
 
         torch_idx = 0
         for nccl_op in nccl_ops:
@@ -111,7 +112,7 @@ def link_nccl_torch_calls(nccl_calls_per_device, torch_calls_per_device):
             torch_op = torch_ops[torch_idx]
 
             if not torch_op.has_kernel:
-                print(f"Skipping torch op {torch_op} due to no associated kernel calls.")
+                logd(f"Skipping torch op {torch_op} due to no associated kernel calls.")
                 torch_idx += 1
                 continue
 
@@ -121,9 +122,9 @@ def link_nccl_torch_calls(nccl_calls_per_device, torch_calls_per_device):
                 try:
                     assert torch_op.name == nccl_op.func
                 except AssertionError:
-                    print("[ERROR] Sanity check failed, below should be equal:")
-                    print(f"torch event: {torch_op.name}")
-                    print(f"nccl event: {nccl_op.func}")
+                    loge("[ERROR] Sanity check failed, below should be equal:")
+                    loge(f"torch event: {torch_op.name}")
+                    loge(f"nccl event: {nccl_op.func}")
                     raise AssertionError
                 # link info from torch to nccl
                 nccl_op.associate_algo(torch_op.algo)
@@ -137,8 +138,8 @@ def link_nccl_torch_calls(nccl_calls_per_device, torch_calls_per_device):
                 try:
                     assert nccl_op.func == "Send" or nccl_op.func == "Recv"
                 except AssertionError:
-                    print("[ERROR] Sanity check failed, below should be Send or Recv:")
-                    print(f"nccl op: {nccl_op.func}")
+                    loge("[ERROR] Sanity check failed, below should be Send or Recv:")
+                    loge(f"nccl op: {nccl_op.func}")
                     raise AssertionError
                 # link info from torch to nccl
                 nccl_op.associate_time(torch_op.start_time, torch_op.end_time)

@@ -2,6 +2,7 @@
 Generate Perfetto JSON traces to visualize data flows.
 '''
 import json
+from .misc.logger import *
 
 from .common.nccl_function import NcclPtpFunction, NcclCollectiveFunction
 from .common.nccl_function_group import NcclFunctionGroup
@@ -39,18 +40,18 @@ def gen_events_from_data_flows(data_flows):
                     start_time >= existing_end for existing_start, existing_end in time_ranges):
                 # No overlap with any existing range, reuse this TID
                 assigned_tids[pid][tid].append((start_time, end_time))
-                print(f"PID: {pid}, Start: {start_time}, End: {end_time}, Assigned TID: {tid} (reused)")
+                logd(f"PID: {pid}, Start: {start_time}, End: {end_time}, Assigned TID: {tid} (reused)")
                 return tid
 
         # No reusable TID found, assign a new one
         new_tid = len(assigned_tids[pid])
         assigned_tids[pid].append([(start_time, end_time)])
-        print(f"PID: {pid}, Start: {start_time}, End: {end_time}, Assigned TID: {new_tid} (new)")
+        logd(f"PID: {pid}, Start: {start_time}, End: {end_time}, Assigned TID: {new_tid} (new)")
         return new_tid
 
     for flow_id, flow in data_flows.items():
         assert isinstance(flow, DataFlow)
-        print(flow)
+        logd(flow)
         # Sending event
         send_tid = get_available_tid(flow.src, flow.send_start_time, flow.send_start_time + flow.send_duration)
         events.append({
@@ -223,5 +224,5 @@ def generate_perfetto_trace(cpu_ops, gpu_ops, data_flow_groups, out_json):
     }
     with open(out_json, "w") as f:
         json.dump(perfetto_trace, f, indent=4)
-    print(f"Perfetto trace generated with {len(events)} events.")
-    print(f"Output written to {out_json}")
+    logd(f"Perfetto trace generated with {len(events)} events.")
+    logi(f"Output written to {out_json}")

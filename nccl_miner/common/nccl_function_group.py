@@ -4,6 +4,7 @@ Group NCCL functions across different devices into Function Groups because they 
 '''
 from typing import *
 
+from ..misc.logger import *
 from .nccl_function import NcclCommInitRankFunction, NcclPtpFunction, NcclCollectiveFunction
 from .topology import Ring, MultiRing
 
@@ -32,7 +33,7 @@ class NcclCommClique:
             # TODO: Construct the Tree.
             # ...
 
-        print("Constructing Ring...")
+        logd("Constructing Ring...")
         # Complete full ring from partial rings
         incomplete_rings = {}
         for partial in partial_rings:

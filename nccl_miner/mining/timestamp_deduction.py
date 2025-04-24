@@ -1,5 +1,6 @@
-from pulp import LpProblem, LpVariable, value, LpMinimize
+from pulp import LpProblem, LpVariable, value, LpMinimize, PULP_CBC_CMD
 
+from nccl_miner.misc.logger import *
 from nccl_miner.mining.data_flow import DataFlow
 from nccl_miner.common.nccl_function_group import NcclPtpFunctionGroup, NcclCollectiveFunctionGroup
 
@@ -41,7 +42,7 @@ def deduce_flow_timestamps(coll_group):
             flow.associate_time(flow_send_start, flow_send_end, flow_recv_start, flow_recv_end)
 
     elif isinstance(coll_group, NcclCollectiveFunctionGroup):
-        ts_deduction_problem = LpProblem("Timestamp Deduction", LpMinimize)
+        ts_deduction_problem = LpProblem("Timestamp_Deduction", LpMinimize)
 
         lp_vars = {}
         # PuLP can't solve var with large numbers, need to shift the ts.
@@ -140,7 +141,8 @@ def deduce_flow_timestamps(coll_group):
         ts_deduction_problem += sum(dur_deviation_vars), "Objective"
 
         # Solve the LP and error handling
-        ts_deduction_problem.solve()
+        logd("Solving LP...")
+        ts_deduction_problem.solve(PULP_CBC_CMD(msg=False))
         if ts_deduction_problem.status == -1:
             raise ValueError("Failed to solve the timestamp deduction problem.")
 
@@ -154,10 +156,10 @@ def deduce_flow_timestamps(coll_group):
                 (value(lp_var["recv_start"]) + min_time),
                 (value(lp_var["recv_end"]) + min_time))
 
-        # # Print the final LP solution
-        # for flow_id, lp_var in lp_vars.items():
-        #     print(f"Flow {flow_id}:")
-        #     print(f"  send_start: {value(lp_var['send_start']) + min_time}")
-        #     print(f"  send_end: {value(lp_var['send_end']) + min_time}")
-        #     print(f"  recv_start: {value(lp_var['recv_start']) + min_time}")
-        #     print(f"  recv_end: {value(lp_var['recv_end']) + min_time}")
+        # Print the final LP solution
+        for flow_id, lp_var in lp_vars.items():
+            logd(f"Flow {flow_id}:")
+            logd(f"  send_start: {value(lp_var['send_start']) + min_time}")
+            logd(f"  send_end: {value(lp_var['send_end']) + min_time}")
+            logd(f"  recv_start: {value(lp_var['recv_start']) + min_time}")
+            logd(f"  recv_end: {value(lp_var['recv_end']) + min_time}")

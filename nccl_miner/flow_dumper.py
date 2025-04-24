@@ -1,5 +1,6 @@
 import json
 
+from nccl_miner.misc.logger import *
 from nccl_miner.mining.data_flow import DataFlow
 from nccl_miner.common.nccl_function_group import NcclFunctionGroup
 
@@ -53,4 +54,4 @@ def dump_data_flows(data_flow_groups, out_json):
 
     with open(out_json, 'w') as f:
         json.dump(all_data_flows, f, indent=4)
-    print(f"Data flows and dependencies dumped to {out_json}")
+    logi(f"Data flows and dependencies dumped to {out_json}")

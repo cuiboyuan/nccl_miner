@@ -2,6 +2,7 @@
 PyTorch operations to be parsed in Torch Profiler data.
 '''
 import re
+from ..misc.logger import *
 from .torch_utils import *
 
 class Semantics():
@@ -96,7 +97,7 @@ class CudaCollective(CudaComm):
         try:
             assert self.name is None or func_name == self.name
         except AssertionError:
-            print(f"AssertionError: {self.name} != {func_name}")
+            loge(f"AssertionError: {self.name} != {func_name}")
 
         self.associate_timestamps(event['ts'], event['ts'] + event['dur'])
         self.device = event['pid']

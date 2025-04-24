@@ -5,6 +5,7 @@ import json
 import os
 import re
 
+from ..misc.logger import *
 from nccl_miner.common.torch_event import *
 from ..common.torch_utils import *
 
@@ -226,9 +227,9 @@ def parse_torch_logs(log_files):
     gpu_local_ops_per_device = {}
     for log_file in log_files:
         file_name = os.path.basename(log_file)
-        print(f"Parsing log file {file_name}..")
+        logi(f"Parsing log file {file_name}..")
         host, pid = get_host_pid(file_name)
-        print(f"Host: {host}, PID: {pid}")
+        logd(f"Host: {host}, PID: {pid}")
 
         cur_device = None
         cpu_events = []
@@ -245,7 +246,7 @@ def parse_torch_logs(log_files):
                     elif isinstance(event['pid'], int):
                         if cur_device is None:
                             cur_device = event['pid']
-                            print(f"GPU {cur_device}")
+                            logd(f"GPU {cur_device}")
                             gpu_comm_ops_per_device[cur_device] = {'host':host,
                                                                 'pid':pid,
                                                                 'operations':[]}
@@ -278,5 +279,5 @@ if __name__ == "__main__":
         log_path = os.path.join(args.log_dir, log_file)
         if os.path.isfile(log_path):
             torch_log_files.append(log_path)
-    print(torch_log_files)
+    logd(torch_log_files)
     parse_torch_logs(torch_log_files)

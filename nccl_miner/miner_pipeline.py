@@ -5,6 +5,7 @@ Orchestrate the all the steps to mine data flow info from raw log files
 2. Mining: extracting and deducing data flow information
 '''
 
+from .misc.logger import *
 from .common.nccl_function_group import NcclFunctionGroup
 from .parsing.nccl_parser import parse_nccl_logs
 from .parsing.torch_parser import parse_torch_logs
@@ -20,11 +21,14 @@ def mine_torch_nccl_pipeline(nccl_log_files, torch_log_files):
     nccl_cliques, nccl_comms_per_device = parse_nccl_logs(nccl_log_files)
     # Correlate GPU operations from torch profiler and NCCL logs
     # This step completes the info of GPU operation
+    logi("Linking NCCL and Torch operations...")
     gpu_ops = link_nccl_torch_calls(nccl_comms_per_device, torch_comms_per_device)
     # Identify groups of collective operations using cliques and GPU operations on each device
+    logi("Grouping NCCL operations across devices...")
     coll_groups = group_nccl_calls_across_devices(nccl_cliques, gpu_ops)
 
     # Extracting and deducing data flow information:
+    logi("Deducing data flow dependencies and timestamps...")
     for group_id, coll_op in coll_groups.items():
         assert isinstance(coll_op, NcclFunctionGroup)
         flows, deps = deduce_flow_dependencies(coll_op)
