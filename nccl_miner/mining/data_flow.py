@@ -13,18 +13,18 @@ class DataFlow:
         self.id = DataFlow.global_id_counter
         DataFlow.global_id_counter += 1
 
-    def associate_time(self, src_start_ts, src_end_ts,
-                           dst_start_ts, dst_end_ts):
-        self.src_start_time = src_start_ts
-        self.src_end_time = src_end_ts
-        self.src_duration = src_end_ts - src_start_ts
+    def associate_time(self, send_start_ts, send_end_ts,
+                           recv_start_ts, recv_end_ts):
+        self.send_start_time = send_start_ts
+        self.send_end_time = send_end_ts
+        self.send_duration = send_end_ts - send_start_ts
 
-        self.dst_start_time = dst_start_ts
-        self.dst_end_time = dst_end_ts
-        self.dst_duration = dst_end_ts - dst_start_ts
+        self.recv_start_time = recv_start_ts
+        self.recv_end_time = recv_end_ts
+        self.recv_duration = recv_end_ts - recv_start_ts
 
-        self.flow_start_time = src_start_ts
-        self.flow_end_time = dst_end_ts
+        self.flow_start_time = send_start_ts
+        self.flow_end_time = recv_end_ts
         self.flow_duration = self.flow_end_time - self.flow_start_time
 
     def __repr__(self):

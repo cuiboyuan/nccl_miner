@@ -3,7 +3,7 @@ import argparse
 
 from nccl_miner.miner_pipeline import mine_torch_nccl_pipeline
 from nccl_miner.trace_generator import generate_perfetto_trace
-from nccl_miner.data_flow_dump import dump_data_flows
+from nccl_miner.flow_dumper import dump_data_flows
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

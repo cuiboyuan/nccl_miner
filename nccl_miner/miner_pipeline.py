@@ -5,6 +5,7 @@ Orchestrate the all the steps to mine data flow info from raw log files
 2. Mining: extracting and deducing data flow information
 '''
 
+from .common.nccl_function_group import NcclFunctionGroup
 from .parsing.nccl_parser import parse_nccl_logs
 from .parsing.torch_parser import parse_torch_logs
 from .parsing.combiner import group_nccl_calls_across_devices, link_nccl_torch_calls
@@ -25,6 +26,7 @@ def mine_torch_nccl_pipeline(nccl_log_files, torch_log_files):
 
     # Extracting and deducing data flow information:
     for group_id, coll_op in coll_groups.items():
+        assert isinstance(coll_op, NcclFunctionGroup)
         flows, deps = deduce_flow_dependencies(coll_op)
         coll_op.associate_data_flows(flows, deps)
         deduce_flow_timestamps(coll_op)

@@ -20,22 +20,25 @@ def deduce_flow_timestamps(coll_group):
             dst_op_start_ts = coll_group.get_dst_operation().start_time
             dst_op_end_ts = coll_group.get_dst_operation().end_time
 
-            # Calculate the duration for src and dst flows
+            # Calculate the duration for send and receive for the data flow.
             # TODO: naive assumption, need better estimation.
             total_duration = (dst_op_end_ts - src_op_start_ts) // 2
-            src_flow_start = src_op_start_ts
-            src_flow_end = min(src_op_end_ts, src_op_start_ts + total_duration)
+            flow_send_start = src_op_start_ts
+            flow_send_end = min(src_op_end_ts, src_op_start_ts + total_duration)
 
-            dst_flow_start = max(src_flow_end, dst_op_start_ts) + 1 # add 1 for visualization purpose
-            dst_flow_end = dst_op_end_ts
+            # NOTE: this is for visualization only. I want to draw an arrow from src sending
+            # to dst receiving to represent a data flow, but Perfetto UI doesn't support the start
+            # time of an arrow to be greater than its end time.
+            flow_recv_start = max(flow_send_end, dst_op_start_ts) + 1 # add 1 for visualization purpose
+            flow_recv_end = dst_op_end_ts
 
             # Ensure the calculated times meet the constraints
-            if dst_flow_start >= dst_flow_end:
-                raise ValueError("Destination flow start time exceeds or equals destination operation end time.")
-            if src_flow_end > src_op_end_ts:
-                raise ValueError("Source flow end time exceeds source operation end time.")
+            if flow_recv_start > dst_op_end_ts:
+                raise ValueError("flow_recv_start > dst_op_end_ts: Cannot start receiving after the Recv op on dst has ended.")
+            if flow_send_end > src_op_end_ts:
+                raise ValueError("flow_send_end >= src_op_end_ts: Cannot continue sending after the Send op on src has ended.")
 
-            flow.associate_time(src_flow_start, src_flow_end, dst_flow_start, dst_flow_end)
+            flow.associate_time(flow_send_start, flow_send_end, flow_recv_start, flow_recv_end)
 
     elif isinstance(coll_group, NcclCollectiveFunctionGroup):
         ts_deduction_problem = LpProblem("Timestamp Deduction", LpMinimize)
@@ -47,7 +50,7 @@ def deduce_flow_timestamps(coll_group):
             for flow in data_flows.values()
         )
         #
-        # Create the LP variables for the start and end time of each data flow
+        # Create the LP variables for the start and end time of the Send and Recv operations of each data flow
         #
         for flow_id, flow in data_flows.items():
             assert isinstance(flow, DataFlow)
@@ -60,13 +63,13 @@ def deduce_flow_timestamps(coll_group):
             dst_op_end_ts = coll_group.device_operations[dst_device].end_time - min_time
 
             lp_vars[flow_id] = {
-            "src_start": LpVariable(f"flow_{flow_id}_src_start",
+            "send_start": LpVariable(f"flow_{flow_id}_send_start",
                 lowBound=src_op_start_ts, upBound=src_op_end_ts, cat="Continuous"),
-            "src_end": LpVariable(f"flow_{flow_id}_src_end",
+            "send_end": LpVariable(f"flow_{flow_id}_send_end",
                   lowBound=src_op_start_ts, upBound=src_op_end_ts, cat="Continuous"),
-            "dst_start": LpVariable(f"flow_{flow_id}_dst_start",
+            "recv_start": LpVariable(f"flow_{flow_id}_recv_start",
                 lowBound=dst_op_start_ts, upBound=dst_op_end_ts, cat="Continuous"),
-            "dst_end": LpVariable(f"flow_{flow_id}_dst_end",
+            "recv_end": LpVariable(f"flow_{flow_id}_recv_end",
                   lowBound=dst_op_start_ts, upBound=dst_op_end_ts, cat="Continuous")
             }
         #
@@ -75,13 +78,14 @@ def deduce_flow_timestamps(coll_group):
         for cur_flow_id, dep_flow_ids in dependencies.items():
             for dep_flow_id in dep_flow_ids:
                 # LP Constraint: a flow only start after its dependent flow ends
-                ts_deduction_problem += lp_vars[cur_flow_id]["src_start"] - lp_vars[dep_flow_id]["dst_end"] >= 1
+                ts_deduction_problem += lp_vars[cur_flow_id]["send_start"] - lp_vars[dep_flow_id]["recv_end"] >= 1
 
         #
         # Flow duration estimation
         #
         # First, estimate the "Ground Truth" of each data flow's duration.
-        # Right now, it is based on coll_group's duration on each device
+        # Right now, it is based on coll_group's duration on each device.
+        # TODO: Re-visit this part, and see if we can get a better "Ground truth".
         num_flow_op_per_device = {device : 0 for device in coll_group.device_operations}
         total_bytes_per_device = {device : 0 for device in coll_group.device_operations}
         for flow_id, flow in data_flows.items():
@@ -95,42 +99,42 @@ def deduce_flow_timestamps(coll_group):
             assert isinstance(flow, DataFlow)
             coll_op_src_dur = coll_group.device_operations[flow.src].end_time - coll_group.device_operations[flow.src].start_time
             coll_op_dst_dur = coll_group.device_operations[flow.dst].end_time - coll_group.device_operations[flow.dst].start_time
-            flow_src_dur = coll_op_src_dur * (flow.size / total_bytes_per_device[flow.src])
-            flow_dst_dur = coll_op_dst_dur * (flow.size / total_bytes_per_device[flow.dst])
-            dur_per_flow[flow_id] = (flow_src_dur, flow_dst_dur)
+            flow_send_dur = coll_op_src_dur * (flow.size / total_bytes_per_device[flow.src])
+            flow_recv_dur = coll_op_dst_dur * (flow.size / total_bytes_per_device[flow.dst])
+            dur_per_flow[flow_id] = (flow_send_dur, flow_recv_dur)
         #
         # Create LP vars for deviation between estimated and actual duration, and
         # add LP constraints for the final LP objective.
         #
         dur_deviation_vars = []
         for flow_id, flow_var in lp_vars.items():
-            src_dur, dst_dur = dur_per_flow[flow_id]
+            send_dur, recv_dur = dur_per_flow[flow_id]
             # LP Constraint:
-            # the src/dst flow duration should be as close as possible to the estimated duration
-            src_deviation = LpVariable(f"flow_{flow_id}_src_deviation", lowBound=0, cat="Continuous")
-            ts_deduction_problem += (flow_var["src_end"] - flow_var["src_start"]) - src_dur <= src_deviation
-            ts_deduction_problem += src_dur - (flow_var["src_end"] - flow_var["src_start"]) <= src_deviation
-            dur_deviation_vars.append(src_deviation)
-            dst_deviation = LpVariable(f"flow_{flow_id}_dst_deviation", lowBound=0, cat="Continuous")
-            ts_deduction_problem += (flow_var["dst_end"] - flow_var["dst_start"]) - dst_dur <= dst_deviation
-            ts_deduction_problem += dst_dur - (flow_var["dst_end"] - flow_var["dst_start"]) <= dst_deviation
-            dur_deviation_vars.append(dst_deviation)
+            # the send/recv duration of the flow should be as close as possible to the estimated duration
+            send_deviation = LpVariable(f"flow_{flow_id}_send_deviation", lowBound=0, cat="Continuous")
+            ts_deduction_problem += (flow_var["send_end"] - flow_var["send_start"]) - send_dur <= send_deviation
+            ts_deduction_problem += send_dur - (flow_var["send_end"] - flow_var["send_start"]) <= send_deviation
+            dur_deviation_vars.append(send_deviation)
+            recv_deviation = LpVariable(f"flow_{flow_id}_recv_deviation", lowBound=0, cat="Continuous")
+            ts_deduction_problem += (flow_var["recv_end"] - flow_var["recv_start"]) - recv_dur <= recv_deviation
+            ts_deduction_problem += recv_dur - (flow_var["recv_end"] - flow_var["recv_start"]) <= recv_deviation
+            dur_deviation_vars.append(recv_deviation)
             # LP Constraint:
-            # the dst can only start receiving after src has started sending the data
-            ts_deduction_problem += flow_var["dst_start"] - flow_var["src_start"] >= 1
+            # Recv can only start after Send has started.
+            ts_deduction_problem += flow_var["recv_start"] - flow_var["send_start"] >= 1
 
             # LP Constraint:
-            # flow duration should be at least 1 microsecond
+            # Send/recv duration of the flow should be at least 1 us
             # NOTE: mainly for visualization purpose, but it's also unlikely in real life
-            # for the duration to be less than 1us.
-            ts_deduction_problem += flow_var["src_end"] - flow_var["src_start"] >= 1
-            ts_deduction_problem += flow_var["dst_end"] - flow_var["dst_start"] >= 1
+            # for the duration to be less than 1 us.
+            ts_deduction_problem += flow_var["send_end"] - flow_var["send_start"] >= 1
+            ts_deduction_problem += flow_var["recv_end"] - flow_var["recv_start"] >= 1
             # LP Constraint:
-            # the dst should start receiving after the src has finished sending.
+            # Recv can only start after Send has ended.
             # NOTE: this is for visualization only. I want to draw an arrow from src sending
             # to dst receiving to represent a data flow, but Perfetto UI doesn't support the start
             # time of an arrow to be greater than its end time.
-            ts_deduction_problem += flow_var["dst_start"] - flow_var["src_end"] >= 1
+            ts_deduction_problem += flow_var["recv_start"] - flow_var["send_end"] >= 1
 
         # LP Objective: minimize the sum of all deviations
         ts_deduction_problem += sum(dur_deviation_vars), "Objective"
@@ -141,19 +145,19 @@ def deduce_flow_timestamps(coll_group):
             raise ValueError("Failed to solve the timestamp deduction problem.")
 
         #
-        # Recover the original `ts`` back from the shift at the start.
+        # Restore the original ts back from the shift at the start.
         #
         for flow_id, lp_var in lp_vars.items():
             data_flows[flow_id].associate_time(
-                (value(lp_var["src_start"]) + min_time),
-                (value(lp_var["src_end"]) + min_time),
-                (value(lp_var["dst_start"]) + min_time),
-                (value(lp_var["dst_end"]) + min_time))
+                (value(lp_var["send_start"]) + min_time),
+                (value(lp_var["send_end"]) + min_time),
+                (value(lp_var["recv_start"]) + min_time),
+                (value(lp_var["recv_end"]) + min_time))
 
         # # Print the final LP solution
         # for flow_id, lp_var in lp_vars.items():
         #     print(f"Flow {flow_id}:")
-        #     print(f"  src_start: {value(lp_var['src_start']) + min_time}")
-        #     print(f"  src_end: {value(lp_var['src_end']) + min_time}")
-        #     print(f"  dst_start: {value(lp_var['dst_start']) + min_time}")
-        #     print(f"  dst_end: {value(lp_var['dst_end']) + min_time}")
+        #     print(f"  send_start: {value(lp_var['send_start']) + min_time}")
+        #     print(f"  send_end: {value(lp_var['send_end']) + min_time}")
+        #     print(f"  recv_start: {value(lp_var['recv_start']) + min_time}")
+        #     print(f"  recv_end: {value(lp_var['recv_end']) + min_time}")

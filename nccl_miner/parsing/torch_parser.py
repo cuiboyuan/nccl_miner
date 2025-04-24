@@ -12,6 +12,7 @@ def deduce_high_level_semantics(cuda_local_ops):
     sorted_cuda_local_ops = sorted(cuda_local_ops, key=lambda x: x.start_time)
     high_level_op = []
     for op in sorted_cuda_local_ops:
+        assert isinstance(op, CudaLocal)
         if is_forward_pass(op.name):
             high_level_op.append(("Forward Pass", op.start_time, op.end_time))
         elif is_backward_pass(op.name):

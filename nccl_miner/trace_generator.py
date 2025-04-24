@@ -4,7 +4,9 @@ Generate Perfetto JSON traces to visualize data flows.
 import json
 
 from .common.nccl_function import NcclPtpFunction, NcclCollectiveFunction
+from .common.nccl_function_group import NcclFunctionGroup
 from .common.torch_event import CudaLocal
+from .mining.data_flow import DataFlow
 
 CPU_OP_TID = 0
 GPU_OP_TID = 100
@@ -47,17 +49,18 @@ def gen_events_from_data_flows(data_flows):
         return new_tid
 
     for flow_id, flow in data_flows.items():
+        assert isinstance(flow, DataFlow)
         print(flow)
         # Sending event
-        send_tid = get_available_tid(flow.src, flow.src_start_time, flow.src_start_time + flow.src_duration)
+        send_tid = get_available_tid(flow.src, flow.send_start_time, flow.send_start_time + flow.send_duration)
         events.append({
             'ph': 'X',
             "cat": "data_flow",
             'name': f"Send to {flow.dst}",
             'pid': flow.src,
             'tid': DATA_FLOW_TID + send_tid,
-            'ts': flow.src_start_time,
-            'dur': flow.src_duration,
+            'ts': flow.send_start_time,
+            'dur': flow.send_duration,
             'args': {
                 "bytes": flow.size,
                 "name": flow.data_name
@@ -66,15 +69,15 @@ def gen_events_from_data_flows(data_flows):
         })
 
         # Receiving event
-        recv_tid = get_available_tid(flow.dst, flow.dst_start_time, flow.dst_start_time + flow.dst_duration)
+        recv_tid = get_available_tid(flow.dst, flow.recv_start_time, flow.recv_start_time + flow.recv_duration)
         events.append({
             'ph': 'X',
             "cat": "data_flow",
             'name': f"Recv from {flow.src}",
             'pid': flow.dst,
             'tid': DATA_FLOW_TID + recv_tid,
-            'ts': flow.dst_start_time,
-            'dur': flow.dst_duration,
+            'ts': flow.recv_start_time,
+            'dur': flow.recv_duration,
             'args': {
                 "bytes": flow.size,
                 "name": flow.data_name
@@ -95,7 +98,7 @@ def gen_events_from_data_flows(data_flows):
             'id': global_arrow_id,
             'pid': flow.src,
             'tid': DATA_FLOW_TID + send_tid,
-            'ts': flow.src_end_time,
+            'ts': flow.send_end_time,
             'bind_id': flow_id
         })
         # Flow end
@@ -105,7 +108,7 @@ def gen_events_from_data_flows(data_flows):
             'id': global_arrow_id,
             'pid': flow.dst,
             'tid': DATA_FLOW_TID + recv_tid,
-            'ts': flow.dst_start_time,
+            'ts': flow.recv_start_time,
             'bind_id': flow_id,
             'bp': 'e'
         })
@@ -124,9 +127,11 @@ def gen_arrows_from_dependencies(dependencies, data_flows, flow_tid_map):
     arrows = []
     for flow_id, deps in dependencies.items():
         current_flow = data_flows[flow_id]
+        assert isinstance(current_flow, DataFlow)
         current_tids = flow_tid_map[flow_id]
         for dep_id in deps:
             dep_flow = data_flows[dep_id]
+            assert isinstance(dep_flow, DataFlow)
             dep_tids = flow_tid_map[dep_id]
 
             # Start arrow for dependency
@@ -136,7 +141,7 @@ def gen_arrows_from_dependencies(dependencies, data_flows, flow_tid_map):
                 'id': global_arrow_id,
                 'pid': dep_flow.dst,
                 'tid': dep_tids["recv_tid"],
-                'ts': dep_flow.dst_end_time,
+                'ts': dep_flow.recv_end_time,
                 'bind_id': dep_flow.id
             })
             # End arrow for dependency
@@ -146,7 +151,7 @@ def gen_arrows_from_dependencies(dependencies, data_flows, flow_tid_map):
                 'id': global_arrow_id,
                 'pid': current_flow.src,
                 'tid': current_tids["send_tid"],
-                'ts': current_flow.src_start_time,
+                'ts': current_flow.send_start_time,
                 'bind_id': current_flow.id,
                 'bp': 'e'
             })
@@ -160,6 +165,7 @@ def generate_perfetto_trace(cpu_ops, gpu_ops, data_flow_groups, out_json):
     all_data_flows = {}
     all_dependencies = {}
     for group_id, flow_group in data_flow_groups.items():
+        assert isinstance(flow_group, NcclFunctionGroup)
         data_flows = flow_group.data_flows
         dependencies = flow_group.dependencies
 
