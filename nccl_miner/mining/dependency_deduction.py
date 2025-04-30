@@ -9,10 +9,9 @@ from .data_flow import *
 from ..common.nccl_function_group import NcclCollectiveFunctionGroup, NcclPtpFunctionGroup
 
 
-def probe_coll_op(coll_group):
+def deduce_flow_dependencies(coll_group):
     data_flows = {}
     dependencies = {}
-
 
     if isinstance(coll_group, NcclPtpFunctionGroup):
         flow = DataFlow(coll_group.src, coll_group.dst, coll_group.data_size)
@@ -37,6 +36,7 @@ def probe_coll_op(coll_group):
                                             multi_ring.rank_to_device(next_node),
                                             coll_op.data_size,
                                             name=f"{coll_op.root_rank}'s Data")
+
                     cur_flow_id = cur_flow.id
                     data_flows[cur_flow_id] = cur_flow
                     # add dependencies
@@ -82,11 +82,11 @@ def probe_coll_op(coll_group):
                             # first flow, zero dependency
                             pass
                         else:
-                            # need to wait for the previous flow to finish.
+                            # need to wait for the previous flow to finish.                    
                             if cur_flow_id not in dependencies:
                                 dependencies[cur_flow_id] = [prev_flow_id]
                             else:
-                                dependencies[cur_flow_id].append(prev_flow_id)                        
+                                dependencies[cur_flow_id].append(prev_flow_id)
                         prev_flow_id = cur_flow_id
 
                         cur_node = next_node

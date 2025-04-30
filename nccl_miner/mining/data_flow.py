@@ -5,28 +5,27 @@ class DataFlow:
     # counter used to generate flow id.
     global_id_counter = 0
 
-    def __init__(self, src, dst, size, name=None, dur=10):
+    def __init__(self, src, dst, size, name=None):
         self.src = src
         self.dst = dst
         self.size = size
         self.data_name = name
-        self.duration = dur
         self.id = DataFlow.global_id_counter
         DataFlow.global_id_counter += 1
 
+    def associate_time(self, send_start_ts, send_end_ts,
+                           recv_start_ts, recv_end_ts):
+        self.send_start_time = send_start_ts
+        self.send_end_time = send_end_ts
+        self.send_duration = send_end_ts - send_start_ts
+
+        self.recv_start_time = recv_start_ts
+        self.recv_end_time = recv_end_ts
+        self.recv_duration = recv_end_ts - recv_start_ts
+
+        self.flow_start_time = send_start_ts
+        self.flow_end_time = recv_end_ts
+        self.flow_duration = self.flow_end_time - self.flow_start_time
+
     def __repr__(self):
         return f"Flow {self.id}:{self.src}->{self.dst}[{self.size} bytes]"
-
-
-class CommunicationOperation:
-    def __init__(self, op_name, data_type, data_num, data_size, devs, flows, deps):
-        self.name = op_name
-        self.data_type = data_type
-        self.data_num = data_num
-        self.data_size = data_size
-        self.data_flows = flows
-        self.dependencies = deps
-        self.devices = devs
-        
-    def __repr__(self):
-        return f"{self.name}: {self.data_size} bytes ({self.data_num} {self.data_type})"

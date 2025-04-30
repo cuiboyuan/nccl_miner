@@ -1,12 +1,20 @@
 '''
 Parse relevant NCCL API function calls on each device from the NCCL log files.
 '''
+import os
 from tqdm import tqdm
 from typing import *
 
 from ..common.nccl_function import *
 from ..common.nccl_function_group import NcclCommClique
 
+def get_host_pid(filename):
+    filename_pattern = r"(?P<custom_name>.+)\.(?P<host>[a-z0-9]+)\.(?P<pid>\d+)$"
+    match = re.match(filename_pattern, filename)
+    if match:
+        return match['host'], int(match['pid'])
+    else:
+        return None, None
 
 def parse_nccl_logs(log_files):
     
@@ -24,9 +32,14 @@ def parse_nccl_logs(log_files):
     comm_calls_per_device = {}
     comm_obj_to_clique_id = {}
 
-    for log in log_files:
-        print(f"Parsing log file {log}..")
-        with open(log, "r") as f:
+    # TODO: check if this is always true
+    world_size = len(log_files)
+
+    for log_file in log_files:
+        file_name = os.path.basename(log_file)
+        print(f"Parsing log file {file_name}..")
+        host, pid = get_host_pid(file_name)
+        with open(log_file, "r") as f:
             state = NO_INIT
             cur_nccl_comm_init = None
             for log_line in tqdm(f.readlines()):
@@ -88,6 +101,11 @@ def parse_nccl_logs(log_files):
                     nccl_coll_call = NcclCollectiveFunction.parse(log_line)
                     if nccl_coll_call is not None:
                         nccl_comm_call = nccl_coll_call
+                    # # TODO: check why will we have nranks=1
+                    # # this type of NCCL call will not show up in torch profiler
+                    # if nccl_comm_call is not None and \
+                    #     nccl_comm_call.nranks == 1:
+                    #     nccl_comm_call = None
                     # Add that communication operation to its rank
                     if nccl_comm_call is not None:
                         call_comm_obj = nccl_comm_call.comm_obj
@@ -96,9 +114,13 @@ def parse_nccl_logs(log_files):
 
                         op_device = nccl_comm_call.device
                         if op_device not in comm_calls_per_device:
-                            comm_calls_per_device[op_device] = [nccl_comm_call]
+                            comm_calls_per_device[op_device] = {
+                                'host': host,
+                                'pid': pid,
+                                'operations': [nccl_comm_call]
+                            }
                         else:
-                            comm_calls_per_device[op_device].append(nccl_comm_call)
+                            comm_calls_per_device[op_device]['operations'].append(nccl_comm_call)
 
     print("Constructing Communication Cliques...")
     nccl_cliques = {}

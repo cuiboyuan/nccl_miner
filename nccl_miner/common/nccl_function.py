@@ -20,12 +20,25 @@ class NcclFunction:
         self.nranks = int(log_info['nrank'])
         self.comm_obj = log_info['comm_obj_ptr']
 
-    
     def associate_clique_id(self, clique_id):
         self.clique_id = clique_id
 
     def associate_group_id(self, group_id):
         self.group_id = group_id
+
+    def associate_time(self, start_time, end_time):
+        self.start_time = start_time
+        self.end_time = end_time
+
+    def associate_algo(self, algo):
+        self.algo = algo
+
+    def associate_protocol(self, proto):
+        self.protocol = proto
+
+    def associate_semantics(self, semantics):
+        self.semantics = semantics
+
 
 class NcclCommInitRankFunction(NcclFunction):
     def __init__(self, log_info):
@@ -209,7 +222,7 @@ class NcclPtpFunction(NcclFunction):
             return NcclPtpFunction(raw_info)
         else:
             return None
-        
+
     def __repr__(self):
         return f"[{self.device}] {self.func} {self.comm_obj}"
 
@@ -253,11 +266,6 @@ class NcclCollectiveFunction(NcclFunction):
             return NcclCollectiveFunction(raw_info)
         else:
             return None
-        
+
     def __repr__(self):
         return f"[{self.device}] {self.func} {self.comm_obj}"
-
-
-class NcclLocal():
-    def __init__(self):
-        pass
