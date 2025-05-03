@@ -4,6 +4,7 @@ Here, I'm deducing the data flow and depdencies from the collective operations b
 NCCL codebase: https://github.com/NVIDIA/nccl
 '''
 from typing import *
+import math
 
 from .data_flow import *
 from ..common.nccl_function_group import NcclCollectiveFunctionGroup, NcclPtpFunctionGroup
@@ -56,13 +57,20 @@ def deduce_flow_dependencies(coll_group):
                     cur_node = next_node
                     next_node = ring.get_next_node(cur_node)
 
-            
+
         elif coll_op.func == "AllReduce":
             # Based on NCCL implementation in src/device/all_reduce.h:runRing()
             # TODO: Naive understanding, need more reading on NCCL codes
             nranks = multi_ring.size
             for _, ring in multi_ring.rings.items():
                 for idx, rank in enumerate(ring.nodes):
+                    # calculate chunk size
+                    # TODO: understand how NCCL implements this in more detail.
+                    chunk_num = math.ceil(coll_op.data_num / nranks)
+                    if rank == nranks-1:
+                        chunk_size = (coll_op.data_num - (nranks-1) * chunk_num) * coll_op.data_type.bytes
+                    else:
+                        chunk_size = chunk_num * coll_op.data_type.bytes
                     # 1. reduce and copy to next GPU (nranks-1 steps)
                     # my understanding: cur_node reduce on its own node, and transfer whatever it receives to the next GPU as is
                     # push data to next GPU
@@ -70,19 +78,27 @@ def deduce_flow_dependencies(coll_group):
                     j = 0
                     cur_node = rank
                     next_node = ring.get_next_node(cur_node)
+                    reduced_gpu = [multi_ring.rank_to_device(cur_node)]
                     while j < (nranks-1):
-                        cur_flow = DataFlow(multi_ring.rank_to_device(cur_node),
-                                                multi_ring.rank_to_device(next_node),
-                                                coll_op.data_size,
-                                                name=f"{rank}'s data")
-                        cur_flow_id = cur_flow.id
-                        data_flows[cur_flow_id] = cur_flow
 
                         if prev_flow_id is None:
                             # first flow, zero dependency
-                            pass
+                            cur_flow = DataFlow(multi_ring.rank_to_device(cur_node),
+                                                multi_ring.rank_to_device(next_node),
+                                                chunk_size,
+                                                name=f"Chunk #{rank} from GPU {rank}")
+                            reduced_gpu.append(multi_ring.rank_to_device(next_node))
+                            cur_flow_id = cur_flow.id
+                            data_flows[cur_flow_id] = cur_flow
                         else:
-                            # need to wait for the previous flow to finish.                    
+                            # need to wait for the previous flow to finish.
+                            cur_flow = DataFlow(multi_ring.rank_to_device(cur_node),
+                                                multi_ring.rank_to_device(next_node),
+                                                chunk_size,
+                                                name=f"Reduced Chunk #{rank} from GPU {reduced_gpu}")
+                            reduced_gpu.append(multi_ring.rank_to_device(next_node))
+                            cur_flow_id = cur_flow.id
+                            data_flows[cur_flow_id] = cur_flow
                             if cur_flow_id not in dependencies:
                                 dependencies[cur_flow_id] = [prev_flow_id]
                             else:
@@ -96,9 +112,9 @@ def deduce_flow_dependencies(coll_group):
                     # my understanding: now, broadcast the final reduced result to all nodes in the ring.
                     while j < 2*(nranks-1):
                         cur_flow = DataFlow(multi_ring.rank_to_device(cur_node),
-                                                multi_ring.rank_to_device(next_node),
-                                                coll_op.data_size,
-                                                name=f"all-reduced result")
+                                            multi_ring.rank_to_device(next_node),
+                                            chunk_size,
+                                            name=f"All-Reduced Chunk #{rank} from GPU {reduced_gpu}")
                         cur_flow_id = cur_flow.id
                         data_flows[cur_flow_id] = cur_flow
 
@@ -107,7 +123,7 @@ def deduce_flow_dependencies(coll_group):
                         if cur_flow_id not in dependencies:
                             dependencies[cur_flow_id] = [prev_flow_id]
                         else:
-                            dependencies[cur_flow_id].append(prev_flow_id)                        
+                            dependencies[cur_flow_id].append(prev_flow_id)
                         prev_flow_id = cur_flow_id
 
                         cur_node = next_node
@@ -119,8 +135,14 @@ def deduce_flow_dependencies(coll_group):
             # TODO: Naive understanding, need more reading on NCCL codes
             nranks = multi_ring.size
             for _, ring in multi_ring.rings.items():
-                shard_size = coll_op.data_size // nranks
                 for idx, rank in enumerate(ring.nodes):
+                    # calculate chunk size
+                    # TODO: understand how NCCL implements this in more detail.
+                    chunk_num = math.ceil(coll_op.data_num / nranks)
+                    if rank == nranks-1:
+                        chunk_size = (coll_op.data_num - (nranks-1) * chunk_num) * coll_op.data_type.bytes
+                    else:
+                        chunk_size = chunk_num * coll_op.data_type.bytes
                     # 1. Push my piece of data to next GPU
                     cur_node = rank
                     next_node = ring.get_next_node(cur_node)
@@ -129,9 +151,9 @@ def deduce_flow_dependencies(coll_group):
                     while next_node != rank:
                         # Get flow
                         cur_flow = DataFlow(multi_ring.rank_to_device(cur_node),
-                                                multi_ring.rank_to_device(next_node),
-                                                shard_size,
-                                                name=f"{rank}'s data shard")
+                                            multi_ring.rank_to_device(next_node),
+                                            chunk_size,
+                                            name=f"Chunk #{rank} from GPU {rank}")
                         cur_flow_id = cur_flow.id
                         data_flows[cur_flow_id] = cur_flow
 
