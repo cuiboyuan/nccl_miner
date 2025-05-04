@@ -32,6 +32,40 @@ Experiment Data and Configs:
 - `example_topo/`: Hardware topology detected by NCCL for example usage
 - `experiments/picotron`: Configs to run 4-D parallelism techniques to gather example logs with Picotron
 
+## Example Usage
+
+First install all the dependencies, please make sure that the Python version is **3.12**:
+```
+pip install -r requirements.txt
+```
+
+### Picotron Experiments
+
+1. Create two new directories to store NCCL logs and Torch Profiler outputs, correspondingly:
+
+   - For example (for Data Parallelism Experiment):
+      ```
+      mkdir -p experiments/picotron/dp/dp_logs
+      mkdir -p experiments/picotron/dp/torch_profiler
+      ```
+
+2. Gather NCCL and Torch logs using Picotron Project:
+   - Data Parallelism:
+     - Mostly AllReduce operation.
+     - Command: `NCCL_SHM_DISABLE=1 NCCL_P2P_DISABLE=1 NCCL_DEBUG=TRACE NCCL_DEBUG_SUBSYS=ALL NCCL_DEBUG_FILE=experiments/picotron/dp/dp_logs/picotron_nccl_logs.%h.%p torchrun --nproc_per_node 3 train_picotron.py --config experiments/picotron/dp/config.json  --torch_profiler_path experiments/picotron/dp/torch_profiler`
+   - Pipeline Parallelism:
+     - Mostly Send/Recv operation.
+     - Command: `NCCL_SHM_DISABLE=1 NCCL_P2P_DISABLE=1 NCCL_DEBUG=TRACE NCCL_DEBUG_SUBSYS=ALL NCCL_DEBUG_FILE=experiments/picotron/pp/pp_logs/picotron_nccl_logs.%h.%p torchrun --nproc_per_node 3 train_picotron.py --config experiments/picotron/pp/config.json  --torch_profiler_path experiments/picotron/pp/torch_profiler`
+
+3. Run NCCL Miner scripts to generate traces:
+   - Command: `python main.py <nccl_log_dir> <torch_log_dir> -o <out_trace_json_path> -d <out_flow_dump_json_path>`
+       - `<nccl_log_dir>`: Parent directory containing all NCCL log files only. Should be the directory of NCCL_DEBUG_FILE
+       - `<torch_log_dir>`: Parent direcotry containing all Torch profiler output only. Should be the value of arg `--torch_profiler_path`
+       - `<out_trace_json_path>`: Path to store the Perfetto trace JSON file
+       - `<out_flow_dump_json_path>`: Path to a JSON file to dump all data flows
+
+4. Upload trace JSON file to https://ui.perfetto.dev/
+
 ## NCCL Material
 
 NCCL Environment Variables: https://docs.nvidia.com/deeplearning/nccl/user-guide/docs/env.html
@@ -39,37 +73,3 @@ NCCL Environment Variables: https://docs.nvidia.com/deeplearning/nccl/user-guide
 NCCL API: https://docs.nvidia.com/deeplearning/nccl/user-guide/docs/api/colls.html
 
 NCCL Data Types: https://docs.nvidia.com/deeplearning/nccl/user-guide/docs/api/types.html#c.ncclDataType_t
-
-# Example Usage: Picotron
-
-See https://github.com/cuiboyuan/nccl_miner/pull/12 for details.
-
-# Example Usage: GPT2
-
-## Step 1: Obtain NCCL Logs
-
-### Install required dependencies
-```
-pip install -r requirements.txt
-```
-### Run Distributed Training Example
-```
-NCCL_SHM_DISABLE=1 NCCL_P2P_DISABLE=1 NCCL_DEBUG=TRACE NCCL_DEBUG_SUBSYS=ALL NCCL_DEBUG_FILE=nccl_logs.%h.%p python GPT2Dist.py
-```
-Then put all `nccl_logs.*` files in a folder.
-
-## Step 2: Generate Trace of Data Flow
-
-### Parse the NCCL Logs into Trace
-```
-python TraceGen.py <your nccl log folder>
-```
-The output trace is called `nccl_trace.json`.
-
-You can also use existing logs as an example:
-```
-python main.py example_nccl_logs/four_gpu_p2p_shm_disabled/
-```
-
-## Step 3: View Trace
-Open `nccl_trace.json` in chrome://tracing
