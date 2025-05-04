@@ -9,7 +9,7 @@
         "use_cpu": false
     },
     "model": {
-        "name": "HuggingFaceTB/SmolLM-1.7B",
+        "name": "HuggingFaceTB/SmolLM-135M",
         "num_hidden_layers": 15,
         "num_attention_heads": 32,
         "num_key_value_heads": 32,
