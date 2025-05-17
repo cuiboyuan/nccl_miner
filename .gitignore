@@ -2,3 +2,8 @@
 .ipynb_checkpoints/
 *.so
 *.o
+hf_model/
+hf_model_safetensors/
+*.sh
+nccl_logs/
+torch_logs/
